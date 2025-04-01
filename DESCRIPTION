@@ -2,9 +2,8 @@ Package: groupedHyperframe
 Type: Package
 Title: Grouped Hyper Data Frame: An Extension of Hyper Data Frame
         Object
-Version: 0.1.0
-Date: 2025-03-24
-Maintainer: Tingting Zhan <tingtingzhan@gmail.com>
+Version: 0.2.1
+Date: 2025-04-01
 Description: An S3 class 'groupedHyperframe' that inherits from
        hyper data frame. Batch processes on point-pattern hyper
        column. Aggregation of function-value-table hyper
@@ -25,11 +24,12 @@ Authors@R: c(person(given = 'Tingting', family = 'Zhan', role =
        '0000-0002-9104-4505')))
 Imports: cli, parallel, stats, nlme, matrixStats, pracma,
         spatstat.explore, spatstat.geom
-Suggests: knitr, survival, spatstat.data, spatstat.univar, rmarkdown
+Suggests: knitr, rmarkdown, survival, spatstat.data
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2025-03-24 17:48:27 UTC; tingtingzhan
+Packaged: 2025-04-01 00:37:20 UTC; tingtingzhan
 Author: Tingting Zhan [aut, cre] (<https://orcid.org/0000-0001-9971-4844>),
   Inna Chervoneva [aut] (<https://orcid.org/0000-0002-9104-4505>)
+Maintainer: Tingting Zhan <tingtingzhan@gmail.com>
 Repository: CRAN
-Date/Publication: 2025-03-25 15:50:09 UTC
+Date/Publication: 2025-04-01 07:20:02 UTC

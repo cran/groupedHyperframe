@@ -44,13 +44,13 @@ Default \code{'none'} to save computing time.}
 \item{...}{additional parameters of user operation}
 }
 \value{
-See explanations in workhorse functions \code{\link[=fv_hyperframe]{fv_hyperframe()}} and \code{\link[=dist_hyperframe]{dist_hyperframe()}}.
+See explanations in workhorse function \code{\link[=op_hyperframe]{op_hyperframe()}}.
 }
 \description{
-See workhorse functions \code{\link[=fv_hyperframe]{fv_hyperframe()}} and \code{\link[=dist_hyperframe]{dist_hyperframe()}}.
+See workhorse function \code{\link[=op_hyperframe]{op_hyperframe()}}.
 }
 \details{
-See explanations in workhorse functions \code{\link[=fv_hyperframe]{fv_hyperframe()}} and \code{\link[=dist_hyperframe]{dist_hyperframe()}}.
+See explanations in workhorse function \code{\link[=op_hyperframe]{op_hyperframe()}}.
 }
 \examples{
 library(spatstat.data)
@@ -70,3 +70,4 @@ flu |>
  subset(stain == 'M2-M1') |>
  nncross_(i = 'M1', j = 'M2', mc.cores = 1L)
 }
+\keyword{internal}

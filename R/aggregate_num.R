@@ -26,9 +26,7 @@
 #' @param FUN.name (optional) \link[base]{character} scalar,
 #' user-friendly name of `FUN`
 #' 
-#' @param f_aggr_ \link[base]{character} scalar, method to aggregate
-#' within cluster, currently supports
-#' `'mean'`, `'median'`, `'max'`, and `'min'`.
+#' @param f_aggr_ see function [aggregate_by_()]
 #' 
 #' @param mc.cores \link[base]{integer} scalar, see function \link[parallel]{mclapply}.
 #' Default is 1L on Windows, or \link[parallel]{detectCores} on Mac.
@@ -40,6 +38,7 @@
 #' Function [aggregate_num()] returns a \link[base]{data.frame}, with
 #' aggregated information stored in \link[base]{matrix}-columns.
 #' 
+#' @keywords internal
 #' @name aggregate_num
 #' @importFrom spatstat.geom is.ppplist marks.ppp
 #' @export
@@ -48,7 +47,7 @@ aggregate_num <- function(
     by = stop('must specify `by`'),
     FUN,
     FUN.name = deparse1(substitute(FUN)),
-    f_aggr_ = c('mean', 'median', 'max', 'min'), 
+    f_aggr_ = pmean, 
     mc.cores = switch(.Platform$OS.type, windows = 1L, detectCores()), # must prevent `mc.cores` from going into `...`, e.g., ?stats::density.default warns on extra parameter
     ...
 ) {
@@ -60,9 +59,10 @@ aggregate_num <- function(
   hc <- unclass(X)$hypercolumns
   
   # 'numeric'-`hypercolumns`
-  hc_num <- vapply(hc, FUN = function(x) {
-    all(vapply(x, FUN = is.numeric, FUN.VALUE = NA))
-  }, FUN.VALUE = NA)
+  hc_num <- hc |>
+    vapply(FUN = \(x) {
+      all(vapply(x, FUN = is.numeric, FUN.VALUE = NA))
+    }, FUN.VALUE = NA)
   hyper_num_ <- if (any(hc_num)) hc[names(which(hc_num))] # else NULL
   
   # 'numeric'-columns in a 'data.frame'-`hypercolumn`
@@ -74,22 +74,21 @@ aggregate_num <- function(
     mk_ <- lapply(X[[names(which(X_ppp))]], FUN = marks.ppp, drop = FALSE)
     mk <- .mapply(FUN = list, dots = mk_, MoreArgs = NULL)
     names(mk) <- names(mk_[[1L]])
-    mk_num <- vapply(mk, FUN = function(x) {
-      all(vapply(x, FUN = is.numeric, FUN.VALUE = NA))
-    }, FUN.VALUE = NA)
+    mk_num <- mk |> 
+      vapply(FUN = \(x) {
+        all(vapply(x, FUN = is.numeric, FUN.VALUE = NA))
+      }, FUN.VALUE = NA)
     mark_num_ <- if (any(mk_num)) mk[mk_num] # else NULL
   } else mark_num_ <- NULL
   
   x <- c(hyper_num_, mark_num_)
   names(x) <- paste(names(x), FUN.name, sep = '.')
-  ret0 <- lapply(x, FUN = function(x) {
-    lapply(x, FUN = FUN, ...) |> 
-      do.call(what = rbind)
-  })
   
-  # Step 2: aggregation
-  
-  aggregate_by_(dots = ret0, X = X, by = by, f_aggr_ = f_aggr_, mc.cores = mc.cores, ...)
+  x |>
+    lapply(FUN = \(i) {
+      lapply(i, FUN = FUN, ...)
+    }) |>
+    aggregate_by_(X = X, by = by, f_aggr_ = f_aggr_, mc.cores = mc.cores, ...)
   
 }
 
@@ -97,11 +96,15 @@ aggregate_num <- function(
 
 #' @title Aggregate-By, for [groupedHyperframe]
 #' 
-#' @param dots a \link[base]{list} of \link[base]{numeric} \link[base]{matrix}es
+#' @param dots a \link[stats]{listof} ..
 #' 
 #' @param X a [groupedHyperframe]
 #' 
-#' @param by,f_aggr_ see function [aggregate_num()]
+#' @param by see function [aggregate_num()]
+#' 
+#' @param f_aggr_ \link[base]{function}, method to aggregate
+#' within cluster, currently supports
+#' [pmean()], [pmedian()], \link[base]{pmax}, and \link[base]{pmin}.
 #' 
 #' @param ... additional parameters
 #' 
@@ -110,30 +113,33 @@ aggregate_num <- function(
 #' 
 #' @returns 
 #' Function [aggregate_by_()] returns 
-#' a \link[base]{list} of \link[base]{numeric} \link[base]{matrix}es.
+#' a \link[stats]{listof} \link[base]{numeric} \link[base]{matrix}es.
 #'  
 #' @keywords internal
-#' @importFrom cli col_cyan col_magenta
-#' @importFrom matrixStats colMedians colMaxs colMins
+#' @importFrom cli col_cyan col_magenta 
+#' @importFrom cli cli_text
+#' @importFrom spatstat.geom cbind.hyperframe
 #' @export
 aggregate_by_ <- function(
     dots, # 
     X, # 
     by, # 'formula'
-    f_aggr_ = c('mean', 'median', 'max', 'min'),
+    f_aggr_ = pmean,
     ...
 ) {
   
   x <- unclass(X)$df
-  if (any(names(dots) %in% names(x))) warning('Existing column(s) overwritten')
+  if (any(names(dots) %in% names(X))) warning('Existing hypercolumn(s) overwritten')
   
   group <- attr(X, which = 'group', exact = TRUE)
   
   if (!is.call(by) || by[[1L]] != '~' || length(by) != 2L) stop('`by` must be one-sided formula')
   if (!is.symbol(by. <- by[[2L]])) {
-    new_by <- vapply(all.vars(by.), FUN = function(x) deparse1(call(name = '~', as.symbol(x))), FUN.VALUE = '')
-    message('grouped structure ', col_cyan(paste('by =', deparse1(by))), ' is not allowed')
-    new_by_txt <- col_magenta(paste('by =', new_by))
+    new_by <- by. |>
+      all.vars() |>
+      vapply(FUN = \(x) deparse1(call(name = '~', as.symbol(x))), FUN.VALUE = '')
+    message('grouped structure ', paste('by =', deparse1(by)) |> col_cyan(), ' is not allowed')
+    new_by_txt <- paste('by =', new_by) |> col_magenta()
     message('please use either one of ', paste(new_by_txt, collapse = ', '), '.')
     stop('`by` must be a formula and right-hand-side must be a symbol')
   }
@@ -145,6 +151,7 @@ aggregate_by_ <- function(
   if (is.na(id)) stop('`by` must match one of the hierarchy in groupedHyperframe')
   # end of ugly bandage fix
   
+  # grouping structure must be specified by `$df` part!!
   f <- interaction(x[g[seq_len(id)]], drop = TRUE, sep = '.', lex.order = TRUE)
   ids <- split.default(seq_along(f), f = f)
   
@@ -154,15 +161,38 @@ aggregate_by_ <- function(
     # passing of `f_aggr_` is hard coded, because I need `...` in [aggregate_num]
     # if (!missing(f_aggr_)) warning('aggregation on lowest cluster; parameter `f_aggr_` ignored')
     
-    x[names(dots)] <- dots # done!
+    #x[names(dots)] <- dots # was, when I use 'matrix'-column in `data.frame`
+    ret <- cbind.hyperframe(X, dots |> do.call(what = hyperframe))
     
   } else {
     
-    x <- mc_aggregate_unique(data = x, f = f, ...)
-    fn <- switch(match.arg(f_aggr_), mean = colMeans, median = colMedians, max = colMaxs, min = colMins)
-    x[names(dots)] <- lapply(dots, FUN = function(m) {
-      do.call(what = rbind, args = lapply(ids, FUN = function(i) fn(m[i,,drop = FALSE])))
-    })
+    # aggregation *must* drop `fv`-hypercolumn !!!
+    newx <- x |> 
+      mc_identical_by(f = f, ...) |>
+      as.hyperframe.data.frame()
+    
+    f_aggr_supported <- list(pmean, pmedian, pmax, pmin) |>
+      vapply(FUN = identical, y = f_aggr_, FUN.VALUE = NA) |>
+      any()
+    if (!f_aggr_supported) {
+      'f_aggr_' |> 
+        col_blue() |>
+        sprintf(fmt = '%s must be one of {.fun groupedHyperframe::pmean}, {.fun groupedHyperframe::pmedian}, {.fun base::pmax} or {.fun base::pmin}') |> 
+        cli_text() |> 
+        message(appendLF = FALSE)
+      stop()
+    }
+    
+    newX <- dots |> 
+      lapply(FUN = \(m) { # (m = dots[[1L]])
+        ids |>
+          lapply(FUN = \(i) { # (i = ids[[1L]])
+            m[i] |> do.call(what = f_aggr_)
+          })
+      }) |>
+      do.call(what = hyperframe)
+    # class(newX$hladr.E.value) <- c('abc', class(newX$hladr.E.value)) # does not work!!!
+    ret <- cbind.hyperframe(newx, newX)
     
   }
   
@@ -173,7 +203,7 @@ aggregate_by_ <- function(
     #nlme::groupedData(formula = fom, data = x) # um, I need to know more about ?nlme::groupedData
   } # else: aggregated by highest cluster, returns 'data.frame'
   
-  return(x)
+  return(ret)
   
 }
 
@@ -211,8 +241,6 @@ aggregate_quantile <- function(X, ...) aggregate_num(X, FUN = .quantile_num_name
 #' 
 #' @export
 aggregate_kerndens <- function(X, ...) aggregate_num(X, FUN = kerndens, ...)
-
-
 
 
 

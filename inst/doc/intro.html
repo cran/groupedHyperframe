@@ -10,9 +10,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+<meta name="author" content="Tingting Zhan" />
 
 
-<title>Grouped Hyperframe</title>
+<title>Grouped Hyper Data Frame</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -336,531 +337,730 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<h1 class="title toc-ignore">Grouped Hyperframe</h1>
+<h1 class="title toc-ignore">Grouped Hyper Data Frame</h1>
+<h4 class="author">Tingting Zhan</h4>
 
 
 
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
-<p>This vignette for package
-<strong><code>groupedHyperframe</code></strong> documents the creation
-of <code>groupedHyperframe</code> object, the batch processes defined
-for a <code>groupedHyperframe</code>, and aggregations over multi-level
-grouping structure.</p>
+<p>This vignette of package
+<strong><code>groupedHyperframe</code></strong> (<a href="https://cran.r-project.org/package=groupedHyperframe">CRAN</a>, <a href="https://github.com/tingtingzhan/groupedHyperframe">Github</a>, <a href="https://rpubs.com/tingtingzhan/groupedHyperframe">RPubs</a>)
+documents the creation of <code>groupedHyperframe</code> object, the
+batch processes for a <code>groupedHyperframe</code>, and aggregations
+of various statistics over multi-level grouping structure.</p>
 <div id="prerequisite" class="section level2">
 <h2>Prerequisite</h2>
-<p>Package <strong><code>groupedHyperframe</code></strong> requires the
-development versions of <strong><code>spatstat</code></strong> family of
-packages.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;spatstat/spatstat&#39;</span>); <span class="fu">packageDate</span>(<span class="st">&#39;spatstat&#39;</span>)</span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;spatstat/spatstat.data&#39;</span>); <span class="fu">packageDate</span>(<span class="st">&#39;spatstat.data&#39;</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;spatstat/spatstat.explore&#39;</span>); <span class="fu">packageDate</span>(<span class="st">&#39;spatstat.explore&#39;</span>)</span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;spatstat/spatstat.geom&#39;</span>); <span class="fu">packageDate</span>(<span class="st">&#39;spatstat.geom&#39;</span>)</span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;spatstat/spatstat.linnet&#39;</span>); <span class="fu">packageDate</span>(<span class="st">&#39;spatstat.linnet&#39;</span>)</span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;spatstat/spatstat.model&#39;</span>); <span class="fu">packageDate</span>(<span class="st">&#39;spatstat.model&#39;</span>)</span>
-<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;spatstat/spatstat.random&#39;</span>); <span class="fu">packageDate</span>(<span class="st">&#39;spatstat.random&#39;</span>)</span>
-<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;spatstat/spatstat.sparse&#39;</span>); <span class="fu">packageDate</span>(<span class="st">&#39;spatstat.sparse&#39;</span>)</span>
-<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;spatstat/spatstat.univar&#39;</span>); <span class="fu">packageDate</span>(<span class="st">&#39;spatstat.univar&#39;</span>)</span>
-<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;spatstat/spatstat.utils&#39;</span>); <span class="fu">packageDate</span>(<span class="st">&#39;spatstat.utils&#39;</span>)</span></code></pre></div>
+<p>Package <strong><code>groupedHyperframe</code></strong> may require
+the development versions of the <strong><code>spatstat</code></strong>
+family.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;spatstat/spatstat&#39;</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;spatstat/spatstat.data&#39;</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;spatstat/spatstat.explore&#39;</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;spatstat/spatstat.geom&#39;</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;spatstat/spatstat.linnet&#39;</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;spatstat/spatstat.model&#39;</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;spatstat/spatstat.random&#39;</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;spatstat/spatstat.sparse&#39;</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;spatstat/spatstat.univar&#39;</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;spatstat/spatstat.utils&#39;</span>)</span></code></pre></div>
 </div>
 <div id="note-to-users" class="section level2">
 <h2>Note to Users</h2>
 <p>Examples in this vignette require that the <code>search</code> path
 has</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">library</span>(groupedHyperframe)</span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">library</span>(survival) <span class="co"># to help hyperframe understand Surv object</span></span></code></pre></div>
-<p>Users should remove parameter <code>mc.cores = 1L</code> from all
-examples and use the default option, which engages all CPU cores on the
-current host for macOS. The authors are forced to have
-<code>mc.cores = 1L</code> in this vignette in order to pass
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">library</span>(spatstat.data)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="fu">library</span>(survival) <span class="co"># to help hyperframe understand Surv object</span></span></code></pre></div>
+<p>Users should remove the parameter <code>mc.cores = 1L</code> from all
+examples to engage all CPU cores on the current host under macOS. The
+authors of package <strong><code>groupedHyperframe</code></strong> are
+forced to have <code>mc.cores = 1L</code> in this vignette to pass
 <code>CRAN</code>’s submission check.</p>
 </div>
-<div id="additional-resources" class="section level2">
-<h2>Additional Resources</h2>
-<p>A development version of package
-<strong><code>groupedHyperframe</code></strong> is hosted on <a href="https://github.com/tingtingzhan/groupedHyperframe">Github</a>.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;tingtingzhan/groupedHyperframe&#39;</span>, <span class="at">build_vignettes =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">vignette</span>(<span class="st">&#39;intro&#39;</span>, <span class="at">package =</span> <span class="st">&#39;groupedHyperframe&#39;</span>)</span></code></pre></div>
-</div>
-<div id="list-of-terms-and-abbreviations" class="section level2">
-<h2>List of Terms and Abbreviations</h2>
+<div id="terms-and-abbreviations" class="section level2">
+<h2>Terms and Abbreviations</h2>
 <table>
-<colgroup>
-<col width="14%" />
-<col width="26%" />
-<col width="59%" />
-</colgroup>
 <thead>
-<tr class="header">
-<th align="left">Term / Abbreviation</th>
-<th align="left">Description</th>
-<th align="left">Reference</th>
+<tr>
+<th style="text-align:left;">
+Term / Abbreviation
+</th>
+<th style="text-align:left;">
+Description
+</th>
+<th style="text-align:left;">
+Reference
+</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td align="left"><code>attr</code></td>
-<td align="left">Attributes</td>
-<td align="left"><code>base::attr</code>;
-<code>base::attributes</code></td>
+<tr>
+<td style="text-align:left;">
+</td>
+<td style="text-align:left;">
+Forward pipe operator
+</td>
+<td style="text-align:left;">
+<code>?base::pipeOp</code> introduced in <code>R</code> 4.1.0
+</td>
 </tr>
-<tr class="even">
-<td align="left"><code>CRAN</code>, <code>R</code></td>
-<td align="left">The Comprehensive R Archive Network</td>
-<td align="left"><a href="https://cran.r-project.org" class="uri">https://cran.r-project.org</a></td>
+<tr>
+<td style="text-align:left;">
+<code>attr</code>
+</td>
+<td style="text-align:left;">
+Attributes
+</td>
+<td style="text-align:left;">
+<code>base::attr</code>; <code>base::attributes</code>
+</td>
 </tr>
-<tr class="odd">
-<td align="left"><code>data.frame</code></td>
-<td align="left">Data frame</td>
-<td align="left"><code>base::data.frame</code></td>
+<tr>
+<td style="text-align:left;">
+<code>CRAN</code>, <code>R</code>
+</td>
+<td style="text-align:left;">
+The Comprehensive R Archive Network
+</td>
+<td style="text-align:left;">
+<a href="https://cran.r-project.org" class="uri">https://cran.r-project.org</a>
+</td>
 </tr>
-<tr class="even">
-<td align="left"><code>formula</code></td>
-<td align="left">Formula</td>
-<td align="left"><code>stats::formula</code></td>
+<tr>
+<td style="text-align:left;">
+<code>data.frame</code>
+</td>
+<td style="text-align:left;">
+Data frame
+</td>
+<td style="text-align:left;">
+<code>base::data.frame</code>
+</td>
 </tr>
-<tr class="odd">
-<td align="left"><code>fv</code>, <code>fv.object</code></td>
-<td align="left">Function value table</td>
-<td align="left"><code>spatstat.explore::fv.object</code></td>
+<tr>
+<td style="text-align:left;">
+<code>formula</code>
+</td>
+<td style="text-align:left;">
+Formula
+</td>
+<td style="text-align:left;">
+<code>stats::formula</code>
+</td>
 </tr>
-<tr class="even">
-<td align="left"><code>groupedData</code></td>
-<td align="left">Grouped data frame</td>
-<td align="left"><code>nlme::groupedData</code></td>
+<tr>
+<td style="text-align:left;">
+<code>fv</code>, <code>fv.object</code>, <code>fv.plot</code>
+</td>
+<td style="text-align:left;">
+(Plot of) function value table
+</td>
+<td style="text-align:left;">
+<code>spatstat.explore::fv.object</code>,
+<code>spatstat.explore::plot.fv</code>
+</td>
 </tr>
-<tr class="odd">
-<td align="left"><code>hypercolumn</code></td>
-<td align="left">Column of hyper data frame</td>
-<td align="left"><code>spatstat.geom::hyperframe</code></td>
+<tr>
+<td style="text-align:left;">
+<code>groupedData</code>, <code>~ g1/.../gm</code>
+</td>
+<td style="text-align:left;">
+Grouped data frame; nested grouping structure
+</td>
+<td style="text-align:left;">
+<code>nlme::groupedData</code>; <code>nlme::lme</code>
+</td>
 </tr>
-<tr class="even">
-<td align="left"><code>hyperframe</code></td>
-<td align="left">Hyper data frame</td>
-<td align="left"><code>spatstat.geom::hyperframe</code></td>
+<tr>
+<td style="text-align:left;">
+<code>hypercolumns</code>, <code>hyperframe</code>
+</td>
+<td style="text-align:left;">
+(Hyper columns of) hyper data frame
+</td>
+<td style="text-align:left;">
+<code>spatstat.geom::hyperframe</code>
+</td>
 </tr>
-<tr class="odd">
-<td align="left"><code>inherits</code></td>
-<td align="left">Class inheritance</td>
-<td align="left"><code>base::inherits</code></td>
+<tr>
+<td style="text-align:left;">
+<code>inherits</code>
+</td>
+<td style="text-align:left;">
+Class inheritance
+</td>
+<td style="text-align:left;">
+<code>base::inherits</code>
+</td>
 </tr>
-<tr class="even">
-<td align="left"><code>kerndens</code></td>
-<td align="left">Kernel density</td>
-<td align="left"><code>stats::density.default()$y</code></td>
+<tr>
+<td style="text-align:left;">
+<code>kerndens</code>
+</td>
+<td style="text-align:left;">
+Kernel density
+</td>
+<td style="text-align:left;">
+<code>stats::density.default()$y</code>
+</td>
 </tr>
-<tr class="odd">
-<td align="left"><code>matrix</code></td>
-<td align="left">Matrix</td>
-<td align="left"><code>base::matrix</code></td>
+<tr>
+<td style="text-align:left;">
+<code>mc.cores</code>
+</td>
+<td style="text-align:left;">
+Number of CPU cores to use
+</td>
+<td style="text-align:left;">
+<code>parallel::mclapply</code>; <code>parallel::detectCores</code>
+</td>
 </tr>
-<tr class="even">
-<td align="left"><code>mc.cores</code></td>
-<td align="left">Number of CPU cores to use</td>
-<td align="left"><code>parallel::mclapply</code>,
-<code>parallel::detectCores</code></td>
+<tr>
+<td style="text-align:left;">
+<code>multitype</code>
+</td>
+<td style="text-align:left;">
+Multitype object
+</td>
+<td style="text-align:left;">
+<code>spatstat.geom::is.multitype</code>
+</td>
 </tr>
-<tr class="odd">
-<td align="left"><code>multitype</code></td>
-<td align="left">Multitype object</td>
-<td align="left"><code>spatstat.geom::is.multitype</code></td>
+<tr>
+<td style="text-align:left;">
+<code>object.size</code>
+</td>
+<td style="text-align:left;">
+Memory allocation
+</td>
+<td style="text-align:left;">
+<code>utils::object.size</code>
+</td>
 </tr>
-<tr class="even">
-<td align="left"><code>ppp</code>, <code>ppp.object</code></td>
-<td align="left">(Marked) point pattern</td>
-<td align="left"><code>spatstat.geom::ppp.object</code></td>
+<tr>
+<td style="text-align:left;">
+<code>pmean</code>, <code>pmedian</code>
+</td>
+<td style="text-align:left;">
+Parallel mean and median
+</td>
+<td style="text-align:left;">
+<code>groupedHyperframe::pmean</code>;
+<code>groupedHyperframe::pmedian</code>
+</td>
 </tr>
-<tr class="odd">
-<td align="left"><code>~ g1/.../gm</code></td>
-<td align="left">Nested grouping structure</td>
-<td align="left"><code>nlme::groupedData</code>;
-<code>nlme::lme</code></td>
+<tr>
+<td style="text-align:left;">
+<code>pmax</code>, <code>pmin</code>
+</td>
+<td style="text-align:left;">
+Parallel maxima and minima
+</td>
+<td style="text-align:left;">
+<code>base::pmax</code>; <code>base::pmin</code>
+</td>
 </tr>
-<tr class="even">
-<td align="left"><code>quantile</code></td>
-<td align="left">Quantile</td>
-<td align="left"><code>stats::quantile</code></td>
+<tr>
+<td style="text-align:left;">
+<code>ppp</code>, <code>ppp.object</code>
+</td>
+<td style="text-align:left;">
+(Marked) point pattern
+</td>
+<td style="text-align:left;">
+<code>spatstat.geom::ppp.object</code>
+</td>
 </tr>
-<tr class="odd">
-<td align="left"><code>S3</code></td>
-<td align="left"><code>R</code>’s simplest object oriented system</td>
-<td align="left"><a href="https://adv-r.hadley.nz/s3.html" class="uri">https://adv-r.hadley.nz/s3.html</a></td>
+<tr>
+<td style="text-align:left;">
+<code>quantile</code>
+</td>
+<td style="text-align:left;">
+Quantile
+</td>
+<td style="text-align:left;">
+<code>stats::quantile</code>
+</td>
 </tr>
-<tr class="even">
-<td align="left"><code>search</code></td>
-<td align="left">Search path</td>
-<td align="left"><code>base::search</code></td>
+<tr>
+<td style="text-align:left;">
+<code>save</code>, <code>xz</code>
+</td>
+<td style="text-align:left;">
+Save with <code>xz</code> compression
+</td>
+<td style="text-align:left;">
+<code>base::save(., compress = &#39;xz&#39;)</code>;
+<code>base::saveRDS(., compress = &#39;xz&#39;)</code>; <a href="https://en.wikipedia.org/wiki/XZ_Utils" class="uri">https://en.wikipedia.org/wiki/XZ_Utils</a>
+</td>
 </tr>
-<tr class="odd">
-<td align="left"><code>Surv</code></td>
-<td align="left">Survival object</td>
-<td align="left"><code>survival::Surv</code></td>
+<tr>
+<td style="text-align:left;">
+<code>S3</code>, <code>generic</code>, <code>methods</code>
+</td>
+<td style="text-align:left;">
+<code>S3</code> object oriented system
+</td>
+<td style="text-align:left;">
+<code>base::UseMethod</code>; <code>utils::methods</code>;
+<code>utils::getS3method</code>; <a href="https://adv-r.hadley.nz/s3.html" class="uri">https://adv-r.hadley.nz/s3.html</a>
+</td>
 </tr>
-<tr class="even">
-<td align="left"><code>trapz</code>, <code>cumtrapz</code></td>
-<td align="left">(Cumulative) trapezoidal integration</td>
-<td align="left"><code>pracma::trapz</code>;
-<code>pracma::cumtrapz</code>; <a href="https://en.wikipedia.org/wiki/Trapezoidal_rule" class="uri">https://en.wikipedia.org/wiki/Trapezoidal_rule</a></td>
+<tr>
+<td style="text-align:left;">
+<code>search</code>
+</td>
+<td style="text-align:left;">
+Search path
+</td>
+<td style="text-align:left;">
+<code>base::search</code>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<code>Surv</code>
+</td>
+<td style="text-align:left;">
+Survival object
+</td>
+<td style="text-align:left;">
+<code>survival::Surv</code>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<code>trapz</code>, <code>cumtrapz</code>
+</td>
+<td style="text-align:left;">
+(Cumulative) trapezoidal integration
+</td>
+<td style="text-align:left;">
+<code>pracma::trapz</code>; <code>pracma::cumtrapz</code>; <a href="https://en.wikipedia.org/wiki/Trapezoidal_rule" class="uri">https://en.wikipedia.org/wiki/Trapezoidal_rule</a>
+</td>
 </tr>
 </tbody>
 </table>
+</div>
+<div id="acknowledgement" class="section level2">
+<h2>Acknowledgement</h2>
+<p>This work supported by NCI R01CA222847 (<a href="https://orcid.org/0000-0002-9104-4505">I. Chervoneva</a>, <a href="https://orcid.org/0000-0001-9971-4844">T. Zhan</a>, and <a href="https://orcid.org/0000-0002-8778-261X">H. Rui</a>) and R01CA253977
+(H. Rui and I. Chervoneva).</p>
 </div>
 </div>
 <div id="groupedhyperframe-class" class="section level1">
 <h1><code>groupedHyperframe</code> Class</h1>
 <p>The <code>S3</code> class <code>groupedHyperframe</code>
-<code>inherits</code> from <code>hyperframe</code> class, in a similar
-fashion as <code>groupedData</code> class inherits from
+<code>inherits</code> from the <code>hyperframe</code> class, in a
+similar fashion as the <code>groupedData</code> class inherits from the
 <code>data.frame</code> class.</p>
-<p>A <code>groupedHyperframe</code> object, in addition to
+<p>A <code>groupedHyperframe</code> object, in addition to a
 <code>hyperframe</code> object, has attribute(s)</p>
 <ul>
 <li><code>attr(., &#39;group&#39;)</code>, a <code>formula</code> to specify the
-grouping structure</li>
+(nested) grouping structure</li>
 </ul>
-<div id="groupedhyperframe-with-ppp-hypercolumn" class="section level2">
-<h2><code>groupedHyperframe</code> with
-<code>ppp</code>-hypercolumn</h2>
+<div id="create-a-groupedhyperframe" class="section level2">
+<h2>Create a <code>groupedHyperframe</code></h2>
+<div id="from-a-hyperframe" class="section level3">
+<h3>From a <code>hyperframe</code></h3>
+<p>The <code>S3</code> method dispatch
+<code>as.groupedHyperframe.hyperframe()</code> converts a
+<code>hyperframe</code> to <code>groupedHyperframe</code>. Data set
+<code>spatstat.data::osteo</code> has the serial number of sampling
+volume <code>brick</code> nested in the bone sample <code>id</code>,</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>osteo <span class="sc">|&gt;</span> <span class="fu">as.groupedHyperframe</span>(<span class="at">group =</span> <span class="sc">~</span> id<span class="sc">/</span>brick)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt; Grouped Hyperframe: ~id/brick</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; 40 brick nested in</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; 4 id</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt;        id shortid brick   pts depth</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt; 1  c77za4       4     1 (pp3)    45</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt; 2  c77za4       4     2 (pp3)    60</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt; 3  c77za4       4     3 (pp3)    55</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt; 4  c77za4       4     4 (pp3)    60</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt; 5  c77za4       4     5 (pp3)    85</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt; 6  c77za4       4     6 (pp3)    90</span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt; 7  c77za4       4     7 (pp3)    95</span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="co">#&gt; 8  c77za4       4     8 (pp3)    65</span></span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt; 9  c77za4       4     9 (pp3)   100</span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt; 10 c77za4       4    10 (pp3)   100</span></span></code></pre></div>
+</div>
+<div id="from-a-data.frame" class="section level3">
+<h3>From a <code>data.frame</code></h3>
+<p>The <code>S3</code> method dispatch
+<code>as.groupedHyperframe.data.frame()</code> converts a
+<code>data.frame</code> to a <code>groupedHyperframe.</code> This
+function inspects the input by the (nested) grouping structure,
+identifies the column(s) with elements not identical within the lowest
+group, and converts them into <code>hypercolumns</code>. Data set
+<strong><code>Ki67.</code></strong> in this package has non-identical
+column <em><code>logKi67</code></em> in the nested grouping structure
+<em><code>~ patientID/tissueID</code></em>.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>(<span class="at">Ki67g =</span> Ki67. <span class="sc">|&gt;</span> <span class="fu">as.groupedHyperframe</span>(<span class="at">group =</span> <span class="sc">~</span> patientID<span class="sc">/</span>tissueID, <span class="at">mc.cores =</span> <span class="dv">1</span><span class="dt">L</span>))</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; Grouped Hyperframe: ~patientID/tissueID</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; 6 tissueID nested in</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; 6 patientID</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt;     logKi67 tissueID Tstage  PFS recfreesurv_mon recurrence adj_rad adj_chemo</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt; 1 (numeric) TJUe_I17      2 100+             100          0   FALSE     FALSE</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt; 2 (numeric) TJUe_G17      1   22              22          1   FALSE     FALSE</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt; 3 (numeric) TJUe_F17      1  99+              99          0   FALSE        NA</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt; 4 (numeric) TJUe_D17      1  99+              99          0   FALSE      TRUE</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt; 5 (numeric) TJUe_J18      1  112             112          1    TRUE      TRUE</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt; 6 (numeric) TJUe_N17      4   12              12          1    TRUE     FALSE</span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co">#&gt;   histology  Her2   HR  node  race age patientID</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co">#&gt; 1         3  TRUE TRUE  TRUE White  66   PT00037</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt; 2         3 FALSE TRUE FALSE Black  42   PT00039</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt; 3         3 FALSE TRUE FALSE White  60   PT00040</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="co">#&gt; 4         3 FALSE TRUE  TRUE White  53   PT00042</span></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="co">#&gt; 5         3 FALSE TRUE  TRUE White  52   PT00054</span></span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="co">#&gt; 6         2  TRUE TRUE  TRUE Black  51   PT00059</span></span></code></pre></div>
+<p>Converting a <code>data.frame</code> with cell intensities, etc.,
+into a <code>groupedHyperframe</code> reduces memory allocation, but
+does not reduce much the <code>save</code>d files size if
+<code>xz</code> compression is used.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">unclass</span>(<span class="fu">object.size</span>(Ki67g)) <span class="sc">/</span> <span class="fu">unclass</span>(<span class="fu">object.size</span>(Ki67.))</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; [1] 0.1148083</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>f_g <span class="ot">=</span> <span class="fu">tempfile</span>(<span class="at">fileext =</span> <span class="st">&#39;.rds&#39;</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>Ki67g <span class="sc">|&gt;</span> <span class="fu">saveRDS</span>(<span class="at">file =</span> f_g, <span class="at">compress =</span> <span class="st">&#39;xz&#39;</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>f <span class="ot">=</span> <span class="fu">tempfile</span>(<span class="at">fileext =</span> <span class="st">&#39;.rds&#39;</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>Ki67. <span class="sc">|&gt;</span> <span class="fu">saveRDS</span>(<span class="at">file =</span> f, <span class="at">compress =</span> <span class="st">&#39;xz&#39;</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="fu">file.size</span>(f_g) <span class="sc">/</span> <span class="fu">file.size</span>(f) <span class="co"># not much reduction</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; [1] 0.9629481</span></span></code></pre></div>
+</div>
+</div>
+<div id="create-a-groupedhyperframe-with-ppp-hypercolumn" class="section level2">
+<h2>Create a <code>groupedHyperframe</code> with
+<code>ppp</code>-<code>hypercolumn</code></h2>
 <p>Function <code>grouped_ppp()</code> creates a
-<code>groupedHyperframe</code> with
-<strong><em>one-and-only-one</em></strong> <code>ppp</code>-hypercolumn.
-Multiple <code>ppp</code>-hypercolumns will <em>not</em> be supported in
-foreseeable future, as we would need to check for name clash in
-<code>$marks</code> from the multiple <code>ppp</code>-hypercolumns,
-which is too much trouble.</p>
-<p>In the following example, the argument <code>formula</code>
-specifies</p>
+<code>groupedHyperframe</code> with <em>one-and-only-one</em>
+<code>ppp</code>-<code>hypercolumn</code>. In the following example, the
+argument <code>formula</code> specifies</p>
 <ul>
 <li>the marks, e.g., <code>numeric</code> mark
 <em><code>hladr</code></em> and <code>multitype</code> mark
 <em><code>phenotype</code></em>, on the left-hand-side</li>
-<li>additional predictors and/or endpoints, e.g.,
-<em><code>OS</code></em>, <em><code>gender</code></em> and
+<li>the additional predictors and/or endpoints for downstream analysis,
+e.g., <em><code>OS</code></em>, <em><code>gender</code></em> and
 <em><code>age</code></em>, before the <code>|</code> separator on the
 right-hand-side</li>
-<li>grouping structure, e.g., <em><code>image_id</code></em> nested in
-<em><code>patient_id</code></em>, after the <code>|</code> separator on
-the right-hand-side.</li>
+<li>the grouping structure, e.g., <em><code>image_id</code></em> nested
+in <em><code>patient_id</code></em>, after the <code>|</code> separator
+on the right-hand-side.</li>
 </ul>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>(<span class="at">s =</span> <span class="fu">grouped_ppp</span>(<span class="at">formula =</span> hladr <span class="sc">+</span> phenotype <span class="sc">~</span> OS <span class="sc">+</span> gender <span class="sc">+</span> age <span class="sc">|</span> patient_id<span class="sc">/</span>image_id, </span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>                 <span class="at">data =</span> wrobel_lung, <span class="at">mc.cores =</span> <span class="dv">1</span><span class="dt">L</span>))</span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; Grouped Hyperframe: ~patient_id/image_id</span></span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; 25 image_id nested in</span></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; 5 patient_id</span></span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt;       OS gender age    patient_id          image_id  ppp.</span></span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt; 1  3488+      F  85 #01 0-889-121 [40864,18015].im3 (ppp)</span></span>
-<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt; 2  3488+      F  85 #01 0-889-121 [42689,19214].im3 (ppp)</span></span>
-<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt; 3  3488+      F  85 #01 0-889-121 [42806,16718].im3 (ppp)</span></span>
-<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt; 4  3488+      F  85 #01 0-889-121 [44311,17766].im3 (ppp)</span></span>
-<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co">#&gt; 5  3488+      F  85 #01 0-889-121 [45366,16647].im3 (ppp)</span></span>
-<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co">#&gt; 6   1605      M  66 #02 1-037-393 [56576,16907].im3 (ppp)</span></span>
-<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt; 7   1605      M  66 #02 1-037-393 [56583,15235].im3 (ppp)</span></span>
-<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt; 8   1605      M  66 #02 1-037-393 [57130,16082].im3 (ppp)</span></span>
-<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="co">#&gt; 9   1605      M  66 #02 1-037-393 [57396,17896].im3 (ppp)</span></span>
-<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="co">#&gt; 10  1605      M  66 #02 1-037-393 [57403,16934].im3 (ppp)</span></span></code></pre></div>
-<p>Function <code>grouped_ppp()</code> has parameter <code>coords</code>
-which specifies the column name of <span class="math inline">\(x\)</span>- and <span class="math inline">\(y\)</span>-coordinates in the input
-<code>data</code>. Default <code>coords = ~ x + y</code> indicates the
-use of <code>data$x</code> and <code>data$y</code> for <span class="math inline">\(x\)</span>- and <span class="math inline">\(y\)</span>-coordinates, respectively. Users may
-use <code>coords = FALSE</code> for data without <span class="math inline">\(x\)</span>- and <span class="math inline">\(y\)</span>-coordinates. In this case, the
-coordinates are filled with randomly generated numbers, and the returned
-<code>groupedHyperframe</code> has a
-<code>pseudo.ppp</code>-hypercolumn.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>(<span class="at">s_a =</span> <span class="fu">grouped_ppp</span>(Ki67 <span class="sc">~</span> <span class="fu">Surv</span>(recfreesurv_mon, recurrence) <span class="sc">+</span> race <span class="sc">+</span> age <span class="sc">|</span> patientID<span class="sc">/</span>tissueID, </span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>                  <span class="at">data =</span> Ki67, <span class="at">coords =</span> <span class="cn">FALSE</span>, <span class="at">mc.cores =</span> <span class="dv">1</span><span class="dt">L</span>))</span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; Grouped Hyperframe: ~patientID/tissueID</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; 207 tissueID nested in</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; 200 patientID</span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt;    recfreesurv_mon recurrence  race age patientID tissueID         ppp.</span></span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; 1              100          0 White  66   PT00037 TJUe_I17 (pseudo.ppp)</span></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; 2               22          1 Black  42   PT00039 TJUe_G17 (pseudo.ppp)</span></span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt; 3               99          0 White  60   PT00040 TJUe_F17 (pseudo.ppp)</span></span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt; 4               99          0 White  53   PT00042 TJUe_D17 (pseudo.ppp)</span></span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt; 5              112          1 White  52   PT00054 TJUe_J18 (pseudo.ppp)</span></span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt; 6               12          1 Black  51   PT00059 TJUe_N17 (pseudo.ppp)</span></span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt; 7               64          0 Asian  50   PT00062 TJUe_J17 (pseudo.ppp)</span></span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt; 8               56          0 White  37   PT00068 TJUe_F19 (pseudo.ppp)</span></span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt; 9               79          0 White  68   PT00082 TJUe_P19 (pseudo.ppp)</span></span>
-<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt; 10              26          1 Black  55   PT00084 TJUe_O19 (pseudo.ppp)</span></span></code></pre></div>
-</div>
-</div>
-<div id="batch-process-on-ppp-hypercolumn" class="section level1">
-<h1>Batch Process on <code>ppp</code>-Hypercolumn</h1>
-<p>In this section, we outline the batch process of spatial point
-pattern analyses applicable to the <code>ppp</code>-hypercolumn of a
-<code>hyperframe</code>.</p>
-<p>Note that these spatial point pattern analyses should
-<strong>not</strong> be applied to a
-<code>pseudo.ppp</code>-hypercolumn, as the <span class="math inline">\(x\)</span>- and <span class="math inline">\(y\)</span>-coordinates are randomly generated
-psuedo numbers.</p>
-<p>Batch processes that add a <code>fv</code>-hypercolumn to the input
-<code>hyperframe</code> include</p>
-<table>
-<caption>Batch process that adds an
-<code>fv</code>-hypercolumn</caption>
-<colgroup>
-<col width="15%" />
-<col width="30%" />
-<col width="55%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left">Function</th>
-<th align="left">Workhorse</th>
-<th align="left">Applicable To</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left"><code>Emark_()</code></td>
-<td align="left"><code>spatstat.explore::Emark</code></td>
-<td align="left"><code>numeric</code> marks (e.g.,
-<em><code>hladr</code></em>) in <code>ppp</code>-hypercolumn</td>
-</tr>
-<tr class="even">
-<td align="left"><code>Vmark_()</code></td>
-<td align="left"><code>spatstat.explore::Vmark</code></td>
-<td align="left"><code>numeric</code> marks</td>
-</tr>
-<tr class="odd">
-<td align="left"><code>markcorr_()</code></td>
-<td align="left"><code>spatstat.explore::markcorr</code></td>
-<td align="left"><code>numeric</code> marks</td>
-</tr>
-<tr class="even">
-<td align="left"><code>markvario_()</code></td>
-<td align="left"><code>spatstat.explore::markvario</code></td>
-<td align="left"><code>numeric</code> marks</td>
-</tr>
-<tr class="odd">
-<td align="left"><code>Gcross_()</code></td>
-<td align="left"><code>spatstat.explore::Gcross</code></td>
-<td align="left"><code>multitype</code> marks (e.g.,
-<em><code>phenotype</code></em>)</td>
-</tr>
-<tr class="even">
-<td align="left"><code>Kcross_()</code></td>
-<td align="left"><code>spatstat.explore::Kcross</code></td>
-<td align="left"><code>multitype</code> marks</td>
-</tr>
-<tr class="odd">
-<td align="left"><code>Jcross_()</code></td>
-<td align="left"><code>spatstat.explore::Jcross</code></td>
-<td align="left"><code>multitype</code> marks</td>
-</tr>
-</tbody>
-</table>
-<p>Batch processes that add a <code>numeric</code>-hypercolumn to the
-input <code>hyperframe</code> include</p>
-<table>
-<caption>Batch process that adds a
-<code>numeric</code>-hypercolumn</caption>
-<colgroup>
-<col width="13%" />
-<col width="47%" />
-<col width="40%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left">Function</th>
-<th align="left">Workhorse</th>
-<th align="left">Applicable To</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left"><code>nncross_()</code></td>
-<td align="left"><code>spatstat.geom::nncross.ppp(., what = &#39;dist&#39;)</code></td>
-<td align="left"><code>multitype</code> marks (e.g.,
-<em><code>phenotype</code></em>)</td>
-</tr>
-</tbody>
-</table>
-<p>Following example shows that multiple batch processes may be applied
-to a <code>hyperframe</code> (or <code>groupedHyperframe</code>) in a
-pipeline (<code>|&gt;</code>).</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>r <span class="ot">=</span> <span class="fu">seq.int</span>(<span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">250</span>, <span class="at">by =</span> <span class="dv">10</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>out <span class="ot">=</span> s <span class="sc">|&gt;</span></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="fu">Emark_</span>(<span class="at">r =</span> r, <span class="at">correction =</span> <span class="st">&#39;best&#39;</span>, <span class="at">mc.cores =</span> <span class="dv">1</span><span class="dt">L</span>) <span class="sc">|&gt;</span> <span class="co"># slow</span></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="co"># Vmark_(r = r, correction = &#39;best&#39;, mc.cores = 1L) |&gt; # slow</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  <span class="co"># markcorr_(r = r, correction = &#39;best&#39;, mc.cores = 1L) |&gt; # slow</span></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>  <span class="co"># markvario_(r = r, correction = &#39;best&#39;, mc.cores = 1L) |&gt; # slow</span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>  <span class="fu">Gcross_</span>(<span class="at">i =</span> <span class="st">&#39;CK+.CD8-&#39;</span>, <span class="at">j =</span> <span class="st">&#39;CK-.CD8+&#39;</span>, <span class="at">r =</span> r, <span class="at">correction =</span> <span class="st">&#39;best&#39;</span>, <span class="at">mc.cores =</span> <span class="dv">1</span><span class="dt">L</span>) <span class="sc">|&gt;</span> <span class="co"># fast</span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>  <span class="co"># Kcross_(i = &#39;CK+.CD8-&#39;, j = &#39;CK-.CD8+&#39;, r = r, correction = &#39;best&#39;, mc.cores = 1L) |&gt; # fast</span></span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>  <span class="fu">nncross_</span>(<span class="at">i =</span> <span class="st">&#39;CK+.CD8-&#39;</span>, <span class="at">j =</span> <span class="st">&#39;CK-.CD8+&#39;</span>, <span class="at">correction =</span> <span class="st">&#39;best&#39;</span>, <span class="at">mc.cores =</span> <span class="dv">1</span><span class="dt">L</span>) <span class="co"># fast</span></span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; </span></span></code></pre></div>
-<p>The returned <code>hyperframe</code> (or
-<code>groupedHyperframe</code>) has</p>
-<ul>
-<li><code>fv</code>-hypercolumn <em><code>hladr.E</code></em>, created
-by function <code>Emark_()</code> on <code>numeric</code> mark
-<em><code>hladr</code></em></li>
-<li><code>fv</code>-hypercolumn <em><code>phenotype.G</code></em>,
-created by function <code>Gcross_()</code> on <code>multitype</code>
-mark <em><code>phenotype</code></em></li>
-<li><code>numeric</code>-hypercolumn
-<em><code>phenotype.nncross</code></em>, created by function
-<code>nncross_()</code> on <code>multitype</code> mark
-<em><code>phenotype</code></em></li>
-</ul>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>out</span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>(<span class="at">s =</span> <span class="fu">grouped_ppp</span>(<span class="at">formula =</span> hladr <span class="sc">+</span> phenotype <span class="sc">~</span> OS <span class="sc">+</span> gender <span class="sc">+</span> age <span class="sc">|</span> patient_id<span class="sc">/</span>image_id, </span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>                 <span class="at">data =</span> wrobel_lung, <span class="at">mc.cores =</span> <span class="dv">1</span><span class="dt">L</span>))</span>
 <span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt; Grouped Hyperframe: ~patient_id/image_id</span></span>
 <span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#&gt; 25 image_id nested in</span></span>
 <span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt; 5 patient_id</span></span>
 <span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co">#&gt;       OS gender age    patient_id          image_id  ppp. hladr.E phenotype.G</span></span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; 1  3488+      F  85 #01 0-889-121 [40864,18015].im3 (ppp)    (fv)        (fv)</span></span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt; 2  3488+      F  85 #01 0-889-121 [42689,19214].im3 (ppp)    (fv)        (fv)</span></span>
-<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt; 3  3488+      F  85 #01 0-889-121 [42806,16718].im3 (ppp)    (fv)        (fv)</span></span>
-<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; 4  3488+      F  85 #01 0-889-121 [44311,17766].im3 (ppp)    (fv)        (fv)</span></span>
-<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt; 5  3488+      F  85 #01 0-889-121 [45366,16647].im3 (ppp)    (fv)        (fv)</span></span>
-<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; 6   1605      M  66 #02 1-037-393 [56576,16907].im3 (ppp)    (fv)        (fv)</span></span>
-<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co">#&gt; 7   1605      M  66 #02 1-037-393 [56583,15235].im3 (ppp)    (fv)        (fv)</span></span>
-<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt; 8   1605      M  66 #02 1-037-393 [57130,16082].im3 (ppp)    (fv)        (fv)</span></span>
-<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co">#&gt; 9   1605      M  66 #02 1-037-393 [57396,17896].im3 (ppp)    (fv)        (fv)</span></span>
-<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="co">#&gt; 10  1605      M  66 #02 1-037-393 [57403,16934].im3 (ppp)    (fv)        (fv)</span></span>
-<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a><span class="co">#&gt;    phenotype.nncross</span></span>
-<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a><span class="co">#&gt; 1          (numeric)</span></span>
-<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a><span class="co">#&gt; 2          (numeric)</span></span>
-<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a><span class="co">#&gt; 3          (numeric)</span></span>
-<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a><span class="co">#&gt; 4          (numeric)</span></span>
-<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a><span class="co">#&gt; 5          (numeric)</span></span>
-<span id="cb7-25"><a href="#cb7-25" tabindex="-1"></a><span class="co">#&gt; 6          (numeric)</span></span>
-<span id="cb7-26"><a href="#cb7-26" tabindex="-1"></a><span class="co">#&gt; 7          (numeric)</span></span>
-<span id="cb7-27"><a href="#cb7-27" tabindex="-1"></a><span class="co">#&gt; 8          (numeric)</span></span>
-<span id="cb7-28"><a href="#cb7-28" tabindex="-1"></a><span class="co">#&gt; 9          (numeric)</span></span>
-<span id="cb7-29"><a href="#cb7-29" tabindex="-1"></a><span class="co">#&gt; 10         (numeric)</span></span></code></pre></div>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co">#&gt;       OS gender age    patient_id          image_id  ppp.</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; 1  3488+      F  85 #01 0-889-121 [40864,18015].im3 (ppp)</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt; 2  3488+      F  85 #01 0-889-121 [42689,19214].im3 (ppp)</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt; 3  3488+      F  85 #01 0-889-121 [42806,16718].im3 (ppp)</span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; 4  3488+      F  85 #01 0-889-121 [44311,17766].im3 (ppp)</span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt; 5  3488+      F  85 #01 0-889-121 [45366,16647].im3 (ppp)</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; 6   1605      M  66 #02 1-037-393 [56576,16907].im3 (ppp)</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co">#&gt; 7   1605      M  66 #02 1-037-393 [56583,15235].im3 (ppp)</span></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt; 8   1605      M  66 #02 1-037-393 [57130,16082].im3 (ppp)</span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co">#&gt; 9   1605      M  66 #02 1-037-393 [57396,17896].im3 (ppp)</span></span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="co">#&gt; 10  1605      M  66 #02 1-037-393 [57403,16934].im3 (ppp)</span></span></code></pre></div>
+</div>
+</div>
+<div id="batch-process-on-ppp-hypercolumn" class="section level1">
+<h1>Batch Process on <code>ppp</code>-<code>hypercolumn</code></h1>
+<p>In this section, we outline the batch processes of spatial point
+pattern analyses applicable to the <em>one-and-only-one</em>
+<code>ppp</code>-<code>hypercolumn</code> of a <code>hyperframe</code>.
+These batch processes are not intended for a <code>hyperframe</code>
+with multiple <code>ppp</code>-<code>hypercolumns</code> in the
+foreseeable future, as that would require checking for name clashes in
+the <code>$marks</code> from multiple
+<code>ppp</code>-<code>hypercolumns</code>.</p>
+<div id="which-adds-a-fv-hypercolumn" class="section level2">
+<h2>… which adds a <code>fv</code>-<code>hypercolumn</code></h2>
+<table>
+<colgroup>
+<col width="15%" />
+<col width="37%" />
+<col width="18%" />
+<col width="27%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Batch Process</th>
+<th align="left">Workhorse in
+<strong><code>spatstat.explore</code></strong></th>
+<th align="left">Applicable To</th>
+<th align="left"><code>fv</code>-<code>hypercolumn</code> Suffix</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>Emark_()</code></td>
+<td align="left"><code>Emark()</code></td>
+<td align="left"><code>numeric</code> marks</td>
+<td align="left"><code>.E</code></td>
+</tr>
+<tr class="even">
+<td align="left"><code>Vmark_()</code></td>
+<td align="left"><code>Vmark()</code></td>
+<td align="left"><code>numeric</code> marks</td>
+<td align="left"><code>.V</code></td>
+</tr>
+<tr class="odd">
+<td align="left"><code>markcorr_()</code></td>
+<td align="left"><code>markcorr()</code></td>
+<td align="left"><code>numeric</code> marks</td>
+<td align="left"><code>.k</code></td>
+</tr>
+<tr class="even">
+<td align="left"><code>markvario_()</code></td>
+<td align="left"><code>markvario()</code></td>
+<td align="left"><code>numeric</code> marks</td>
+<td align="left"><code>.gamma</code></td>
+</tr>
+<tr class="odd">
+<td align="left"><code>Gcross_()</code></td>
+<td align="left"><code>Gcross()</code></td>
+<td align="left"><code>multitype</code> marks</td>
+<td align="left"><code>.G</code></td>
+</tr>
+<tr class="even">
+<td align="left"><code>Kcross_()</code></td>
+<td align="left"><code>Kcross()</code></td>
+<td align="left"><code>multitype</code> marks</td>
+<td align="left"><code>.K</code></td>
+</tr>
+<tr class="odd">
+<td align="left"><code>Jcross_()</code></td>
+<td align="left"><code>Jcross()</code></td>
+<td align="left"><code>multitype</code> marks</td>
+<td align="left"><code>.J</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="which-adds-a-numeric-hypercolumn" class="section level2">
+<h2>… which adds a <code>numeric</code>-<code>hypercolumn</code></h2>
+<table>
+<colgroup>
+<col width="14%" />
+<col width="34%" />
+<col width="18%" />
+<col width="32%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Batch Process</th>
+<th align="left">Workhorse in
+<strong><code>spatstat.geom</code></strong></th>
+<th align="left">Applicable To</th>
+<th align="left"><code>numeric</code>-<code>hypercolumn</code>
+Suffix</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>nncross_()</code></td>
+<td align="left"><code>nncross.ppp(., what = &#39;dist&#39;)</code></td>
+<td align="left"><code>multitype</code> marks</td>
+<td align="left"><code>.nncross</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="pipe-operator-compatible" class="section level2">
+<h2>Pipe operator compatible</h2>
+<p>Multiple batch processes may be applied to a <code>hyperframe</code>
+(or <code>groupedHyperframe</code>) in a pipeline.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>r <span class="ot">=</span> <span class="fu">seq.int</span>(<span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">250</span>, <span class="at">by =</span> <span class="dv">10</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>out <span class="ot">=</span> s <span class="sc">|&gt;</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="fu">Emark_</span>(<span class="at">r =</span> r, <span class="at">correction =</span> <span class="st">&#39;best&#39;</span>, <span class="at">mc.cores =</span> <span class="dv">1</span><span class="dt">L</span>) <span class="sc">|&gt;</span> <span class="co"># slow</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="co"># Vmark_(r = r, correction = &#39;best&#39;, mc.cores = 1L) |&gt; # slow</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="co"># markcorr_(r = r, correction = &#39;best&#39;, mc.cores = 1L) |&gt; # slow</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>  <span class="co"># markvario_(r = r, correction = &#39;best&#39;, mc.cores = 1L) |&gt; # slow</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  <span class="fu">Gcross_</span>(<span class="at">i =</span> <span class="st">&#39;CK+.CD8-&#39;</span>, <span class="at">j =</span> <span class="st">&#39;CK-.CD8+&#39;</span>, <span class="at">r =</span> r, <span class="at">correction =</span> <span class="st">&#39;best&#39;</span>, <span class="at">mc.cores =</span> <span class="dv">1</span><span class="dt">L</span>) <span class="sc">|&gt;</span> <span class="co"># fast</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>  <span class="co"># Kcross_(i = &#39;CK+.CD8-&#39;, j = &#39;CK-.CD8+&#39;, r = r, correction = &#39;best&#39;, mc.cores = 1L) |&gt; # fast</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>  <span class="fu">nncross_</span>(<span class="at">i =</span> <span class="st">&#39;CK+.CD8-&#39;</span>, <span class="at">j =</span> <span class="st">&#39;CK-.CD8+&#39;</span>, <span class="at">correction =</span> <span class="st">&#39;best&#39;</span>, <span class="at">mc.cores =</span> <span class="dv">1</span><span class="dt">L</span>) <span class="co"># fast</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt; </span></span></code></pre></div>
+<p>The returned <code>hyperframe</code> (or
+<code>groupedHyperframe</code>) has</p>
+<ul>
+<li><code>fv</code>-<code>hypercolumn</code>
+<em><code>hladr.E</code></em>, created by function <code>Emark_()</code>
+on <code>numeric</code> mark <em><code>hladr</code></em></li>
+<li><code>fv</code>-<code>hypercolumn</code>
+<em><code>phenotype.G</code></em>, created by function
+<code>Gcross_()</code> on <code>multitype</code> mark
+<em><code>phenotype</code></em></li>
+<li><code>numeric</code>-<code>hypercolumn</code>
+<em><code>phenotype.nncross</code></em>, created by function
+<code>nncross_()</code> on <code>multitype</code> mark
+<em><code>phenotype</code></em></li>
+</ul>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>out</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="co">#&gt; Grouped Hyperframe: ~patient_id/image_id</span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co">#&gt; 25 image_id nested in</span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt; 5 patient_id</span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt;       OS gender age    patient_id          image_id  ppp. hladr.E phenotype.G</span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co">#&gt; 1  3488+      F  85 #01 0-889-121 [40864,18015].im3 (ppp)    (fv)        (fv)</span></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt; 2  3488+      F  85 #01 0-889-121 [42689,19214].im3 (ppp)    (fv)        (fv)</span></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt; 3  3488+      F  85 #01 0-889-121 [42806,16718].im3 (ppp)    (fv)        (fv)</span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co">#&gt; 4  3488+      F  85 #01 0-889-121 [44311,17766].im3 (ppp)    (fv)        (fv)</span></span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="co">#&gt; 5  3488+      F  85 #01 0-889-121 [45366,16647].im3 (ppp)    (fv)        (fv)</span></span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#&gt; 6   1605      M  66 #02 1-037-393 [56576,16907].im3 (ppp)    (fv)        (fv)</span></span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co">#&gt; 7   1605      M  66 #02 1-037-393 [56583,15235].im3 (ppp)    (fv)        (fv)</span></span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co">#&gt; 8   1605      M  66 #02 1-037-393 [57130,16082].im3 (ppp)    (fv)        (fv)</span></span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co">#&gt; 9   1605      M  66 #02 1-037-393 [57396,17896].im3 (ppp)    (fv)        (fv)</span></span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="co">#&gt; 10  1605      M  66 #02 1-037-393 [57403,16934].im3 (ppp)    (fv)        (fv)</span></span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="co">#&gt;    phenotype.nncross</span></span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="co">#&gt; 1          (numeric)</span></span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co">#&gt; 2          (numeric)</span></span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="co">#&gt; 3          (numeric)</span></span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a><span class="co">#&gt; 4          (numeric)</span></span>
+<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a><span class="co">#&gt; 5          (numeric)</span></span>
+<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a><span class="co">#&gt; 6          (numeric)</span></span>
+<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="co">#&gt; 7          (numeric)</span></span>
+<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a><span class="co">#&gt; 8          (numeric)</span></span>
+<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a><span class="co">#&gt; 9          (numeric)</span></span>
+<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a><span class="co">#&gt; 10         (numeric)</span></span></code></pre></div>
+</div>
 </div>
 <div id="aggregation-over-nested-grouping-structure" class="section level1">
 <h1>Aggregation Over Nested Grouping Structure</h1>
 <p>When nested grouping structure <code>~g1/g2/.../gm</code> is present,
 we may aggregate over the</p>
 <ul>
-<li><code>fv</code>-hypercolumn(s)</li>
-<li><code>numeric</code>-hypercolumn(s)</li>
-<li><code>numeric</code> marks in the <code>ppp</code>-hypercolumn</li>
+<li><code>fv</code>-<code>hypercolumns</code></li>
+<li><code>numeric</code>-<code>hypercolumns</code></li>
+<li><code>numeric</code> marks in the
+<code>ppp</code>-<code>hypercolumn</code></li>
 </ul>
 <p>by either one of the grouping levels <code>~g1</code>,
 <code>~g2</code>, …, or <code>~gm</code>. If the lowest grouping
 <code>~gm</code> is specified, then no aggregation is performed.</p>
-<p>The returned object of various aggregation functions,
-<code>aggregate_fv()</code>, <code>aggregate_quantile()</code> and
-<code>aggregate_kerndens()</code>, is <code>data.frame</code> instead of
-<code>hyperframe</code>. This is because the aggregated results are
-stored in <code>matrix</code>-columns, while the <code>hyperframe</code>
-class does not support <code>matrix</code>-column.</p>
 <div id="aggregation-of-fv-hypercolumns" class="section level2">
-<h2>Aggregation of <code>fv</code>-hypercolumn(s)</h2>
+<h2>Aggregation of <code>fv</code>-<code>hypercolumns</code></h2>
 <p>Function <code>aggregate_fv()</code> aggregates</p>
 <ul>
 <li>the <strong>function values</strong>, i.e., the black-solid-curve of
-<code>spatstat.explore::plot.fv</code>. In the following example, we
-have
+<code>fv.plot</code>. In the following example, we have
 <ul>
-<li><code>matrix</code>-column <em><code>hladr.E.value</code></em>,
-aggregated function value from <code>fv</code>-hypercolumn
-<em><code>hladr.E</code></em></li>
-<li><code>matrix</code>-column <em><code>phenotype.G.value</code></em>,
-aggregated function value from <code>fv</code>-hypercolumn
-<em><code>phenotype.G</code></em></li>
+<li><code>numeric</code>-<code>hypercolumns</code>
+<em><code>hladr.E.value</code></em> and
+<em><code>phenotype.G.value</code></em>, aggregated function values from
+<code>fv</code>-<code>hypercolumns</code> <em><code>hladr.E</code></em>
+and <em><code>phenotype.G</code></em></li>
 </ul></li>
-<li>the <strong>cumulative trapezoid area</strong> under the
+<li>the <strong>cumulative trapezoidal integration</strong> under the
 black-solid-curve. In the following example, we have
 <ul>
-<li><code>matrix</code>-column <em><code>hladr.E.cumtrapz</code></em>,
-aggregated cumulative trapezoid area from <code>fv</code>-hypercolumn
-<em><code>hladr.E</code></em></li>
-<li><code>matrix</code>-column
+<li><code>numeric</code>-<code>hypercolumns</code>
+<em><code>hladr.E.cumtrapz</code></em> and
 <em><code>phenotype.G.cumtrapz</code></em>, aggregated cumulative
-trapezoid area from <code>fv</code>-hypercolumn
-<em><code>phenotype.G</code></em></li>
+trapezoidal integration from <code>fv</code>-<code>hypercolumns</code>
+<em><code>hladr.E</code></em> and <em><code>phenotype.G</code></em></li>
 </ul></li>
 </ul>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>afv <span class="ot">=</span> out <span class="sc">|&gt;</span></span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="fu">aggregate_fv</span>(<span class="at">by =</span> <span class="sc">~</span> patient_id, <span class="at">f_aggr_ =</span> <span class="st">&#39;mean&#39;</span>, <span class="at">mc.cores =</span> <span class="dv">1</span><span class="dt">L</span>)</span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt; Column(s) &#39;image_id&#39; removed; as they are not identical per aggregation-group</span></span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="fu">nrow</span>(afv) <span class="co"># number of patients</span></span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt; [1] 5</span></span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="fu">names</span>(afv)</span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt; [1] &quot;OS&quot;                   &quot;gender&quot;               &quot;age&quot;                 </span></span>
-<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt; [4] &quot;patient_id&quot;           &quot;hladr.E.value&quot;        &quot;hladr.E.cumtrapz&quot;    </span></span>
-<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt; [7] &quot;phenotype.G.value&quot;    &quot;phenotype.G.cumtrapz&quot;</span></span>
-<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="fu">dim</span>(afv<span class="sc">$</span>hladr.E.cumtrapz) <span class="co"># N(patient) by length(r)</span></span>
-<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt; [1]  5 25</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>(<span class="at">afv =</span> out <span class="sc">|&gt;</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>  <span class="fu">aggregate_fv</span>(<span class="at">by =</span> <span class="sc">~</span> patient_id, <span class="at">f_aggr_ =</span> pmean, <span class="at">mc.cores =</span> <span class="dv">1</span><span class="dt">L</span>))</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt; Column(s) image_id removed; as they are not identical per aggregation-group</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt; Hyperframe:</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt;      OS gender age    patient_id hladr.E.value hladr.E.cumtrapz</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt; 1 3488+      F  85 #01 0-889-121     (numeric)        (numeric)</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt; 2  1605      M  66 #02 1-037-393     (numeric)        (numeric)</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt; 3   176      M  84 #03 2-080-378     (numeric)        (numeric)</span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="co">#&gt; 4 2042+      M  79 #04 2-223-153     (numeric)        (numeric)</span></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co">#&gt; 5 3747+      M  68 #05 2-286-740     (numeric)        (numeric)</span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="co">#&gt;   phenotype.G.value phenotype.G.cumtrapz</span></span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="co">#&gt; 1         (numeric)            (numeric)</span></span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="co">#&gt; 2         (numeric)            (numeric)</span></span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="co">#&gt; 3         (numeric)            (numeric)</span></span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a><span class="co">#&gt; 4         (numeric)            (numeric)</span></span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="co">#&gt; 5         (numeric)            (numeric)</span></span></code></pre></div>
+<p>Each of the <code>numeric</code>-<code>hypercolumns</code> contains
+tabulated values on the common grid of <code>r</code>. One “slice” of
+this grid may be extracted by</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>afv<span class="sc">$</span>hladr.E.cumtrapz <span class="sc">|&gt;</span> <span class="fu">.slice</span>(<span class="at">j =</span> <span class="st">&#39;50&#39;</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="co">#&gt;         1         2         3         4         5 </span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="co">#&gt; 10.489960 10.463419 31.248955  3.162186 23.635120</span></span></code></pre></div>
 </div>
 <div id="aggregation-of-numeric-hypercolumns-and-numeric-marks-in-ppp-hypercolumn" class="section level2">
-<h2>Aggregation of <code>numeric</code>-hypercolumn(s) and
-<code>numeric</code> mark(s) in <code>ppp</code>-hypercolumn</h2>
-<p>Function <code>aggregate_quantile()</code> aggregates</p>
+<h2>Aggregation of <code>numeric</code>-<code>hypercolumns</code> and
+<code>numeric</code> mark(s) in
+<code>ppp</code>-<code>hypercolumn</code></h2>
+<p>Function <code>aggregate_quantile()</code> aggregates the quantile
+of</p>
 <ul>
-<li>the quantile of the <code>numeric</code>-hypercolumn(s). In the
-following example, we have
+<li>the <code>numeric</code>-<code>hypercolumns</code>. In the following
+example, we have
 <ul>
-<li><code>matrix</code>-column
+<li><code>numeric</code>-<code>hypercolumn</code>
 <em><code>phenotype.nncross.quantile</code></em>, aggregated quantile of
-<code>numeric</code>-hypercolumn
+<code>numeric</code>-<code>hypercolumn</code>
 <em><code>phenotype.nncross</code></em></li>
 </ul></li>
-<li>the quantile of the <code>numeric</code> mark(s) in the
-<code>ppp</code>-hypercolumn. In the following example, we have
+<li>the <code>numeric</code> mark(s) in the
+<code>ppp</code>-<code>hypercolumn.</code> In the following example, we
+have
 <ul>
-<li><code>matrix</code>-column <em><code>hladr.quantile</code></em>,
-aggregated quantile of <code>numeric</code> mark
-<em><code>hladr</code></em> in <code>ppp</code>-hypercolumn</li>
+<li><code>numeric</code>-<code>hypercolumn</code>
+<em><code>hladr.quantile</code></em>, aggregated quantile of
+<code>numeric</code> mark <em><code>hladr</code></em> in
+<code>ppp</code>-<code>hypercolumn</code></li>
 </ul></li>
 </ul>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>q <span class="ot">=</span> out <span class="sc">|&gt;</span></span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  <span class="fu">aggregate_quantile</span>(<span class="at">by =</span> <span class="sc">~</span> patient_id, <span class="at">probs =</span> <span class="fu">seq.int</span>(<span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">1</span>, <span class="at">by =</span> .<span class="dv">1</span>), <span class="at">mc.cores =</span> <span class="dv">1</span><span class="dt">L</span>)</span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co">#&gt; Column(s) &#39;image_id&#39; removed; as they are not identical per aggregation-group</span></span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="fu">nrow</span>(q)</span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt; [1] 5</span></span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="fu">names</span>(q)</span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt; [1] &quot;OS&quot;                         &quot;gender&quot;                    </span></span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co">#&gt; [3] &quot;age&quot;                        &quot;patient_id&quot;                </span></span>
-<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt; [5] &quot;phenotype.nncross.quantile&quot; &quot;hladr.quantile&quot;</span></span>
-<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="fu">dim</span>(q<span class="sc">$</span>phenotype.nncross.quantile)</span>
-<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co">#&gt; [1]  5 11</span></span>
-<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="fu">dim</span>(q<span class="sc">$</span>hladr.quantile)</span>
-<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#&gt; [1]  5 11</span></span></code></pre></div>
-<p>Function <code>aggregate_kerndens()</code> aggregates</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>out <span class="sc">|&gt;</span></span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>  <span class="fu">aggregate_quantile</span>(<span class="at">by =</span> <span class="sc">~</span> patient_id, <span class="at">probs =</span> <span class="fu">seq.int</span>(<span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">1</span>, <span class="at">by =</span> .<span class="dv">1</span>), <span class="at">mc.cores =</span> <span class="dv">1</span><span class="dt">L</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="co">#&gt; Column(s) image_id removed; as they are not identical per aggregation-group</span></span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="co">#&gt; Hyperframe:</span></span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="co">#&gt;      OS gender age    patient_id phenotype.nncross.quantile hladr.quantile</span></span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="co">#&gt; 1 3488+      F  85 #01 0-889-121                  (numeric)      (numeric)</span></span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a><span class="co">#&gt; 2  1605      M  66 #02 1-037-393                  (numeric)      (numeric)</span></span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="co">#&gt; 3   176      M  84 #03 2-080-378                  (numeric)      (numeric)</span></span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a><span class="co">#&gt; 4 2042+      M  79 #04 2-223-153                  (numeric)      (numeric)</span></span>
+<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a><span class="co">#&gt; 5 3747+      M  68 #05 2-286-740                  (numeric)      (numeric)</span></span></code></pre></div>
+<p>Function <code>aggregate_kerndens()</code> aggregates the kernel
+density of</p>
 <ul>
-<li>the kernel density of the <code>numeric</code>-hypercolumn(s). In
-the following example, we have
+<li>the <code>numeric</code>-<code>hypercolumns</code>. In the following
+example, we have
 <ul>
-<li><code>matrix</code>-column
+<li><code>numeric</code>-<code>hypercolumn</code>
 <em><code>phenotype.nncross.kerndens</code></em>, aggregated kernel
-density of <code>numeric</code>-hypercolumn
+density of <code>numeric</code>-<code>hypercolumn</code>
 <em><code>phenotype.nncross</code></em></li>
 </ul></li>
-<li>the kernel density of the <code>numeric</code> mark(s) in the
-<code>ppp</code>-hypercolumn. In the following example, we have
+<li>the <code>numeric</code> mark(s) in the
+<code>ppp</code>-<code>hypercolumn</code>. In the following example, we
+have
 <ul>
-<li><code>matrix</code>-column <em><code>hladr.kerndens</code></em>,
-aggregated kernel density of <code>numeric</code> mark
-<em><code>hladr</code></em> in <code>ppp</code>-hypercolumn</li>
+<li><code>numeric</code>-<code>hypercolumn</code>
+<em><code>hladr.kerndens</code></em>, aggregated kernel density of
+<code>numeric</code> mark <em><code>hladr</code></em> in
+<code>ppp</code>-<code>hypercolumn</code></li>
 </ul></li>
 </ul>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>(<span class="at">mdist =</span> out<span class="sc">$</span>phenotype.nncross <span class="sc">|&gt;</span> <span class="fu">unlist</span>() <span class="sc">|&gt;</span> <span class="fu">max</span>())</span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt; [1] 354.2968</span></span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>d <span class="ot">=</span> out <span class="sc">|&gt;</span> </span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  <span class="fu">aggregate_kerndens</span>(<span class="at">by =</span> <span class="sc">~</span> patient_id, <span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> mdist, <span class="at">mc.cores =</span> <span class="dv">1</span><span class="dt">L</span>)</span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt; Column(s) &#39;image_id&#39; removed; as they are not identical per aggregation-group</span></span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="fu">nrow</span>(d)</span>
-<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt; [1] 5</span></span>
-<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="fu">names</span>(d)</span>
-<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="co">#&gt; [1] &quot;OS&quot;                         &quot;gender&quot;                    </span></span>
-<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co">#&gt; [3] &quot;age&quot;                        &quot;patient_id&quot;                </span></span>
-<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="co">#&gt; [5] &quot;phenotype.nncross.kerndens&quot; &quot;hladr.kerndens&quot;</span></span>
-<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="fu">dim</span>(d<span class="sc">$</span>phenotype.nncross.kerndens)</span>
-<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="co">#&gt; [1]   5 512</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>(<span class="at">mdist =</span> out<span class="sc">$</span>phenotype.nncross <span class="sc">|&gt;</span> <span class="fu">unlist</span>() <span class="sc">|&gt;</span> <span class="fu">max</span>())</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="co">#&gt; [1] 354.2968</span></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>out <span class="sc">|&gt;</span> </span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>  <span class="fu">aggregate_kerndens</span>(<span class="at">by =</span> <span class="sc">~</span> patient_id, <span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> mdist, <span class="at">mc.cores =</span> <span class="dv">1</span><span class="dt">L</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a><span class="co">#&gt; Column(s) image_id removed; as they are not identical per aggregation-group</span></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="co">#&gt; Hyperframe:</span></span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="co">#&gt;      OS gender age    patient_id phenotype.nncross.kerndens hladr.kerndens</span></span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="co">#&gt; 1 3488+      F  85 #01 0-889-121                  (numeric)      (numeric)</span></span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="co">#&gt; 2  1605      M  66 #02 1-037-393                  (numeric)      (numeric)</span></span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="co">#&gt; 3   176      M  84 #03 2-080-378                  (numeric)      (numeric)</span></span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="co">#&gt; 4 2042+      M  79 #04 2-223-153                  (numeric)      (numeric)</span></span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="co">#&gt; 5 3747+      M  68 #05 2-286-740                  (numeric)      (numeric)</span></span></code></pre></div>
 </div>
 </div>
 

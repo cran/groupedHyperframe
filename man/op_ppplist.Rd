@@ -30,9 +30,9 @@ Default is 1L on Windows, or \link[parallel]{detectCores} on Mac.
 CRAN requires \code{mc.cores <= 2L} in examples.}
 }
 \value{
-Function \code{\link[=fv_ppplist]{fv_ppplist()}} returns a \link[base]{list} of function \code{\link[=fv_ppp]{fv_ppp()}} returns.
+Function \code{\link[=fv_ppplist]{fv_ppplist()}} returns a \link[stats]{listof} function \code{\link[=fv_ppp]{fv_ppp()}} returns.
 
-Function \code{\link[=dist_ppplist]{dist_ppplist()}} returns a \link[base]{list} of function \code{\link[=dist_ppp]{dist_ppp()}} returns.
+Function \code{\link[=dist_ppplist]{dist_ppplist()}} returns a \link[stats]{listof} function \code{\link[=dist_ppp]{dist_ppp()}} returns.
 }
 \description{
 Batch operations of function \code{\link[=fv_ppp]{fv_ppp()}} or \code{\link[=dist_ppp]{dist_ppp()}}, for a \code{'ppplist'} input.
@@ -43,6 +43,7 @@ Function \code{\link[=fv_ppplist]{fv_ppplist()}} is a \pkg{parallel} batch proce
 Function \code{\link[=dist_ppplist]{dist_ppplist()}} is a \pkg{parallel} batch process of the workhorse function \code{\link[=dist_ppp]{dist_ppp()}}.
 }
 \examples{
+\donttest{
 library(spatstat.data)
 library(spatstat.geom) # for ?spatstat.geom::split.ppp
 library(spatstat.explore) # for ?spatstat.explore::Emark, etc.
@@ -61,7 +62,9 @@ x2 = nbfires |>
   subset.ppp(select = c('fire.type', 'cause', 'ign.src')) |>
   na.omit.ppp() |> 
   split.ppp(f = 'fire.type')
-dist_ppplist(x2, fn = .nncross, i = 'rrds', j = 'ltning', mc.cores = 1L)
-dist_ppplist(x2, fn = .nncross, i = 'unknown', j = 'burn.no.perm', mc.cores = 1L)
+x2 |> dist_ppplist(fn = .nncross, i = 'rrds', j = 'ltning', mc.cores = 1L)
+x2 |> dist_ppplist(fn = .nncross, i = 'unknown', 
+  j = 'burn.no.perm', mc.cores = 1L)
+}
 }
 \keyword{internal}

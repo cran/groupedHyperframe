@@ -18,7 +18,6 @@
 #' @param coords \link[stats]{formula}, variable names
 #' of \eqn{x}- and \eqn{y}-coordinates in `data`.
 #' Default `~x+y`.  
-#' End-user may use `coords = FALSE` to indicate the absence of coordinates information in `data`.
 #' 
 #' @param window an observation window \link[spatstat.geom]{owin}, 
 #' default is the \eqn{x}- and \eqn{y}-span of `coords` in `data`.
@@ -35,15 +34,7 @@
 #' with ***one-and-only-one*** 
 #' \link[spatstat.geom]{ppp}-\link[spatstat.geom:hyperframe]{hypercolumn}.
 #' 
-#' If `coords = FALSE`, then a [groupedHyperframe]
-#' with ***one-and-only-one*** 
-#' `'pseudo.ppp'`-\link[spatstat.geom:hyperframe]{hypercolumn} is returned.
-#' 
-#' 
-#' @examples
-#' library(survival) # to help ?spatstat.geom::hyperframe understand ?survival::Surv
-#' grouped_ppp(hladr + phenotype ~ OS + gender + age | patient_id/image_id, 
-#'   data = wrobel_lung, mc.cores = 1L)
+#' @keywords internal
 #' @importFrom spatstat.geom owin ppp as.hyperframe.data.frame
 #' @importFrom stats runif
 #' @export
@@ -59,7 +50,7 @@ grouped_ppp <- function(
   
   group <- formula[[3L]][[3L]]
   g <- all.vars(group)
-  data[g] <- lapply(data[g], FUN = function(i) {
+  data[g] <- lapply(data[g], FUN = \(i) {
     if (is.factor(i)) return(factor(i)) # drop empty levels!!
     factor(i, levels = unique(i))
   }) 
@@ -67,13 +58,13 @@ grouped_ppp <- function(
   fg <- interaction(data[g], drop = TRUE, sep = '.', lex.order = TRUE) # one or more hierarchy
 
   hf <- data[all.vars(formula[[3L]])] |>
-    mc_aggregate_unique(f = fg, ...) |>
+    mc_identical_by(f = fg, ...) |>
     as.hyperframe.data.frame()
   
   # Step 2: grouped ppp
   
   if (isFALSE(coords)) {
-    # end-user indicates there is no (x,y) information in the data
+    # .Deprecated(new = 'as.groupedHyperframe.data.frame')
     .x <- runif(n = nrow(data))
     .y <- runif(n = nrow(data))
   } else {
@@ -88,7 +79,6 @@ grouped_ppp <- function(
   force(window)
   
   tmp <- ppp(x = .x, y = .y, window = window, marks = data[all.vars(formula[[2L]])], checkdup = FALSE, drop = FALSE) # `drop = FALSE` important!!!
-  if (isFALSE(coords)) class(tmp) <- c('pseudo.ppp', class(tmp))
   hf$ppp. <- tmp |> 
     split_ppp_dataframe(f = fg)
   
@@ -111,7 +101,7 @@ grouped_ppp <- function(
 #' @importFrom spatstat.geom markformat.ppp
 split_ppp_dataframe <- function(x, f) {
   # `f` must be 'factor'
-  mapply(FUN = function(...) {
+  mapply(FUN = \(...) {
     ret <- list(...)
     class(ret) <- class(x)
     return(ret)
@@ -129,44 +119,4 @@ split_ppp_dataframe <- function(x, f) {
 
 
 
-
-
-# ?stats::aggregate.data.frame is not parallel computing
-# ?collapse::collap does not support 'Surv' column
-#' @importFrom cli col_blue
-#' @importFrom parallel mclapply detectCores
-mc_aggregate_unique <- function(
-    data, 
-    f,
-    mc.cores = switch(.Platform$OS.type, windows = 1L, detectCores()),
-    ...
-) {
-  
-  nr <- .row_names_info(data, type = 2L)
-  if (nr != length(f)) stop('`data` and `f` different length')
-  
-  ids <- split.default(seq_len(nr), f = f)
-  
-  .ident <- vapply(data, FUN = function(d) { # (d = data[[1L]])
-    tmp <- mclapply(ids, mc.cores = mc.cores, FUN = function(id) {
-    #tmp <- lapply(ids, FUN = function(id) {
-      all(duplicated(unclass(d[id]))[-1L])
-    })
-    return(all(unlist(tmp)))
-  }, FUN.VALUE = NA)
-  
-  if (any(!.ident)) {
-    nm <- names(data)[!.ident]
-    message(col_blue(
-      'Column(s) ', paste(sQuote(nm), collapse = ', '), 
-      ' removed; as they are not identical per aggregation-group'))
-    data[nm] <- NULL
-  }
-
-  ret <- data[vapply(ids, FUN = `[`, 1L, FUN.VALUE = NA_integer_),]
-  # do.call(rbind.data.frame, args = .) # ?base::rbind.data.frame does not respect 'Surv', etc.
-  .rowNamesDF(ret) <- NULL
-  return(ret)
-
-}
 

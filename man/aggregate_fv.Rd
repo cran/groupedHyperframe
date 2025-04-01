@@ -7,7 +7,8 @@
 aggregate_fv(
   X,
   by = stop("must specify `by`"),
-  f_aggr_ = c("mean", "median", "max", "min"),
+  f_aggr_ = pmean,
+  mc.cores = switch(.Platform$OS.type, windows = 1L, detectCores()),
   ...
 )
 }
@@ -19,9 +20,11 @@ containing one or more \link[spatstat.explore]{fv.object} column(s)}
 Use only one-level hierarchy (e.g., \code{~patient} or \code{~image}).
 Do not use multi-level hierarchy (e.g., \code{~patient/image})}
 
-\item{f_aggr_}{\link[base]{character} scalar, method to aggregate
-within cluster, currently supports
-\code{'mean'}, \code{'median'}, \code{'max'}, and \code{'min'}.}
+\item{f_aggr_}{see function \code{\link[=aggregate_by_]{aggregate_by_()}}}
+
+\item{mc.cores}{\link[base]{integer} scalar, see function \link[parallel]{mclapply}.
+Default is 1L on Windows, or \link[parallel]{detectCores} on Mac.
+CRAN requires \code{mc.cores <= 2L} in examples.}
 
 \item{...}{additional parameters, currently not in use}
 }
@@ -44,12 +47,10 @@ library(spatstat.geom)
 flu$pattern[] = flu$pattern |> 
  lapply(FUN = `mark_name<-`, value = 'stain') # read ?flu carefully
 r = seq.int(from = 0, to = 100, by = 5)
-m = flu |>
+flu |>
  subset(stain == 'M2-M1') |>
  Gcross_(i = 'M1', j = 'M2', r = r, correction = 'best', mc.cores = 1L) |>
  as.groupedHyperframe(group = ~ virustype/frameid) |>
  aggregate_fv(by = ~ virustype, mc.cores = 1L)
-names(m)
-dim(m$pattern.G.value)
-dim(m$pattern.G.cumtrapz)
 }
+\keyword{internal}

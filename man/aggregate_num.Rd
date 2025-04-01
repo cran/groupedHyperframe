@@ -11,7 +11,7 @@ aggregate_num(
   by = stop("must specify `by`"),
   FUN,
   FUN.name = deparse1(substitute(FUN)),
-  f_aggr_ = c("mean", "median", "max", "min"),
+  f_aggr_ = pmean,
   mc.cores = switch(.Platform$OS.type, windows = 1L, detectCores()),
   ...
 )
@@ -40,9 +40,7 @@ functions \link[stats]{quantile} and \link{kerndens}}
 \item{FUN.name}{(optional) \link[base]{character} scalar,
 user-friendly name of \code{FUN}}
 
-\item{f_aggr_}{\link[base]{character} scalar, method to aggregate
-within cluster, currently supports
-\code{'mean'}, \code{'median'}, \code{'max'}, and \code{'min'}.}
+\item{f_aggr_}{see function \code{\link[=aggregate_by_]{aggregate_by_()}}}
 
 \item{mc.cores}{\link[base]{integer} scalar, see function \link[parallel]{mclapply}.
 Default is 1L on Windows, or \link[parallel]{detectCores} on Mac.
@@ -66,3 +64,4 @@ workhorse function \code{\link[=aggregate_num]{aggregate_num()}} with \code{FUN 
 Function \code{\link[=aggregate_kerndens]{aggregate_kerndens()}} is a wrapper of
 workhorse function \code{\link[=aggregate_num]{aggregate_num()}} with \code{FUN = kerndens}.
 }
+\keyword{internal}

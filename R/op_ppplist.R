@@ -22,11 +22,12 @@
 #' Function [dist_ppplist()] is a \pkg{parallel} batch process of the workhorse function [dist_ppp()].
 #' 
 #' @returns 
-#' Function [fv_ppplist()] returns a \link[base]{list} of function [fv_ppp()] returns.
+#' Function [fv_ppplist()] returns a \link[stats]{listof} function [fv_ppp()] returns.
 #' 
-#' Function [dist_ppplist()] returns a \link[base]{list} of function [dist_ppp()] returns.
+#' Function [dist_ppplist()] returns a \link[stats]{listof} function [dist_ppp()] returns.
 #' 
 #' @examples
+#' \donttest{
 #' library(spatstat.data)
 #' library(spatstat.geom) # for ?spatstat.geom::split.ppp
 #' library(spatstat.explore) # for ?spatstat.explore::Emark, etc.
@@ -45,8 +46,10 @@
 #'   subset.ppp(select = c('fire.type', 'cause', 'ign.src')) |>
 #'   na.omit.ppp() |> 
 #'   split.ppp(f = 'fire.type')
-#' dist_ppplist(x2, fn = .nncross, i = 'rrds', j = 'ltning', mc.cores = 1L)
-#' dist_ppplist(x2, fn = .nncross, i = 'unknown', j = 'burn.no.perm', mc.cores = 1L)
+#' x2 |> dist_ppplist(fn = .nncross, i = 'rrds', j = 'ltning', mc.cores = 1L)
+#' x2 |> dist_ppplist(fn = .nncross, i = 'unknown', 
+#'   j = 'burn.no.perm', mc.cores = 1L)
+#' }
 #' @keywords internal
 #' @name op_ppplist
 #' @export
@@ -70,13 +73,14 @@ op_ppplist <- function(
   
   n <- length(x)
   
-  ret <- mclapply(X = seq_len(n), mc.cores = mc.cores, FUN = function(i) {
-  #ret <- lapply(X = seq_len(n), FUN = function(i) { # to debug inside
-    # echo-command does not work with '\r' (carriage return)
-    if (identical(Sys.getenv('RSTUDIO'), '1')) on.exit(system(command = sprintf(fmt = 'printf \'\r%d/%d done!    \'', i, n)))
-    return(op(x = x[[i]], ...))
-  })
-  on.exit(message())
+  ret <- n |>
+    seq_len() |>
+    mclapply(mc.cores = mc.cores, FUN = \(i) {
+      # echo-command does not work with '\r' (carriage return)
+      if (identical(Sys.getenv('RSTUDIO'), '1')) sprintf(fmt = 'printf \'\r%d/%d done!    \'', i, n) |> system() |> on.exit()
+      x[[i]] |> op(...)
+    })
+  message() |> on.exit()
   
   names(ret) <- names(x)
   return(ret)

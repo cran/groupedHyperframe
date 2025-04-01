@@ -4,20 +4,24 @@
 \alias{aggregate_by_}
 \title{Aggregate-By, for \link{groupedHyperframe}}
 \usage{
-aggregate_by_(dots, X, by, f_aggr_ = c("mean", "median", "max", "min"), ...)
+aggregate_by_(dots, X, by, f_aggr_ = pmean, ...)
 }
 \arguments{
-\item{dots}{a \link[base]{list} of \link[base]{numeric} \link[base]{matrix}es}
+\item{dots}{a \link[stats]{listof} ..}
 
 \item{X}{a \link{groupedHyperframe}}
 
-\item{by, f_aggr_}{see function \code{\link[=aggregate_num]{aggregate_num()}}}
+\item{by}{see function \code{\link[=aggregate_num]{aggregate_num()}}}
+
+\item{f_aggr_}{\link[base]{function}, method to aggregate
+within cluster, currently supports
+\code{\link[=pmean]{pmean()}}, \code{\link[=pmedian]{pmedian()}}, \link[base]{pmax}, and \link[base]{pmin}.}
 
 \item{...}{additional parameters}
 }
 \value{
 Function \code{\link[=aggregate_by_]{aggregate_by_()}} returns
-a \link[base]{list} of \link[base]{numeric} \link[base]{matrix}es.
+a \link[stats]{listof} \link[base]{numeric} \link[base]{matrix}es.
 }
 \description{
 Aggregate-By, for \link{groupedHyperframe}

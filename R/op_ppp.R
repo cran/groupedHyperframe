@@ -50,11 +50,11 @@
 #' a `NULL` value will be returned.
 #' 
 #' @returns 
-#' Function [fv_ppp()] returns a \link[base]{list} of 
+#' Function [fv_ppp()] returns a \link[stats]{listof} 
 #' \link[spatstat.explore]{fv.object}s, 
 #' one for each eligible \link[spatstat.geom]{marks}.
 #' 
-#' Function [dist_ppp()] returns a \link[base]{list} of 
+#' Function [dist_ppp()] returns a \link[stats]{listof} 
 #' \link[base]{double} \link[base]{vector}s,
 #' one for each eligible \link[spatstat.geom]{marks}.
 #' 
@@ -109,17 +109,23 @@ fv_ppp <- function(x, fn, ...) {
   x. <- unstack.ppp(x)
   if (length(x.) == 1L && !length(names(x.))) stop('unstacked `x` must be named, see ?mark_names')
   
-  mtp <- vapply(x., FUN = is.multitype.ppp, FUN.VALUE = NA)
-  num <- vapply(x., FUN = function(i) is.numeric(i$marks), FUN.VALUE = NA)
+  mtp <- x. |> 
+    vapply(FUN = is.multitype.ppp, FUN.VALUE = NA)
+  num <- x. |>
+    vapply(FUN = \(i) is.numeric(i$marks), FUN.VALUE = NA)
   # stopifnot(is.double(POSIXct), !is.numeric(POSIXct))
   
-  fn_numeric <- any(vapply(list(
+  fn_numeric <- list(
     Emark, Vmark, markcorr, markvario
-  ), FUN = identical, x = fn, FUN.VALUE = NA))
+  ) |>
+    vapply(FUN = identical, x = fn, FUN.VALUE = NA) |> 
+    any()
   
-  fn_mtp <- any(vapply(list(
+  fn_mtp <- list(
     Gcross, Jcross, Kcross, Lcross, markconnect
-  ), FUN = identical, x = fn, FUN.VALUE = NA))
+  ) |>
+    vapply(FUN = identical, x = fn, FUN.VALUE = NA) |>
+    any()
   
   # functions like ?spatstat.explore::Kest
   # applicable to none-mark \link[spatstat.geom]{ppp.object}

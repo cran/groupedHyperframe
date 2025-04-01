@@ -4,12 +4,10 @@
 \alias{check_fvlist}
 \title{check_fvlist}
 \usage{
-check_fvlist(X, ...)
+check_fvlist(X)
 }
 \arguments{
-\item{X}{a \link[base]{list} of \link[spatstat.explore]{fv.object}s}
-
-\item{...}{additional parameters, currently not in use}
+\item{X}{a \link[stats]{listof} \link[spatstat.explore]{fv.object}s}
 }
 \value{
 Function \code{\link[=check_fvlist]{check_fvlist()}} does not have a returned value.
@@ -18,7 +16,7 @@ Function \code{\link[=check_fvlist]{check_fvlist()}} does not have a returned va
 check_fvlist
 }
 \details{
-To check
+Function \code{\link[=check_fvlist]{check_fvlist()}} checks that
 \itemize{
 \item {if \eqn{x}-axis of all \link[spatstat.explore]{fv.object}s are all same}
 \item {\code{attr(,'fname')} of all \link[spatstat.explore]{fv.object}s are all same}
