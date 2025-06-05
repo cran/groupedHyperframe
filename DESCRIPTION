@@ -1,35 +1,38 @@
 Package: groupedHyperframe
 Type: Package
 Title: Grouped Hyper Data Frame: An Extension of Hyper Data Frame
-        Object
-Version: 0.2.1
-Date: 2025-04-01
-Description: An S3 class 'groupedHyperframe' that inherits from
-       hyper data frame. Batch processes on point-pattern hyper
-       column. Aggregation of function-value-table hyper
-       column(s) and numeric hyper column(s) over a nested
-       grouping structure.
+Version: 0.2.3
+Date: 2025-06-05
+Description: An S3 class 'groupedHyperframe' that
+     inherits from hyper data frame. Batch
+     processes on point-pattern hyper column.
+     Aggregation of function-value-table hyper
+     column(s) and numeric hyper column(s) over a
+     nested grouping structure.
 RoxygenNote: 7.3.2
 LazyData: true
 LazyDataCompression: xz
 Encoding: UTF-8
 License: GPL-2
-Depends: R (>= 4.4)
+Depends: R (>= 4.5)
 Language: en-US
-Authors@R: c(person(given = 'Tingting', family = 'Zhan', role =
-       c('aut', 'cre'), email = 'tingtingzhan@gmail.com',
-       comment = c(ORCID = '0000-0001-9971-4844')), person(given
-       = 'Inna', family = 'Chervoneva', role = c('aut'), email =
-       'Inna.Chervoneva@jefferson.edu', comment = c(ORCID =
-       '0000-0002-9104-4505')))
-Imports: cli, parallel, stats, nlme, matrixStats, pracma,
-        spatstat.explore, spatstat.geom
-Suggests: knitr, rmarkdown, survival, spatstat.data
-VignetteBuilder: knitr
+Authors@R: c(person(given = 'Tingting', family =
+     'Zhan', role = c('aut', 'cre'), email =
+     'tingtingzhan@gmail.com', comment = c(ORCID
+     = '0000-0001-9971-4844')), person(given =
+     'Inna', family = 'Chervoneva', role =
+     c('aut'), email =
+     'Inna.Chervoneva@jefferson.edu', comment =
+     c(ORCID = '0000-0002-9104-4505')))
+Imports: cli, parallel, matrixStats, pracma, spatstat.explore,
+        spatstat.geom, SpatialPack
+Suggests: knitr, quarto, rmarkdown, survival, spatstat.data
+VignetteBuilder: quarto
 NeedsCompilation: no
-Packaged: 2025-04-01 00:37:20 UTC; tingtingzhan
-Author: Tingting Zhan [aut, cre] (<https://orcid.org/0000-0001-9971-4844>),
-  Inna Chervoneva [aut] (<https://orcid.org/0000-0002-9104-4505>)
+Packaged: 2025-06-05 13:28:18 UTC; tingtingzhan
+Author: Tingting Zhan [aut, cre] (ORCID:
+    <https://orcid.org/0000-0001-9971-4844>),
+  Inna Chervoneva [aut] (ORCID: <https://orcid.org/0000-0002-9104-4505>)
 Maintainer: Tingting Zhan <tingtingzhan@gmail.com>
 Repository: CRAN
-Date/Publication: 2025-04-01 07:20:02 UTC
+Date/Publication: 2025-06-05 14:00:01 UTC

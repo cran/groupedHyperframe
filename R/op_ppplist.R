@@ -17,17 +17,18 @@
 #' [fv_ppp()] or [dist_ppp()]
 #' 
 #' @details
-#' Function [fv_ppplist()] is a \pkg{parallel} batch process of the workhorse function [fv_ppp()].
-#' 
-#' Function [dist_ppplist()] is a \pkg{parallel} batch process of the workhorse function [dist_ppp()].
+#' Function [op_ppplist()] is a \pkg{parallel} batch process of 
+#' the workhorse function [fv_ppp()] or [dist_ppp()].
 #' 
 #' @returns 
-#' Function [fv_ppplist()] returns a \link[stats]{listof} function [fv_ppp()] returns.
-#' 
-#' Function [dist_ppplist()] returns a \link[stats]{listof} function [dist_ppp()] returns.
+#' Function [op_ppplist()] returns a \link[stats]{listof} 
+#' \itemize{
+#' \item function [fv_ppp()] returns, if `op = fv_ppp`.
+#' \item function [dist_ppp()] returns, if `op = dist_ppp`.
+#' }
 #' 
 #' @examples
-#' \donttest{
+#' \dontshow{options(mc.cores = 1L)}
 #' library(spatstat.data)
 #' library(spatstat.geom) # for ?spatstat.geom::split.ppp
 #' library(spatstat.explore) # for ?spatstat.explore::Emark, etc.
@@ -35,39 +36,28 @@
 #' Vc = with(shapley$marks, expr = {
 #'  cut.default(V, breaks = quantile(V, probs = c(0, 1/3, 2/3, 1)), labels = c('L', 'M', 'H'))
 #' })
+#' \donttest{
 #' x1 = shapley |> 
 #'  subset.ppp(select = c('Mag', 'SigV')) |>
 #'  split.ppp(f = Vc) |>
-#'  fv_ppplist(fn = markcorr, mc.cores = 1L)
+#'  op_ppplist(op = fv_ppp, fn = markcorr)
 #' names(x1)
 #' names(x1$L)
+#' }
 #' 
 #' x2 = nbfires |> 
 #'   subset.ppp(select = c('fire.type', 'cause', 'ign.src')) |>
 #'   na.omit.ppp() |> 
 #'   split.ppp(f = 'fire.type')
-#' x2 |> dist_ppplist(fn = .nncross, i = 'rrds', j = 'ltning', mc.cores = 1L)
-#' x2 |> dist_ppplist(fn = .nncross, i = 'unknown', 
-#'   j = 'burn.no.perm', mc.cores = 1L)
-#' }
+#' x2 |> op_ppplist(op = dist_ppp, fn = .nncross, i = 'rrds', j = 'ltning')
+#' x2 |> op_ppplist(op = dist_ppp, fn = .nncross, i = 'unknown', j = 'burn.no.perm')
 #' @keywords internal
-#' @name op_ppplist
-#' @export
-fv_ppplist <- function(x, ...) op_ppplist(x, op = fv_ppp, ...)
-  
-#' @rdname op_ppplist
-#' @export
-dist_ppplist <- function(x, ...) op_ppplist(x, op = dist_ppp, ...)
-  
-
-
-#' @rdname op_ppplist
 #' @importFrom parallel mclapply detectCores
 #' @export
 op_ppplist <- function(
     x, 
     op,
-    mc.cores = switch(.Platform$OS.type, windows = 1L, detectCores()),
+    mc.cores = getOption('mc.cores'),
     ...
 ) {
   
@@ -76,6 +66,7 @@ op_ppplist <- function(
   ret <- n |>
     seq_len() |>
     mclapply(mc.cores = mc.cores, FUN = \(i) {
+    #lapply(FUN = \(i) { # when debugging
       # echo-command does not work with '\r' (carriage return)
       if (identical(Sys.getenv('RSTUDIO'), '1')) sprintf(fmt = 'printf \'\r%d/%d done!    \'', i, n) |> system() |> on.exit()
       x[[i]] |> op(...)

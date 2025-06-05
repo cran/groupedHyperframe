@@ -10,8 +10,7 @@
 #' `m1+m2 ~ y+x1+x2 | g1/g2`,
 #' where \eqn{m_i}'s are one or more \link[spatstat.geom]{marks},
 #' \eqn{y} and \eqn{x_j}'s are the endpoint and predictor(s) for downstream analysis,
-#' and \eqn{g_k} are one or more hierarchical grouping structure
-#' (in the fashion of parameter `random` of function \link[nlme]{lme})
+#' and \eqn{g_k} are one or more nested grouping structure
 #' 
 #' @param data \link[base]{data.frame}
 #' 
@@ -23,11 +22,6 @@
 #' default is the \eqn{x}- and \eqn{y}-span of `coords` in `data`.
 #' 
 #' @param ... additional parameters, currently not in use
-#' 
-#' @details
-#' ...
-#' 
-#' 
 #' 
 #' @returns
 #' Function [grouped_ppp()] returns a [groupedHyperframe]
@@ -63,18 +57,19 @@ grouped_ppp <- function(
   
   # Step 2: grouped ppp
   
-  if (isFALSE(coords)) {
-    # .Deprecated(new = 'as.groupedHyperframe.data.frame')
-    .x <- runif(n = nrow(data))
-    .y <- runif(n = nrow(data))
-  } else {
+  #if (isFALSE(coords)) {
+  #  # .Deprecated(new = 'as.groupedHyperframe.data.frame')
+  #  # tzh's downstream package not using this functionality
+  #  .x <- runif(n = nrow(data))
+  #  .y <- runif(n = nrow(data))
+  #} else {
     xy_ <- as.list.default(coords[[2L]])
     if ((xy_[[1L]] != '+') || (length(xy_) != 3L)) stop('Specify x and y coordinates names as ~x+y')
     if (!is.symbol(x <- xy_[[2L]])) stop('x-coordinates must be a symbol, for now')
     if (!is.symbol(y <- xy_[[3L]])) stop('y-coordinates must be a symbol, for now')
     if (!length(.x <- data[[x]]) || anyNA(.x)) stop('Do not allow missingness in x-coordinates')
     if (!length(.y <- data[[y]]) || anyNA(.y)) stop('Do not allow missingness in y-coordinates')
-  }
+  #}
   
   force(window)
   
@@ -89,7 +84,7 @@ grouped_ppp <- function(
   # formula's environment is very annoying!!
   # end of additional attributes
   
-  class(hf) <- unique.default(c('groupedHyperframe', class(hf)))
+  class(hf) <- c('groupedHyperframe', class(hf)) |> unique.default()
   return(hf)
   
 }
@@ -98,6 +93,8 @@ grouped_ppp <- function(
 
 # tzh is not ready to suggest changing ?spatstat.geom::split.ppp to Dr. Baddeley, yet..
 # [split_ppp_dataframe()] is a bandage-fix which respects ncol-1 dataframe
+# haha tzh now knows the real problem is ?spatstat.geom::`[.ppp`
+# and has written to Dr. Baddeley :)
 #' @importFrom spatstat.geom markformat.ppp
 split_ppp_dataframe <- function(x, f) {
   # `f` must be 'factor'
@@ -109,7 +106,7 @@ split_ppp_dataframe <- function(x, f) {
   x = split.default(x$x, f = f),
   y = split.default(x$y, f = f),
   marks = split.data.frame(x$marks, f = f),
-  n = lengths(split.default(seq_along(f), f = f), use.names = FALSE),
+  n = split.default(seq_along(f), f = f) |> lengths(use.names = FALSE),
   MoreArgs = list(
     window = x$window,
     markformat = markformat.ppp(x)

@@ -10,7 +10,7 @@
 #' \pkg{maxEff} and \pkg{hyper.gam}.
 #' 
 #' The \link[base]{data.frame} `Ki67.` is a \link[base]{subset} of the complete data `Ki67`,
-#' which consists only the first 6 patients.  This small data is used as examples for function \link[spatstat.geom]{as.hyperframe.data.frame}. 
+#' which consists only the first 6 patients.  This small data is used as examples for function [as.groupedHyperframe.data.frame()]. 
 #' 
 #' @format
 #' 
@@ -47,7 +47,8 @@
 #' @title wrobel_lung
 #' 
 #' @description
-#' From \url{http://juliawrobel.com/MI_tutorial/Data/lung.RDA}.
+#' From Dr. Julia Wrobel's data \url{https://sph.emory.edu/faculty/profile/index.php?FID=julia-wrobel-13186}.
+# \url{http://juliawrobel.com/MI_tutorial/Data/lung.RDA}. # website hacked
 #' 
 #' @format 
 #' A \link[base]{data.frame}

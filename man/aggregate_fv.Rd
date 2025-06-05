@@ -8,7 +8,7 @@ aggregate_fv(
   X,
   by = stop("must specify `by`"),
   f_aggr_ = pmean,
-  mc.cores = switch(.Platform$OS.type, windows = 1L, detectCores()),
+  mc.cores = getOption("mc.cores"),
   ...
 )
 }
@@ -42,6 +42,7 @@ Aggregate information in \link[spatstat.explore]{fv.object}s
 by sample clustering.
 }
 \examples{
+\dontshow{options(mc.cores = 1L)}
 library(spatstat.data)
 library(spatstat.geom)
 flu$pattern[] = flu$pattern |> 
@@ -49,8 +50,8 @@ flu$pattern[] = flu$pattern |>
 r = seq.int(from = 0, to = 100, by = 5)
 flu |>
  subset(stain == 'M2-M1') |>
- Gcross_(i = 'M1', j = 'M2', r = r, correction = 'best', mc.cores = 1L) |>
  as.groupedHyperframe(group = ~ virustype/frameid) |>
- aggregate_fv(by = ~ virustype, mc.cores = 1L)
+ Gcross_(i = 'M1', j = 'M2', r = r, correction = 'best') |>
+ aggregate_fv(by = ~ virustype)
 }
 \keyword{internal}

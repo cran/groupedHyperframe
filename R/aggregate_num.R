@@ -48,7 +48,7 @@ aggregate_num <- function(
     FUN,
     FUN.name = deparse1(substitute(FUN)),
     f_aggr_ = pmean, 
-    mc.cores = switch(.Platform$OS.type, windows = 1L, detectCores()), # must prevent `mc.cores` from going into `...`, e.g., ?stats::density.default warns on extra parameter
+    mc.cores = getOption('mc.cores'), # must prevent `mc.cores` from going into `...`, e.g., ?stats::density.default warns on extra parameter
     ...
 ) {
   
@@ -61,7 +61,9 @@ aggregate_num <- function(
   # 'numeric'-`hypercolumns`
   hc_num <- hc |>
     vapply(FUN = \(x) {
-      all(vapply(x, FUN = is.numeric, FUN.VALUE = NA))
+      x |>
+        vapply(FUN = is.numeric, FUN.VALUE = NA) |>
+        all()
     }, FUN.VALUE = NA)
   hyper_num_ <- if (any(hc_num)) hc[names(which(hc_num))] # else NULL
   
@@ -197,7 +199,7 @@ aggregate_by_ <- function(
   }
   
   if (id > 1L) {
-    warning('tzh\'s next game: make this output an nlme::groupedData')
+    #warning('tzh\'s next game: make this output an nlme::groupedData')
     #group_ret <- str2lang(paste(g[seq_len(id)], collapse = '/'))
     #fom <- eval(call('~', quote(.), call('|', quote(.), group_ret)))
     #nlme::groupedData(formula = fom, data = x) # um, I need to know more about ?nlme::groupedData

@@ -35,6 +35,7 @@
 #' instead of a \link[spatstat.geom]{hyperframe}.
 #' 
 #' @examples
+#' \dontshow{options(mc.cores = 1L)}
 #' library(spatstat.data)
 #' library(spatstat.geom)
 #' flu$pattern[] = flu$pattern |> 
@@ -42,10 +43,11 @@
 #' r = seq.int(from = 0, to = 100, by = 5)
 #' flu |>
 #'  subset(stain == 'M2-M1') |>
-#'  Gcross_(i = 'M1', j = 'M2', r = r, correction = 'best', mc.cores = 1L) |>
 #'  as.groupedHyperframe(group = ~ virustype/frameid) |>
-#'  aggregate_fv(by = ~ virustype, mc.cores = 1L)
+#'  Gcross_(i = 'M1', j = 'M2', r = r, correction = 'best') |>
+#'  aggregate_fv(by = ~ virustype)
 #' @keywords internal
+#' @importFrom cli col_blue col_cyan col_magenta style_bold
 #' @importFrom spatstat.geom names.hyperframe
 #' @importFrom stats setNames
 #' @export
@@ -53,7 +55,7 @@ aggregate_fv <- function(
     X, 
     by = stop('must specify `by`'),
     f_aggr_ = pmean,
-    mc.cores = switch(.Platform$OS.type, windows = 1L, detectCores()),
+    mc.cores = getOption('mc.cores'),
     ...
 ) {
   
@@ -69,9 +71,21 @@ aggregate_fv <- function(
       check_fvlist(x)
       cumtrapz. <- x |> mclapply(mc.cores = mc.cores, FUN = cumtrapz.fv)
       if (anyNA(cumtrapz., recursive = TRUE)) {
-        stop('quick fix for `listof` instead of `matrix`')
-        #id <- (!is.na(cumtrapz.)) |> rowSums() |> min()
-        #message(col_cyan(nm), ': please limit ', col_magenta('r'), ' from ', x[[1L]]$r[1L], ' to ', x[[1L]]$r[id])
+        #cumtrapz. <<- cumtrapz.
+        id <- cumtrapz. |>
+          vapply(FUN = \(i) {
+            (!is.na(i)) |> sum()
+          }, FUN.VALUE = NA_integer_) |>
+          min()
+        paste(
+          'Legal', 
+          'rmax' |> col_red() |> style_bold(),
+          'for', 
+          nm |> col_blue() |> style_bold(), 
+          'is', 
+          x[[1L]]$r[id] |> style_bold()
+        ) |>
+          message()
       }
       return(list(
         value = x |> lapply(FUN = key1val.fv),

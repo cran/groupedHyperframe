@@ -23,7 +23,7 @@
 mc_identical_by <- function(
     data, 
     f,
-    mc.cores = switch(.Platform$OS.type, windows = 1L, detectCores()),
+    mc.cores = getOption('mc.cores'),
     ...
 ) {
   
@@ -44,15 +44,15 @@ mc_identical_by <- function(
   
   if (any(!.ident)) {
     nm <- names(data)[!.ident]
-    nm |> 
-      col_blue() |> 
-      paste(collapse = ';') |>
-      sprintf(fmt = 'Column(s) %s removed; as they are not identical per aggregation-group') |>
-      message()
+    #nm |> 
+    #  col_blue() |> 
+    #  paste(collapse = ';') |>
+    #  sprintf(fmt = 'Column(s) %s removed; as they are not identical per aggregation-group') |>
+    #  message() # choose not to print this message
     data[nm] <- NULL
   } else nm <- NULL
   
-  ret <- data[vapply(ids, FUN = `[`, 1L, FUN.VALUE = NA_integer_),]
+  ret <- data[vapply(ids, FUN = `[`, 1L, FUN.VALUE = NA_integer_), , drop = FALSE]
   # do.call(rbind.data.frame, args = .) # ?base::rbind.data.frame does not respect 'Surv', etc.
   .rowNamesDF(ret) <- NULL
   attr(ret, which = 'non_identical') <- nm
