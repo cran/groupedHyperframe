@@ -14,16 +14,16 @@
 #| label: prerequisite
 #| warning: false
 #| eval: false
-# remotes::install_github('spatstat/spatstat')
-# remotes::install_github('spatstat/spatstat.data')
-# remotes::install_github('spatstat/spatstat.explore')
-# remotes::install_github('spatstat/spatstat.geom')
-# remotes::install_github('spatstat/spatstat.linnet')
-# remotes::install_github('spatstat/spatstat.model')
-# remotes::install_github('spatstat/spatstat.random')
-# remotes::install_github('spatstat/spatstat.sparse')
-# remotes::install_github('spatstat/spatstat.univar')
-# remotes::install_github('spatstat/spatstat.utils')
+# remotes::install_github('spatstat/spatstat', upgrade = 'always')
+# remotes::install_github('spatstat/spatstat.data', upgrade = 'always')
+# remotes::install_github('spatstat/spatstat.explore', upgrade = 'always')
+# remotes::install_github('spatstat/spatstat.geom', upgrade = 'always')
+# remotes::install_github('spatstat/spatstat.linnet', upgrade = 'always')
+# remotes::install_github('spatstat/spatstat.model', upgrade = 'always')
+# remotes::install_github('spatstat/spatstat.random', upgrade = 'always')
+# remotes::install_github('spatstat/spatstat.sparse', upgrade = 'always')
+# remotes::install_github('spatstat/spatstat.univar', upgrade = 'always')
+# remotes::install_github('spatstat/spatstat.utils', upgrade = 'always')
 
 
 ## -----------------------------------------------------------------------------

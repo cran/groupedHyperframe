@@ -1,8 +1,7 @@
 Package: groupedHyperframe
 Type: Package
 Title: Grouped Hyper Data Frame: An Extension of Hyper Data Frame
-Version: 0.2.3
-Date: 2025-06-05
+Version: 0.2.4
 Description: An S3 class 'groupedHyperframe' that
      inherits from hyper data frame. Batch
      processes on point-pattern hyper column.
@@ -29,10 +28,10 @@ Imports: cli, parallel, matrixStats, pracma, spatstat.explore,
 Suggests: knitr, quarto, rmarkdown, survival, spatstat.data
 VignetteBuilder: quarto
 NeedsCompilation: no
-Packaged: 2025-06-05 13:28:18 UTC; tingtingzhan
+Packaged: 2025-06-27 19:43:57 UTC; tingtingzhan
 Author: Tingting Zhan [aut, cre] (ORCID:
     <https://orcid.org/0000-0001-9971-4844>),
   Inna Chervoneva [aut] (ORCID: <https://orcid.org/0000-0002-9104-4505>)
 Maintainer: Tingting Zhan <tingtingzhan@gmail.com>
 Repository: CRAN
-Date/Publication: 2025-06-05 14:00:01 UTC
+Date/Publication: 2025-06-27 20:10:10 UTC
