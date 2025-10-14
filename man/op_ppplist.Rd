@@ -4,56 +4,32 @@
 \alias{op_ppplist}
 \title{Batch Operations of \code{'ppplist'} Object}
 \usage{
-op_ppplist(x, op, mc.cores = getOption("mc.cores"), ...)
+op_ppplist(x, op, mc.cores = getOption("cores"), ...)
 }
 \arguments{
 \item{x}{a \code{'ppplist'} object}
 
-\item{op}{workhorse \link[base]{function}, either \code{\link[=fv_ppp]{fv_ppp()}} or \code{\link[=dist_ppp]{dist_ppp()}}}
+\item{op}{workhorse \link[base]{function}, either \code{\link[=ppp_numeric2fv]{ppp_numeric2fv()}}, \code{\link[=ppp_multitype2fv]{ppp_multitype2fv()}} or \code{\link[=ppp2dist]{ppp2dist()}}}
 
 \item{mc.cores}{\link[base]{integer} scalar, see function \link[parallel]{mclapply}.
-Default is 1L on Windows, or \link[parallel]{detectCores} on Mac.}
+Default is the return of function \link[parallel]{detectCores}.}
 
 \item{...}{additional parameters of workhorse functions
-\code{\link[=fv_ppp]{fv_ppp()}} or \code{\link[=dist_ppp]{dist_ppp()}}}
+\code{\link[=ppp_numeric2fv]{ppp_numeric2fv()}}, \code{\link[=ppp_multitype2fv]{ppp_multitype2fv()}} or \code{\link[=ppp2dist]{ppp2dist()}}}
 }
 \value{
 Function \code{\link[=op_ppplist]{op_ppplist()}} returns a \link[stats]{listof}
 \itemize{
-\item function \code{\link[=fv_ppp]{fv_ppp()}} returns, if \code{op = fv_ppp}.
-\item function \code{\link[=dist_ppp]{dist_ppp()}} returns, if \code{op = dist_ppp}.
+\item function \code{\link[=ppp_numeric2fv]{ppp_numeric2fv()}} returns, if \code{op = ppp_numeric2fv}.
+\item function \code{\link[=ppp_multitype2fv]{ppp_multitype2fv()}} returns, if \code{op = ppp_multitype2fv}.
+\item function \code{\link[=ppp2dist]{ppp2dist()}} returns, if \code{op = ppp2dist}.
 }
 }
 \description{
-Batch operations of function \code{\link[=fv_ppp]{fv_ppp()}} or \code{\link[=dist_ppp]{dist_ppp()}}, for a \code{'ppplist'} input.
+Batch operations for a \code{'ppplist'} input.
 }
 \details{
 Function \code{\link[=op_ppplist]{op_ppplist()}} is a \pkg{parallel} batch process of
-the workhorse function \code{\link[=fv_ppp]{fv_ppp()}} or \code{\link[=dist_ppp]{dist_ppp()}}.
-}
-\examples{
-\dontshow{options(mc.cores = 1L)}
-library(spatstat.data)
-library(spatstat.geom) # for ?spatstat.geom::split.ppp
-library(spatstat.explore) # for ?spatstat.explore::Emark, etc.
-
-Vc = with(shapley$marks, expr = {
- cut.default(V, breaks = quantile(V, probs = c(0, 1/3, 2/3, 1)), labels = c('L', 'M', 'H'))
-})
-\donttest{
-x1 = shapley |> 
- subset.ppp(select = c('Mag', 'SigV')) |>
- split.ppp(f = Vc) |>
- op_ppplist(op = fv_ppp, fn = markcorr)
-names(x1)
-names(x1$L)
-}
-
-x2 = nbfires |> 
-  subset.ppp(select = c('fire.type', 'cause', 'ign.src')) |>
-  na.omit.ppp() |> 
-  split.ppp(f = 'fire.type')
-x2 |> op_ppplist(op = dist_ppp, fn = .nncross, i = 'rrds', j = 'ltning')
-x2 |> op_ppplist(op = dist_ppp, fn = .nncross, i = 'unknown', j = 'burn.no.perm')
+the workhorse function \code{\link[=ppp_numeric2fv]{ppp_numeric2fv()}}, \code{\link[=ppp_multitype2fv]{ppp_multitype2fv()}} or \code{\link[=ppp2dist]{ppp2dist()}}.
 }
 \keyword{internal}

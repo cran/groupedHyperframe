@@ -29,7 +29,7 @@
 #' \link[spatstat.geom]{ppp}-\link[spatstat.geom:hyperframe]{hypercolumn}.
 #' 
 #' @keywords internal
-#' @importFrom spatstat.geom owin ppp as.hyperframe.data.frame
+#' @importFrom spatstat.geom owin ppp as.hyperframe.data.frame split.ppp
 #' @importFrom stats runif
 #' @export
 grouped_ppp <- function(
@@ -43,39 +43,40 @@ grouped_ppp <- function(
   # Step 1: grouped hyperframe (may consider writing into a function)
   
   group <- formula[[3L]][[3L]]
-  g <- all.vars(group)
-  data[g] <- lapply(data[g], FUN = \(i) {
-    if (is.factor(i)) return(factor(i)) # drop empty levels!!
-    factor(i, levels = unique(i))
-  }) 
   
-  fg <- interaction(data[g], drop = TRUE, sep = '.', lex.order = TRUE) # one or more hierarchy
+  fg <- group |> 
+    get_nested_factors(data = data) |>
+    interaction(drop = TRUE, sep = '.', lex.order = TRUE) # one or more hierarchy
 
-  hf <- data[all.vars(formula[[3L]])] |>
+  fom3var <- all.vars(formula[[3L]])
+  if ('.' %in% fom3var) {
+    dotvar <- names(data) |>
+      setdiff(y = all.vars(formula[[2L]]))
+    fom3var <- fom3var |>
+      setdiff(y = '.') |>
+      c(dotvar) |>
+      unique.default()
+  } # ugly but works :)
+  
+  hf <- data[fom3var] |>
     mc_identical_by(f = fg, ...) |>
     as.hyperframe.data.frame()
   
   # Step 2: grouped ppp
   
-  #if (isFALSE(coords)) {
-  #  # .Deprecated(new = 'as.groupedHyperframe.data.frame')
-  #  # tzh's downstream package not using this functionality
-  #  .x <- runif(n = nrow(data))
-  #  .y <- runif(n = nrow(data))
-  #} else {
-    xy_ <- as.list.default(coords[[2L]])
-    if ((xy_[[1L]] != '+') || (length(xy_) != 3L)) stop('Specify x and y coordinates names as ~x+y')
-    if (!is.symbol(x <- xy_[[2L]])) stop('x-coordinates must be a symbol, for now')
-    if (!is.symbol(y <- xy_[[3L]])) stop('y-coordinates must be a symbol, for now')
-    if (!length(.x <- data[[x]]) || anyNA(.x)) stop('Do not allow missingness in x-coordinates')
-    if (!length(.y <- data[[y]]) || anyNA(.y)) stop('Do not allow missingness in y-coordinates')
-  #}
+  xy_ <- as.list.default(coords[[2L]])
+  if ((xy_[[1L]] != '+') || (length(xy_) != 3L)) stop('Specify x and y coordinates names as ~x+y')
+  if (!is.symbol(x <- xy_[[2L]])) stop('x-coordinates must be a symbol, for now')
+  if (!is.symbol(y <- xy_[[3L]])) stop('y-coordinates must be a symbol, for now')
+  if (!length(.x <- data[[x]]) || anyNA(.x)) stop('Do not allow missingness in x-coordinates')
+  if (!length(.y <- data[[y]]) || anyNA(.y)) stop('Do not allow missingness in y-coordinates')
   
   force(window)
   
   tmp <- ppp(x = .x, y = .y, window = window, marks = data[all.vars(formula[[2L]])], checkdup = FALSE, drop = FALSE) # `drop = FALSE` important!!!
+  class(tmp) <- c('ppp_tzh', class(tmp))
   hf$ppp. <- tmp |> 
-    split_ppp_dataframe(f = fg)
+    split.ppp(f = fg, drop = FALSE)
   
   # additional attributes to mimic ?nlme::groupedData
   # also see example 'groupedData's from package datasets
@@ -90,28 +91,70 @@ grouped_ppp <- function(
 }
 
 
-
-# tzh is not ready to suggest changing ?spatstat.geom::split.ppp to Dr. Baddeley, yet..
-# [split_ppp_dataframe()] is a bandage-fix which respects ncol-1 dataframe
-# haha tzh now knows the real problem is ?spatstat.geom::`[.ppp`
-# and has written to Dr. Baddeley :)
-#' @importFrom spatstat.geom markformat.ppp
-split_ppp_dataframe <- function(x, f) {
-  # `f` must be 'factor'
-  mapply(FUN = \(...) {
-    ret <- list(...)
-    class(ret) <- class(x)
-    return(ret)
-  }, 
-  x = split.default(x$x, f = f),
-  y = split.default(x$y, f = f),
-  marks = split.data.frame(x$marks, f = f),
-  n = split.default(seq_along(f), f = f) |> lengths(use.names = FALSE),
-  MoreArgs = list(
-    window = x$window,
-    markformat = markformat.ppp(x)
-  ), SIMPLIFY = FALSE)
+#' @title Get Nested Levels
+#' 
+#' @param group a \link[base]{language} object, (nested) grouping structure
+#' 
+#' @keywords internal
+#' @name get_nested
+#' @export
+get_nested <- function(group) {
+  
+  nested_ <- \(g) {
+    if (is.symbol(g)) return(g)
+    if (g[[1L]] == ':') return(g)
+    if (g[[1L]] == '~') {
+      if (length(g) == 2L) return(nested_(g[[-1L]]))
+      stop('only accept one-sided formula')
+    }
+    if (g[[1L]] == '/') return(lapply(as.list(g)[-1L], FUN = nested_))
+    stop('should not come here')
+  }
+  
+  ret <- group |>
+    nested_() |> 
+    unlist()
+  if (!is.list(ret)) ret <- list(ret)
+  
+  names(ret) <- ret |>
+    vapply(FUN = deparse1, FUN.VALUE = NA_character_)
+  
+  return(ret)
+  
 }
+
+
+#' @rdname get_nested
+#' 
+#' @param data \link[base]{data.frame} or \link[spatstat.geom]{hyperframe}
+#' 
+#' @export
+get_nested_factors <- \(group, data) {
+  group |>
+    get_nested() |>
+    lapply(FUN = \(g) {
+      if (is.symbol(g)) {
+        z <- data[[g]]
+        if (is.factor(z)) return(factor(z)) # drop empty levels!!
+        return(factor(z, levels = unique(z)))
+      }
+      gv <- all.vars(g)
+      tmp <- if (inherits(data, what = 'hyperframe')) {
+        unclass(data)$df[gv]
+      } else if (inherits(data, what = 'data.frame')) {
+        data[gv]
+      } else stop('unsupported')
+      z <- tmp |>
+        interaction(drop = TRUE, sep = '.', lex.order = TRUE) # must be 'factor'
+      return(z)
+    })
+}
+
+
+
+
+
+
 
 
 

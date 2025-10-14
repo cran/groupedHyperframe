@@ -6,7 +6,7 @@
 #' @param f \link[base]{factor}
 #' 
 #' @param mc.cores \link[base]{integer} scalar, see function \link[parallel]{mclapply}.
-#' Default is 1L on Windows, or \link[parallel]{detectCores} on Mac.
+#' Default is the return of function \link[parallel]{detectCores}.
 #' 
 #' @param ... additional parameters, currently not in use
 #' 
@@ -15,14 +15,17 @@
 #' 
 #' Function `collapse::collap` does not support \link[survival]{Surv} column.
 #' 
+#' Look more into `nlme:::collapse.groupedData`
+#' 
 #' @keywords internal
-#' @importFrom cli col_blue
-#' @importFrom parallel mclapply detectCores
+#' @importFrom doParallel registerDoParallel
+#' @importFrom foreach foreach `%dopar%`
+#' @importFrom parallel mclapply makeCluster stopCluster
 #' @export
 mc_identical_by <- function(
     data, 
     f,
-    mc.cores = getOption('mc.cores'),
+    mc.cores = getOption('cores'),
     ...
 ) {
   
@@ -31,15 +34,34 @@ mc_identical_by <- function(
   
   ids <- nr |> seq_len() |> split.default(f = f)
   
-  .ident <- data |>
-    vapply(FUN = \(d) { # (d = data[[1L]])
-      ids |> 
-        mclapply(mc.cores = mc.cores, FUN = \(i) {
+  foo2 <- switch(
+    EXPR = .Platform$OS.type, # as of R 4.5, only two responses, 'windows' or 'unix'
+    unix = { 
+      \(d) { # (d = data[[1L]])
+        ids |> 
+          mclapply(mc.cores = mc.cores, FUN = \(i) {
+            all(duplicated(unclass(d[i]))[-1L]) # column `d` identical within split `i`
+          }) |> 
+          unlist(use.names = FALSE) |> # column `d` identical within all splits
+          all()
+      }
+    }, windows = {
+      \(d) { # (d = data[[1L]])
+        foo1 <- \(i) {
           all(duplicated(unclass(d[i]))[-1L]) # column `d` identical within split `i`
-        }) |> 
-        unlist(use.names = FALSE) |> # column `d` identical within all splits
-        all()
-    }, FUN.VALUE = NA)
+        }
+        i <- NULL # just to suppress devtools::check NOTE
+        registerDoParallel(cl = (cl <- makeCluster(spec = mc.cores)))
+        tmp <- foreach(i = ids, .options.multicore = list(cores = mc.cores)) %dopar% foo1(i)
+        stopCluster(cl)
+        tmp |> 
+          unlist(use.names = FALSE) |>
+          all()
+      }
+    })
+
+  .ident <- data |>
+    vapply(FUN = foo2, FUN.VALUE = NA)
   
   if (any(!.ident)) {
     nm <- names(data)[!.ident]

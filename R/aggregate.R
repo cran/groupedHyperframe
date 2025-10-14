@@ -1,0 +1,150 @@
+
+#' @title Aggregate [groupedHyperframe]
+#' 
+#' @param x a [groupedHyperframe]
+#' 
+#' @param by a one-sided \link[stats]{formula}
+#' 
+#' @param ... additional parameters of function [aggregate.vectorlist()], 
+#' most importantly parameter `fun`
+#' 
+#' @returns 
+#' Function [aggregate.groupedHyperframe()] returns a \link[spatstat.geom]{hyperframe}.
+#'  
+#' @keywords internal
+#' @importFrom stats aggregate
+#' @importFrom spatstat.geom is.ppplist is.imlist
+#' @export aggregate.groupedHyperframe
+#' @export
+aggregate.groupedHyperframe <- function(
+    x, 
+    by,
+    ...
+) {
+  
+  x0 <- unclass(x)
+  xdf <- x0$df
+  xhc <- x0$hypercolumns
+  
+  group <- x |> 
+    attr(which = 'group', exact = TRUE)
+  
+  if (!is.call(by) || by[[1L]] != '~' || length(by) != 2L) stop('`by` must be one-sided formula')
+  if (!is.symbol(by. <- by[[2L]])) {
+    new_by <- by. |>
+      all.vars() |>
+      vapply(FUN = \(i) deparse1(call(name = '~', as.symbol(i))), FUN.VALUE = '')
+    message('grouped structure ', paste('by =', deparse1(by)) |> col_cyan(), ' is not allowed')
+    new_by_txt <- paste('by =', new_by) |> col_magenta()
+    message('please use either one of ', paste(new_by_txt, collapse = ', '), '.')
+    stop('`by` must be a formula and right-hand-side must be a symbol')
+  }
+  # `group` 'up-to' `by.`
+  # how to do it beautifully?
+  # below is an ugly bandage fix
+  g <- all.vars(group)
+  id <- match(as.character(by.), table = g)
+  if (is.na(id)) stop('`by` must match one of the hierarchy in groupedHyperframe')
+  # end of ugly bandage fix
+  
+  # grouping structure must be specified by `$df` part!!
+  f <- xdf[g[seq_len(id)]] |>
+    interaction(drop = TRUE, sep = '.', lex.order = TRUE)
+  if (all(table(f) == 1L)) return(x) # exception handling
+  
+  xdf_ag <- xdf |> 
+    mc_identical_by(f = f, ...)
+
+  id_vector <- xhc |>
+    vapply(FUN = is.vectorlist, mode = 'numeric', FUN.VALUE = NA)
+  xhc_vector <- if (any(id_vector)) {
+    xhc[id_vector] |> 
+      lapply(FUN = aggregate.vectorlist, by = f, ...)
+  } #else NULL
+  
+  # object-list supported by spatstat family
+  id_ppp <- xhc |>
+    vapply(FUN = is.ppplist, FUN.VALUE = NA)
+  id_im <- xhc |>
+    vapply(FUN = is.imlist, FUN.VALUE = NA)
+  id_lol <- id_ppp | id_im # list-of-list
+  xhc_lol <- if (any(id_lol)) {
+    xhc[id_lol] |> 
+      lapply(FUN = split.default, f = f)
+  } #else NULL
+
+  # object-list *not* supported by spatstat family
+  id_fv <- xhc |>
+    vapply(FUN = is.fvlist, FUN.VALUE = NA) |>
+    suppressMessages()
+  xhc_fv <- if (any(id_fv)) {
+    xhc[id_fv] |> 
+      lapply(FUN = as.fvlist) |>
+      lapply(FUN = split.default, f = f)
+  } #else NULL
+  
+  ret <- do.call(
+    what = cbind.hyperframe, 
+    args = c(list(xdf_ag), xhc_vector, xhc_lol, xhc_fv)
+  ) # returns 'hyperframe', *not* 'groupedHyperframe' !!
+  
+  return(ret)
+  
+}
+
+
+
+
+
+#' @title Aggregate `vectorlist`
+#' 
+#' @param x a `vectorlist`
+#' 
+#' @param by \link[base]{factor}, of same \link[base]{length} as `x`
+#' 
+#' @param fun \link[base]{function}, aggregation method, 
+#' currently supports functions
+#' [pmean()], [pmedian()], \link[base]{pmax}, and \link[base]{pmin}.
+#' 
+#' @param ... additional parameters, currently of no use
+#' 
+#' @keywords internal
+#' @importFrom stats aggregate
+#' @export aggregate.vectorlist
+#' @export
+aggregate.vectorlist <- function(x, by, fun = pmean, ...) {
+  
+  fun_supported <- list(pmean, pmedian, pmax, pmin) |>
+    vapply(FUN = identical, y = fun, FUN.VALUE = NA) |>
+    any()
+  if (!fun_supported) {
+    '`fun`' |> 
+      col_blue() |>
+      sprintf(fmt = '%s must be one of {.fun groupedHyperframe::pmean}, {.fun groupedHyperframe::pmedian}, {.fun base::pmax} or {.fun base::pmin}') |> 
+      cli_text() |> 
+      message(appendLF = FALSE)
+    stop()
+  }
+  
+  if (!is.factor(by)) stop('`by` must be factor')
+  if (length(by) != length(x)) stop('`by` and `x` must be of same length')
+  
+  fid <- split.default(seq_along(by), f = by)
+  if (all(lengths(fid) == 1L)) {
+    message('no need to aggregate')
+    return(invisible(x))
+  } 
+  
+  ret <- fid |>
+    lapply(FUN = \(i) { # (i = fid[[1L]])
+      x[i] |> 
+        do.call(what = fun, args = _)
+    })
+  class(ret) <- c('vectorlist', 'anylist', 'listof', class(ret)) |> 
+    unique.default()
+  # 'vectorlist' not respected by spatstat.geom::hyperframe(), yet
+  return(ret)
+  
+}
+
+

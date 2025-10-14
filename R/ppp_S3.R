@@ -1,6 +1,34 @@
 
 
-#' @title log.ppp
+#' @title Is \link[spatstat.geom]{marks} of \link[spatstat.geom]{ppp.object} \link[base]{numeric} ?
+#' 
+#' @param x a \link[spatstat.geom]{ppp.object}
+#' 
+#' @keywords internal
+#' @export is.numeric.ppp
+#' @export
+is.numeric.ppp <- function(x) {
+  
+  m <- x |>
+    marks(dfok = TRUE, drop = FALSE)
+  
+  x |>
+    markformat() |>
+    switch('dataframe' = {
+      m |>
+        vapply(FUN = is.numeric, FUN.VALUE = NA)
+    }, 'vector' = {
+      is.numeric(m)
+    }, 'none' = {
+      logical()
+    })
+  
+}
+
+
+
+
+#' @title \link[base]{log} of \link[spatstat.geom]{ppp.object}
 #' 
 #' @description
 #' ...
@@ -13,13 +41,12 @@
 #' Function [log.ppp()] takes a \link[base]{log} of continuous marks 
 #' of a \link[spatstat.geom]{ppp.object}.
 #' 
-#' @return 
-#' Function [log.ppp()] returns a \link[spatstat.geom]{ppp.object}.
+#' Functions [log1p.ppp()], [log10.ppp()] and [log2.ppp()] are similar.
 #' 
-#' @examples
-#' data(longleaf, package = 'spatstat.data')
-#' longleaf |> plot()
-#' longleaf |> log() |> plot()
+#' @return 
+#' Functions [log.ppp()], [log1p.ppp()], [log10.ppp()] and [log2.ppp()] 
+#' all return a \link[spatstat.geom]{ppp.object}.
+#' 
 #' @keywords internal
 #' @name log_ppp
 #' @importFrom spatstat.geom markformat marks marks<-
@@ -37,7 +64,7 @@ log.ppp <- function(x, base = exp(1)) {
         vapply(FUN = is.numeric, FUN.VALUE = NA)
       marks(x, dfok = TRUE, drop = FALSE)[id] <- m[id] |> lapply(FUN = log, base = base)
     }, 'vector' = {
-      if (is.numeric(m)) marks(x) <- log(m, base = base)
+      if (is.numeric(m)) marks(x) <- m |> log(base = base)
       # else do nothing
     }, 'none' = {
       # do nothing
@@ -62,7 +89,8 @@ log1p.ppp <- function(x) {
     markformat() |>
     switch('dataframe' = {
       id <- m |>
-        vapply(FUN = is.numeric, FUN.VALUE = NA)
+        #vapply(FUN = is.numeric, FUN.VALUE = NA) # ?base::is.numeric will pass 'POSIXct'
+        vapply(FUN = inherits, what = 'numeric', FUN.VALUE = NA)
       marks(x, dfok = TRUE, drop = FALSE)[id] <- m[id] |> lapply(FUN = log1p)
     }, 'vector' = {
       if (is.numeric(m)) marks(x) <- m |> log1p()
@@ -76,9 +104,58 @@ log1p.ppp <- function(x) {
 }
 
 
+#' @rdname log_ppp
+#' @importFrom spatstat.geom markformat marks marks<-
+#' @export log10.ppp
+#' @export
+log10.ppp <- function(x) {
+  
+  m <- x |>
+    marks(dfok = TRUE, drop = FALSE)
+  
+  x |>
+    markformat() |>
+    switch('dataframe' = {
+      id <- m |>
+        vapply(FUN = is.numeric, FUN.VALUE = NA)
+      marks(x, dfok = TRUE, drop = FALSE)[id] <- m[id] |> lapply(FUN = log10)
+    }, 'vector' = {
+      if (is.numeric(m)) marks(x) <- m |> log10()
+      # else do nothing
+    }, 'none' = {
+      # do nothing
+    })
+  
+  return(x)
+  
+}
 
-# nobs.ppp <- function(object, ...) .Defunct(new = 'spatstat.geom::npoints.ppp')
 
+#' @rdname log_ppp
+#' @importFrom spatstat.geom markformat marks marks<-
+#' @export log2.ppp
+#' @export
+log2.ppp <- function(x) {
+  
+  m <- x |>
+    marks(dfok = TRUE, drop = FALSE)
+  
+  x |>
+    markformat() |>
+    switch('dataframe' = {
+      id <- m |>
+        vapply(FUN = is.numeric, FUN.VALUE = NA)
+      marks(x, dfok = TRUE, drop = FALSE)[id] <- m[id] |> lapply(FUN = log2)
+    }, 'vector' = {
+      if (is.numeric(m)) marks(x) <- m |> log2()
+      # else do nothing
+    }, 'none' = {
+      # do nothing
+    })
+  
+  return(x)
+  
+}
 
 
 
@@ -100,21 +177,8 @@ log1p.ppp <- function(x) {
 #' tzh suppose missing `$x` and `$y` are 
 #' forbidden in \link[spatstat.geom]{ppp.object} anyway.
 #' 
-#' @examples
-#' library(spatstat.data)
-#' library(spatstat.geom)
-#' 
-#' npoints(nbfires)
-#' npoints(na.omit.ppp(nbfires))
-#' 
-#' npoints(amacrine)
-#' npoints(na.omit.ppp(amacrine)) # no missing marks to be removed
-#' 
-#' nbfires_julian = unstack.ppp(nbfires)$out.julian
-#' suppressWarnings(print.ppp(nbfires_julian))
-#' suppressWarnings(plot.ppp(nbfires_julian))
-#' na.omit.ppp(nbfires_julian)
 #' @keywords internal
+#' @name na_fail_ppp
 #' @importFrom stats na.omit
 #' @importFrom spatstat.geom subset.ppp markformat.ppp
 #' @method na.omit ppp
@@ -130,6 +194,36 @@ na.omit.ppp <- function(object, ...) {
     tmp <- na.omit(object$marks)
     # ?stats:::na.omit.data.frame; if (markformat.ppp(object) == 'dataframe')
     # ?stats:::na.omit.default; if (markformat.ppp(object) == 'vector')
+    
+    id <- attr(tmp, which = 'na.action', exact = TRUE)
+    
+    if (!length(id)) return(object) # nothing to omit
+    
+    ret <- subset.ppp(object, subset = -id)
+    attr(ret, which = 'na.action') <- id
+    return(ret)
+    
+  })
+  
+}
+
+
+#' @name na_fail_ppp
+#' @importFrom stats na.exclude
+#' @importFrom spatstat.geom subset.ppp markformat.ppp
+#' @method na.exclude ppp
+#' @export na.exclude.ppp
+#' @export
+na.exclude.ppp <- function(object, ...) {
+  
+  switch(markformat.ppp(object), none = {
+    return(object) # exception handling
+    
+  }, {
+    
+    tmp <- na.exclude(object$marks)
+    # ?stats:::na.exclude.data.frame; if (markformat.ppp(object) == 'dataframe')
+    # ?stats:::na.exclude.default; if (markformat.ppp(object) == 'vector')
     
     id <- attr(tmp, which = 'na.action', exact = TRUE)
     

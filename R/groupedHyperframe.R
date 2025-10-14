@@ -10,8 +10,7 @@
 #' Function [print.groupedHyperframe()] does not have a returned value.
 #' 
 #' @keywords internal
-#' @importFrom cli col_blue col_magenta style_bold
-#' @importFrom spatstat.geom as.data.frame.hyperframe as.list.hyperframe
+#' @importFrom spatstat.geom as.data.frame.hyperframe
 #' @importFrom utils head
 #' @export print.groupedHyperframe
 #' @export
@@ -20,24 +19,24 @@ print.groupedHyperframe <- function(x, ...) {
   # @seealso `?nlme:::print.groupedData`
   
   'Grouped Hyperframe: ' |> cat()
-  grp <- attr(x, which = 'group', exact = TRUE)
-  print(grp, ...)
+  group <- attr(x, which = 'group', exact = TRUE)
+  print(group, ...)
   
-  g <- all.vars(grp)
-  ns <- g |> 
+  f <- group |> 
+    get_nested_factors(data = x)
+  ns <- f |> 
     seq_along() |> 
     vapply(FUN = \(i) { # (i = 1L)
-      f <- do.call(what = interaction, args = c(
-        as.list.hyperframe(x[j = g[seq_len(i)], drop = FALSE]),
-        list(drop = TRUE, lex.order = TRUE)
-      ))
-      length(levels(f))
-    }, FUN.VALUE = NA_integer_)
-  
+      f[seq_len(i)] |>
+        interaction(drop = TRUE, lex.order = TRUE) |>
+        levels() |>
+        length()
+    }, FUN.VALUE = NA_integer_) # names dropped by ?base::vapply
+    
   cat('\n')
   mapply(FUN = \(n, g) {
     paste(n, g |> col_blue() |> style_bold())
-  }, n = ns, g = g, SIMPLIFY = TRUE) |> 
+  }, n = ns, g = names(f), SIMPLIFY = TRUE) |> 
     rev.default() |> 
     cat(sep = ' nested in\n')
   
@@ -46,7 +45,8 @@ print.groupedHyperframe <- function(x, ...) {
   x |>
     as.data.frame.hyperframe(discard = FALSE) |> 
     head(n = 10L) |>
-    print(...) 
+    print(...)
+  
 }
 
 

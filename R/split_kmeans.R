@@ -67,7 +67,7 @@ split_kmeans.listof <- function(x, ...) {
 #' @export
 split_kmeans.hyperframe <- function(x, ...) {
   
-  hc <- unclass(x)$hypercolumn
+  hc <- unclass(x)$hypercolumns
   x. <- unclass(x)$df
   
   hc_ppp <- hc |>
@@ -113,7 +113,6 @@ split_kmeans.hyperframe <- function(x, ...) {
     return(ret)
     
   } else stop('more than one ppp-hypercolumn, ambiguity!')
-    
     
 }
 

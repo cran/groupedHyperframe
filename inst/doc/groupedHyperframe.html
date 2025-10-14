@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.31">
+<meta name="generator" content="quarto-1.8.25">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Tingting Zhan">
-<meta name="dcterms.date" content="2025-06-27">
+<meta name="dcterms.date" content="2025-10-12">
 
 <title>Grouped Hyper Data Frame</title>
 <style>
@@ -80,88 +80,147 @@ margin-left: 2em;
 
 
 
-  
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      var head = document.getElementsByTagName("head")[0];
-      var link = document.createElement("link");
-      link.rel = "stylesheet";
-      link.href = "https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.css";
-      head.appendChild(link);
-      
-      function renderMathElements() {
-        var mathElements = document.getElementsByClassName("math");
-        var macros = [];
-        for (var i = 0; i < mathElements.length; i++) {
-          var texText = mathElements[i].firstChild;
-          if (mathElements[i].tagName == "SPAN") {
-            if (window.katex) {
-              window.katex.render(texText.data, mathElements[i], {
-                displayMode: mathElements[i].classList.contains('display'),
-                throwOnError: false,
-                macros: macros,
-                fleqn: false
-              });
-            } else {
-              console.error("KaTeX has not been loaded correctly, as not found globally.");
-            }
-          }
-        }
-      }
 
-      var script = document.createElement("script");
-      script.src = "https://cdn.jsdelivr.net/npm/katex@0.13.11/dist/katex.min.js";
-      script.onload = renderMathElements;
-      
-      // Check for RequireJS and AMD detection as it conflicts with KaTeX loading.
-      if (typeof require === 'function' && typeof define === 'function' && define.amd) {
-        // Disable require.js AMD detection temporarily, as it conflicts with KaTeX loading using CommonJS
-        var disableAmdScript = document.createElement("script");
-        disableAmdScript.textContent = 'window._amd_backup = window.define.amd; window.define.amd = false;';
-        head.appendChild(disableAmdScript);
-        
-        // overwrite onload to restore Require.js AMD detection
-        script.onload = function() {
-          // Restore Require.js AMD detection
-          window.define.amd = window._amd_backup;
-          delete window._amd_backup;
-          renderMathElements();
-        };
-      }
-
-      head.appendChild(script);
-    });
-  </script>
-  
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
 }
-window.Quarto = {
-  typesetMath
-};
-</script>
-
-<style type="text/css">body {background-color: #fff;margin: 1em auto;max-width: 700px;overflow: visible;padding-left: 2em;padding-right: 2em;font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;font-size: 14px;line-height: 1.35;}table {margin: 1em auto;border-width: 1px;border-color: #DDDDDD;border-style: outset;border-collapse: collapse;}table th {border-width: 2px;padding: 5px;border-style: inset;}table td {border-width: 1px;border-style: inset;line-height: 18px;padding: 5px 5px;}table, table th, table td {border-left-style: none;border-right-style: none;}table thead, table tr.even {background-color: #f7f7f7;}p {margin: 0.5em 0;}blockquote {background-color: #f6f6f6;padding: 0.25em 0.75em;}hr {border-style: solid;border: none;border-top: 1px solid #777;margin: 28px 0;}dl {margin-left: 0;}dl dd {margin-bottom: 13px;margin-left: 13px;}dl dt {font-weight: bold;}ul {margin-top: 0;}ul li {list-style: circle outside;}ul ul {margin-bottom: 0;}pre, code {background-color: #f7f7f7;border-radius: 3px;color: #333;white-space: pre-wrap; }pre {border-radius: 3px;margin: 5px 0px 10px 0px;padding: 10px;}pre:not([class]) {background-color: #f7f7f7;}code {font-family: Consolas, Monaco, 'Courier New', monospace;font-size: 85%;}p > code, li > code {padding: 2px 0px;}div.figure {text-align: center;}img {background-color: #FFFFFF;padding: 2px;border: 1px solid #DDDDDD;border-radius: 3px;border: 1px solid #CCCCCC;margin: 0 5px;}h1 {margin-top: 0;font-size: 35px;line-height: 40px;}h2 {border-bottom: 4px solid #f7f7f7;padding-top: 10px;padding-bottom: 2px;font-size: 145%;}h3 {border-bottom: 2px solid #f7f7f7;padding-top: 10px;font-size: 120%;}h4 {border-bottom: 1px solid #f7f7f7;margin-left: 8px;font-size: 105%;}h5, h6 {border-bottom: 1px solid #ccc;font-size: 105%;}a {color: #0033dd;text-decoration: none;}a:hover {color: #6666ff; }a:visited {color: #800080; }a:visited:hover {color: #BB00BB; }a[href^="http:"] {text-decoration: underline; }a[href^="https:"] {text-decoration: underline; }</style>
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+</style>
 </head>
 
 <body>
@@ -171,1012 +230,161 @@ window.Quarto = {
 <h1 class="title">Grouped Hyper Data Frame</h1>
 <p class="author">Tingting Zhan</p>
 
-<p class="date">2025-06-27</p>
+<p class="date">2025-10-12</p>
 </header>
 
 <nav id="TOC" role="doc-toc">
    
   <ul>
-  <li><a href="#introduction" id="toc-introduction">Introduction</a>
+  <li><a href="#prerequisite" id="toc-prerequisite"><span class="header-section-number">1</span> Prerequisite</a>
   <ul>
-  <li><a href="#prerequisite" id="toc-prerequisite">Prerequisite</a>
+  <li><a href="#environment" id="toc-environment"><span class="header-section-number">1.1</span> Environment</a></li>
+  <li><a href="#enhancement-dependency" id="toc-enhancement-dependency"><span class="header-section-number">1.2</span> Enhancement &amp; Dependency</a></li>
+  <li><a href="#installation" id="toc-installation"><span class="header-section-number">1.3</span> Installation</a></li>
+  </ul></li>
+  <li><a href="#getting-started" id="toc-getting-started"><span class="header-section-number">2</span> Getting Started</a></li>
+  <li><a href="#peer-reviewed-publications" id="toc-peer-reviewed-publications"><span class="header-section-number">3</span> Peer-Reviewed Publications</a>
   <ul>
-  <li><a href="#dependencies" id="toc-dependencies">Dependencies</a></li>
+  <li><a href="#zhan25" id="toc-zhan25"><span class="header-section-number">3.1</span> <span class="citation" data-cites="Zhan25">Zhan, Yi, and Chervoneva (2025)</span></a></li>
   </ul></li>
-  <li><a href="#getting-started" id="toc-getting-started">Getting Started</a></li>
-  <li><a href="#terms-and-abbreviations" id="toc-terms-and-abbreviations">Terms and Abbreviations</a></li>
-  <li><a href="#acknowledgement" id="toc-acknowledgement">Acknowledgement</a></li>
-  </ul></li>
-  <li><a href="#grouped-hyper-data-frame" id="toc-grouped-hyper-data-frame">Grouped Hyper Data Frame</a>
-  <ul>
-  <li><a href="#from-data.frame" id="toc-from-data.frame">From <code>data.frame</code></a>
-  <ul>
-  <li><a href="#reducing-memory-allocation" id="toc-reducing-memory-allocation">Reducing memory allocation</a></li>
-  <li><a href="#aggregation-of-numeric-hypercolumn" id="toc-aggregation-of-numeric-hypercolumn">Aggregation of numeric-hypercolumn</a></li>
-  </ul></li>
-  <li><a href="#from-hyperframe" id="toc-from-hyperframe">From <code>hyperframe</code></a></li>
-  </ul></li>
-  <li><a href="#grouping-structure-on-ppp-hypercolumn" id="toc-grouping-structure-on-ppp-hypercolumn">Grouping Structure on <code>ppp</code>-Hypercolumn</a>
-  <ul>
-  <li><a href="#grouped-hyper-data-frame-with-ppp-hypercolumn" id="toc-grouped-hyper-data-frame-with-ppp-hypercolumn">Grouped hyper data frame with <code>ppp</code>-hypercolumn</a></li>
-  <li><a href="#batch-processes" id="toc-batch-processes">Batch processes</a>
-  <ul>
-  <li><a href="#batch-processes-to-return-fv-hypercolumn" id="toc-batch-processes-to-return-fv-hypercolumn">Batch processes to return <code>fv</code>-hypercolumn</a>
-  <ul>
-  <li><a href="#batch-processes-applicable-to-numeric-marks" id="toc-batch-processes-applicable-to-numeric-marks">Batch processes applicable to numeric <code>marks</code></a></li>
-  <li><a href="#batch-processes-applicable-to-multitype-marks" id="toc-batch-processes-applicable-to-multitype-marks">Batch processes applicable to <code>multitype</code> <code>marks</code></a></li>
-  </ul></li>
-  <li><a href="#batch-processes-to-return-numeric-hypercolumn" id="toc-batch-processes-to-return-numeric-hypercolumn">Batch processes to return numeric-hypercolumn</a></li>
-  <li><a href="#batch-processes-in-a-pipeline" id="toc-batch-processes-in-a-pipeline">Batch processes in a pipeline</a></li>
-  </ul></li>
-  <li><a href="#aggregation-over-nested-grouping-structure" id="toc-aggregation-over-nested-grouping-structure">Aggregation over nested grouping structure</a>
-  <ul>
-  <li><a href="#of-fv-hypercolumns" id="toc-of-fv-hypercolumns">Of <code>fv</code>-hypercolumn(s)</a>
-  <ul>
-  <li><a href="#exception-handling-1" id="toc-exception-handling-1">Exception handling</a></li>
-  </ul></li>
-  <li><a href="#of-numeric-hypercolumn-and-numeric-marks-in-ppp-hypercolumn" id="toc-of-numeric-hypercolumn-and-numeric-marks-in-ppp-hypercolumn">Of numeric-hypercolumn and numeric marks in <code>ppp</code>-hypercolumn</a>
-  <ul>
-  <li><a href="#on-quantiles" id="toc-on-quantiles">On <code>quantile</code>s</a></li>
-  <li><a href="#on-kernel-densities" id="toc-on-kernel-densities">On kernel densities</a></li>
-  </ul></li>
-  </ul></li>
-  </ul></li>
-  <li><a href="#appendix-a-minor-functionalities" id="toc-appendix-a-minor-functionalities">Appendix A: Minor Functionalities</a>
-  <ul>
-  <li><a href="#k-means-clustering" id="toc-k-means-clustering"><span class="math inline">k</span>-Means Clustering</a>
-  <ul>
-  <li><a href="#on-ppp.object" id="toc-on-ppp.object">On <code>ppp.object</code></a>
-  <ul>
-  <li><a href="#by-coordinates-andor-marks" id="toc-by-coordinates-andor-marks">By coordinate(s) and/or <code>marks</code></a></li>
-  <li><a href="#by-clustersize" id="toc-by-clustersize">By <code>clusterSize</code></a></li>
-  </ul></li>
-  </ul></li>
-  <li><a href="#split-by-k-means-clustering" id="toc-split-by-k-means-clustering">Split by <span class="math inline">k</span>-Means Clustering</a>
-  <ul>
-  <li><a href="#split-a-ppp.object" id="toc-split-a-ppp.object">Split a <code>ppp.object</code></a></li>
-  <li><a href="#split-a-listof-ppp.objects" id="toc-split-a-listof-ppp.objects">Split a <code>listof</code> <code>ppp.object</code>s</a></li>
-  <li><a href="#split-a-hyperframe-andor-groupedhyperframe" id="toc-split-a-hyperframe-andor-groupedhyperframe">Split a <code>hyperframe</code> and/or <code>groupedHyperframe</code></a></li>
-  </ul></li>
-  <li><a href="#pairwise-tjøstheims-coefficient" id="toc-pairwise-tjøstheims-coefficient">Pairwise Tjøstheim’s Coefficient</a>
-  <ul>
-  <li><a href="#of-ppp.object" id="toc-of-ppp.object">Of <code>ppp.object</code></a></li>
-  <li><a href="#matrix-of-pairwise-tjøstheims-coefficient" id="toc-matrix-of-pairwise-tjøstheims-coefficient">Matrix of pairwise Tjøstheim’s coefficient</a></li>
-  </ul></li>
-  </ul></li>
-  <li><a href="#appendix-b-what-we-dont-do" id="toc-appendix-b-what-we-dont-do">Appendix B: What We Don’t Do</a>
-  <ul>
-  <li><a href="#s4-method-dispatch-merge" id="toc-s4-method-dispatch-merge">S4 method dispatch <code>merge</code></a></li>
-  </ul></li>
-  <li><a href="#references" id="toc-references">References</a></li>
+  <li><a href="#acknowledgement" id="toc-acknowledgement"><span class="header-section-number">4</span> Acknowledgement</a></li>
+  <li><a href="#references" id="toc-references"><span class="header-section-number">5</span> References</a></li>
   </ul>
 </nav>
-<h1 id="introduction">Introduction</h1>
-<p>This vignette of package <strong><code>groupedHyperframe</code></strong> (<a href="https://cran.r-project.org/package=groupedHyperframe"><code>CRAN</code></a>, <a href="https://github.com/tingtingzhan/groupedHyperframe">Github</a>, <a href="https://rpubs.com/tingtingzhan/groupedHyperframe">RPubs</a>) documents the creation of <code>groupedHyperframe</code> object, the batch processes for a <code>groupedHyperframe</code>, and aggregations of various statistics over multi-level grouping structure.</p>
-<h2 id="prerequisite">Prerequisite</h2>
-<p>Experimental (and maybe unstable) features are implemented <strong>extremely frequently</strong> on <a href="https://github.com/tingtingzhan/groupedHyperframe">Github</a>. <span style="background-color: #FFFF00">Active developers should use the Github version; suggestions and bug reports are welcome!</span></p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;tingtingzhan/groupedHyperframe&#39;</span>)</span></code></pre></div>
-</div>
-<p>Stable releases to <a href="https://CRAN.R-project.org/package=groupedHyperframe"><code>CRAN</code></a> are typically updated every 2 to 3 months, or when the authors have an upcoming manuscript in the peer-reviewing process. <span style="background-color: #FFFF00">Developers should <strong>not</strong> use the <code>CRAN</code> version!</span></p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>utils<span class="sc">::</span><span class="fu">install.packages</span>(<span class="st">&#39;groupedHyperframe&#39;</span>) <span class="co"># Developers, do NOT use!!</span></span></code></pre></div>
-</div>
-<p>Package <strong><code>groupedHyperframe</code></strong> may require the development versions of the <strong><code>spatstat</code></strong> family.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;spatstat/spatstat&#39;</span>, <span class="at">upgrade =</span> <span class="st">&#39;always&#39;</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;spatstat/spatstat.data&#39;</span>, <span class="at">upgrade =</span> <span class="st">&#39;always&#39;</span>)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;spatstat/spatstat.explore&#39;</span>, <span class="at">upgrade =</span> <span class="st">&#39;always&#39;</span>)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;spatstat/spatstat.geom&#39;</span>, <span class="at">upgrade =</span> <span class="st">&#39;always&#39;</span>)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;spatstat/spatstat.linnet&#39;</span>, <span class="at">upgrade =</span> <span class="st">&#39;always&#39;</span>)</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;spatstat/spatstat.model&#39;</span>, <span class="at">upgrade =</span> <span class="st">&#39;always&#39;</span>)</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;spatstat/spatstat.random&#39;</span>, <span class="at">upgrade =</span> <span class="st">&#39;always&#39;</span>)</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;spatstat/spatstat.sparse&#39;</span>, <span class="at">upgrade =</span> <span class="st">&#39;always&#39;</span>)</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;spatstat/spatstat.univar&#39;</span>, <span class="at">upgrade =</span> <span class="st">&#39;always&#39;</span>)</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&#39;spatstat/spatstat.utils&#39;</span>, <span class="at">upgrade =</span> <span class="st">&#39;always&#39;</span>)</span></code></pre></div>
-</div>
-<h3 id="dependencies">Dependencies</h3>
-<p>Package <strong><code>groupedHyperframe</code></strong> <code>Imports</code> packages</p>
+<p>The complete vignette of R package <strong><code>groupedHyperframe</code></strong> (v0.3.0)</p>
+<blockquote>
+<p><a href="https://rpubs.com/tingtingzhan/groupedHyperframe" class="uri">https://rpubs.com/tingtingzhan/groupedHyperframe</a></p>
+</blockquote>
+<p>documents</p>
 <ul>
-<li><strong><code>cli</code></strong> [<span class="citation" data-cites="cli">Csárdi (2025)</span>, version 3.6.5], for attractive command line interfaces (CLIs)</li>
-<li><strong><code>matrixStats</code></strong> <span class="citation" data-cites="matrixStats">(Bengtsson 2025, version 1.5.0, key dependency)</span>, for matrix arithmetic</li>
-<li><strong><code>parallel</code></strong> (shipped with vanilla <code>R</code>, version 4.5.1), for parallel computing</li>
-<li><strong><code>pracma</code></strong> <span class="citation" data-cites="pracma">(Borchers 2023, version 2.4.4, key dependency)</span>, for (cumulative) trapezoidal integration</li>
-<li><strong><code>spatstat.explore</code></strong> (version 3.4.3.7) and <strong><code>spatstat.geom</code></strong> (version 3.4.1.14), <span class="citation" data-cites="spatstat15">Baddeley, Rubak, and Turner (2015)</span>, key dependency, for spatial statistics</li>
-<li><strong><code>SpatialPack</code></strong> <span class="citation" data-cites="SpatialPack">(Vallejos, Osorio, and Bevilacqua 2020, version 0.4.1, key dependency)</span>, for Tjøstheim’s coefficient of spatial association</li>
+<li>the creation of <em>grouped hyper data frame</em>;</li>
+<li>the creation of a grouped hyper data frame with one-and-only-one point-pattern hypercolumn;</li>
+<li>the batch process on eligible marks for the one-and-only-one point-pattern hypercolumn in a (grouped) hyper data frame;</li>
+<li>the computation of various summary statistics from one or more function-value-table hypercolumn(s) of a (grouped) hyper data frame;</li>
+<li>the aggregation of summary statistics, over a (nested) grouping structure, in a grouped hyper data frame.</li>
 </ul>
-<h2 id="getting-started">Getting Started</h2>
-<p>Examples in this vignette require that the <code>search</code> path has</p>
+<p>The complete vignette exceeds the file size limit allowed on <a href="https://cran.r-project.org/package=groupedHyperframe">CRAN</a>.</p>
+<h1 data-number="1" id="prerequisite"><span class="header-section-number">1</span> Prerequisite</h1>
+<h2 data-number="1.1" id="environment"><span class="header-section-number">1.1</span> Environment</h2>
+<p>Package <strong><code>groupedHyperframe</code></strong> (v0.3.0) requires R version 4.5.0 (released 2025-04-11) or higher (<a href="https://cran.r-project.org/bin/macosx/">macOS</a>, <a href="https://cran.r-project.org/bin/windows/base/">Windows</a>, <a href="https://cran.r-project.org/bin/linux/">Linux</a>).</p>
+<p>An Integrated Development Environment (IDE), e.g., <a href="https://posit.co/download/rstudio-desktop/">RStudio</a> <span class="citation" data-cites="RStudio">(Posit team 2025)</span> or <a href="https://positron.posit.co/download.html">Positron</a>, is not required, but highly recommended.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(groupedHyperframe)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survival) <span class="co"># to help hyperframe understand Surv object</span></span></code></pre></div>
+<details class="code-fold">
+<summary>Environment on author’s computer</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Sys.info</span>()[<span class="fu">c</span>(<span class="st">&#39;sysname&#39;</span>, <span class="st">&#39;release&#39;</span>, <span class="st">&#39;machine&#39;</span>)]</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#  sysname  release  machine </span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># &quot;Darwin&quot; &quot;25.1.0&quot;  &quot;arm64&quot;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>R.version</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">#                _                           </span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># platform       aarch64-apple-darwin20      </span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># arch           aarch64                     </span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># os             darwin20                    </span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># system         aarch64, darwin20           </span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># status                                     </span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># major          4                           </span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># minor          5.1                         </span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># year           2025                        </span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># month          06                          </span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># day            13                          </span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># svn rev        88306                       </span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># language       R                           </span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># version.string R version 4.5.1 (2025-06-13)</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># nickname       Great Square Root</span></span></code></pre></div>
+</details>
 </div>
-<h2 id="terms-and-abbreviations">Terms and Abbreviations</h2>
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>Term / Abbreviation</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><a href="https://search.r-project.org/R/refmans/base/html/pipeOp.html"><code>|&gt;</code></a></td>
-<td>Forward pipe operator introduced in <code>R</code> 4.1.0</td>
-</tr>
-<tr class="even">
-<td><a href="https://search.r-project.org/R/refmans/base/html/zMachine.html"><code>.Machine</code></a></td>
-<td>Numerical characteristics of the machine <code>R</code> is running on, e.g., 32-bit integers and IEC 60559 floating-point (double precision) arithmetic</td>
-</tr>
-<tr class="odd">
-<td><a href="https://search.r-project.org/R/refmans/base/html/attr.html"><code>attr</code></a>, <a href="https://search.r-project.org/R/refmans/base/html/attributes.html"><code>attributes</code></a></td>
-<td>Attributes</td>
-</tr>
-<tr class="even">
-<td><code>CRAN</code>, <code>R</code></td>
-<td><a href="https://cran.r-project.org">The Comprehensive R Archive Network</a></td>
-</tr>
-<tr class="odd">
-<td><a href="https://search.r-project.org/R/refmans/stats/html/cor.html"><code>cor</code></a></td>
-<td>Correlation matrix</td>
-</tr>
-<tr class="even">
-<td><a href="https://search.r-project.org/CRAN/refmans/SpatialPack/html/cor.spatial.html"><code>cor.spatial</code></a></td>
-<td>Tjøstheim’s nonparametric correlation coefficient, from package <strong><code>SpatialPack</code></strong> <span class="citation" data-cites="SpatialPack">(Vallejos, Osorio, and Bevilacqua 2020)</span></td>
-</tr>
-<tr class="odd">
-<td><a href="https://search.r-project.org/R/refmans/stats/html/cor.html"><code>cov</code>, <code>cov2cor</code></a></td>
-<td>Variance-covariance matrix, and conversion to correlation matrix</td>
-</tr>
-<tr class="even">
-<td><a href="https://search.r-project.org/R/refmans/base/html/data.frame.html"><code>data.frame</code></a></td>
-<td>Data frame</td>
-</tr>
-<tr class="odd">
-<td><a href="https://search.r-project.org/R/refmans/base/html/diag.html"><code>diag</code></a></td>
-<td>Matrix diagonals</td>
-</tr>
-<tr class="even">
-<td><a href="https://search.r-project.org/R/refmans/stats/html/dist.html"><code>dist</code></a></td>
-<td>Distance matrix; to take advantage of <code>stats:::as.matrix.dist</code></td>
-</tr>
-<tr class="odd">
-<td><a href="https://search.r-project.org/R/refmans/base/html/file.info.html"><code>file.size</code></a></td>
-<td>File size in bytes</td>
-</tr>
-<tr class="even">
-<td><a href="https://search.r-project.org/R/refmans/stats/html/formula.html"><code>formula</code></a></td>
-<td>Formula</td>
-</tr>
-<tr class="odd">
-<td><a href="https://search.r-project.org/CRAN/refmans/spatstat.explore/html/fv.object.html"><code>fv</code>, <code>fv.object</code></a>, <a href="https://search.r-project.org/CRAN/refmans/spatstat.explore/html/plot.fv.html"><code>plot.fv</code></a></td>
-<td>(Plot of) function value table</td>
-</tr>
-<tr class="even">
-<td><a href="https://search.r-project.org/CRAN/refmans/nlme/html/groupedData.html"><code>groupedData</code></a>, <code>~ g1/.../gm</code></td>
-<td>Grouped data frame; nested grouping structure, from package <strong><code>nlme</code></strong> <span class="citation" data-cites="nlme">(Pinheiro, Bates, and R Core Team 2025)</span></td>
-</tr>
-<tr class="odd">
-<td><a href="https://CRAN.R-project.org/package=groupedHyperframe"><code>groupedHyperframe</code></a></td>
-<td>Grouped hyper data frame</td>
-</tr>
-<tr class="even">
-<td><code>hypercolumns</code>, <a href="https://search.r-project.org/CRAN/refmans/spatstat.geom/html/hyperframe.html"><code>hyperframe</code></a></td>
-<td>(Hyper columns of) hyper data frame, from package <strong><code>spatstat.geom</code></strong> <span class="citation" data-cites="spatstat05">(Baddeley and Turner 2005)</span></td>
-</tr>
-<tr class="odd">
-<td><a href="https://search.r-project.org/R/refmans/base/html/class.html"><code>inherits</code></a></td>
-<td>Class inheritance</td>
-</tr>
-<tr class="even">
-<td><code>kerndens</code></td>
-<td>Kernel density, <code>stats::density.default()$y</code></td>
-</tr>
-<tr class="odd">
-<td><a href="https://search.r-project.org/R/refmans/base/html/is.finite.html"><code>Inf</code></a></td>
-<td>Positive infinity <span class="math inline">\infty</span></td>
-</tr>
-<tr class="even">
-<td><a href="https://search.r-project.org/R/refmans/stats/html/kmeans.html"><code>kmeans</code></a></td>
-<td><span class="math inline">k</span>-means clustering <span class="citation" data-cites="kmeans">(Hartigan and Wong 1979)</span></td>
-</tr>
-<tr class="odd">
-<td><a href="https://search.r-project.org/R/refmans/base/html/list.html"><code>list</code></a>, <a href="https://search.r-project.org/R/refmans/stats/html/listof.html"><code>listof</code></a></td>
-<td>Lists of objects</td>
-</tr>
-<tr class="even">
-<td><a href="https://search.r-project.org/CRAN/refmans/spatstat.geom/html/spatstat.geom-internal.html"><code>markformat</code></a></td>
-<td>Storage mode of <code>marks</code></td>
-</tr>
-<tr class="odd">
-<td><a href="https://search.r-project.org/CRAN/refmans/spatstat.geom/html/spatstat.geom-internal.html"><code>marks</code></a>, <a href="https://search.r-project.org/CRAN/refmans/spatstat.geom/html/is.marked.html"><code>marked</code></a></td>
-<td>Marks of a point pattern</td>
-</tr>
-<tr class="even">
-<td><a href="https://search.r-project.org/R/refmans/base/html/merge.html"><code>merge</code></a></td>
-<td>Merge two <code>data.frame</code>s</td>
-</tr>
-<tr class="odd">
-<td><a href="https://search.r-project.org/R/refmans/parallel/html/mclapply.html"><code>mc.cores</code></a></td>
-<td>Number of CPU cores to use for parallel computing</td>
-</tr>
-<tr class="even">
-<td><a href="https://search.r-project.org/R/refmans/base/html/message.html"><code>message</code></a></td>
-<td>Diagnostic message printed in <code>R</code> console</td>
-</tr>
-<tr class="odd">
-<td><a href="https://search.r-project.org/CRAN/refmans/spatstat.geom/html/spatstat.geom-internal.html"><code>multitype</code></a></td>
-<td>Multitype spatial object</td>
-</tr>
-<tr class="even">
-<td><a href="https://search.r-project.org/R/refmans/base/html/is.finite.html"><code>NaN</code></a></td>
-<td>Not-a-Number</td>
-</tr>
-<tr class="odd">
-<td><a href="https://search.r-project.org/R/refmans/utils/html/object.size.html"><code>object.size</code></a></td>
-<td>Memory allocation</td>
-</tr>
-<tr class="even">
-<td><code>pmean</code>, <code>pmedian</code></td>
-<td>Parallel, or point-wise, mean and median, <code>groupedHyperframe::pmean</code>; <code>groupedHyperframe::pmedian</code></td>
-</tr>
-<tr class="odd">
-<td><a href="https://search.r-project.org/R/refmans/base/html/Extremes.html"><code>pmax</code>, <code>pmin</code></a></td>
-<td>Parallel, or point-wise, maxima and minima</td>
-</tr>
-<tr class="even">
-<td><a href="https://search.r-project.org/CRAN/refmans/spatstat.geom/html/ppp.html"><code>ppp</code></a>, <a href="https://search.r-project.org/CRAN/refmans/spatstat.geom/html/ppp.object.html"><code>ppp.object</code></a></td>
-<td>(Marked) point pattern</td>
-</tr>
-<tr class="odd">
-<td><a href="https://search.r-project.org/R/refmans/stats/html/quantile.html"><code>quantile</code></a></td>
-<td>Quantile</td>
-</tr>
-<tr class="even">
-<td><a href="https://search.r-project.org/R/refmans/base/html/save.html"><code>save</code></a>, <a href="https://search.r-project.org/R/refmans/base/html/readRDS.html"><code>saveRDS</code></a>, <code>xz</code></td>
-<td>Save with <a href="https://en.wikipedia.org/wiki/XZ_Utils"><code>xz</code></a> compression</td>
-</tr>
-<tr class="odd">
-<td><code>S3</code>, <code>generic</code>, <a href="https://search.r-project.org/R/refmans/utils/html/methods.html"><code>methods</code></a></td>
-<td><code>S3</code> object oriented system, <a href="https://search.r-project.org/R/refmans/base/html/UseMethod.html"><code>UseMethod</code></a>; <a href="https://search.r-project.org/R/refmans/utils/html/getS3method.html"><code>getS3method</code></a>; <a href="https://adv-r.hadley.nz/s3.html" class="uri">https://adv-r.hadley.nz/s3.html</a></td>
-</tr>
-<tr class="even">
-<td><code>S4</code>, <code>generic</code>, <code>methods</code></td>
-<td><code>S4</code> object oriented system, <a href="https://search.r-project.org/R/refmans/base/html/isS4.html"><code>isS4</code></a>; <a href="https://search.r-project.org/R/refmans/methods/html/setClass.html"><code>setClass</code></a>; <a href="https://search.r-project.org/R/refmans/methods/html/setMethod.html"><code>setMethod</code></a>; <a href="https://search.r-project.org/R/refmans/methods/html/getMethod.html"><code>getMethod</code></a>; <a href="https://adv-r.hadley.nz/s4.html" class="uri">https://adv-r.hadley.nz/s4.html</a></td>
-</tr>
-<tr class="odd">
-<td><a href="https://search.r-project.org/R/refmans/stats/html/sd.html"><code>sd</code></a></td>
-<td>Standard deviation</td>
-</tr>
-<tr class="even">
-<td><a href="https://search.r-project.org/R/refmans/base/html/search.html"><code>search</code></a></td>
-<td>Search path</td>
-</tr>
-<tr class="odd">
-<td><a href="https://search.r-project.org/CRAN/refmans/survival/html/Surv.html"><code>Surv</code></a></td>
-<td>Survival, i.e., time-to-event, object</td>
-</tr>
-<tr class="even">
-<td><a href="https://search.r-project.org/CRAN/refmans/pracma/html/trapz.html"><code>trapz</code>, <code>cumtrapz</code></a></td>
-<td>(Cumulative) <a href="https://en.wikipedia.org/wiki/Trapezoidal_rule">trapezoidal integration</a>, from package <strong><code>pracma</code></strong> <span class="citation" data-cites="pracma">(Borchers 2023)</span></td>
-</tr>
-<tr class="odd">
-<td><a href="https://search.r-project.org/R/refmans/base/html/vector.html"><code>vector</code></a></td>
-<td>Vector</td>
-</tr>
-</tbody>
-</table>
-<h2 id="acknowledgement">Acknowledgement</h2>
+<h2 data-number="1.2" id="enhancement-dependency"><span class="header-section-number">1.2</span> Enhancement &amp; Dependency</h2>
+<p>Package <strong><code>groupedHyperframe</code></strong> (v0.3.0) <code>Enhances</code> the <strong><code>spatstat.*</code></strong> family of packages <span class="citation" data-cites="spatstat15 spatstat05">(Baddeley, Rubak, and Turner 2015; Baddeley and Turner 2005)</span>, especially <strong><code>spatstat.geom</code></strong> and <strong><code>spatstat.explore</code></strong>. Details are provided in the <a href="https://rpubs.com/tingtingzhan/groupedHyperframe">complete vignette</a>, Section 4.1.</p>
+<p>The dependencies of package <strong><code>groupedHyperframe</code></strong> are detailed in the <a href="https://rpubs.com/tingtingzhan/groupedHyperframe">complete vignette</a>, Section 4.1.</p>
+<p>Package <strong><code>groupedHyperframe</code></strong> requires the <em>development versions</em> of the <strong><code>spatstat.*</code></strong> family of packages. Installation instructions are provided in the <a href="https://rpubs.com/tingtingzhan/groupedHyperframe">complete vignette</a>, Section 4.1.</p>
+<h2 data-number="1.3" id="installation"><span class="header-section-number">1.3</span> Installation</h2>
+<p>Package <strong><code>groupedHyperframe</code></strong> (v0.3.0) can be installed using the following command.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>utils<span class="sc">::</span><span class="fu">install.packages</span>(<span class="st">&#39;groupedHyperframe&#39;</span>)</span></code></pre></div>
+</div>
+<h1 data-number="2" id="getting-started"><span class="header-section-number">2</span> Getting Started</h1>
+<p>Examples in the <a href="https://rpubs.com/tingtingzhan/groupedHyperframe">complete vignette</a> require that the <code>search</code> path has</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(groupedHyperframe)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survival)</span></code></pre></div>
+</div>
+<h1 data-number="3" id="peer-reviewed-publications"><span class="header-section-number">3</span> Peer-Reviewed Publications</h1>
+<p>Package <strong><code>groupedHyperframe</code></strong> (v0.3.0) plays a pivotal role in these peer reviewed publications from the authors.</p>
+<h2 data-number="3.1" id="zhan25"><span class="header-section-number">3.1</span> <span class="citation" data-cites="Zhan25">Zhan, Yi, and Chervoneva (2025)</span></h2>
+<blockquote>
+<p>Zhan T, Yi M, Chervoneva I (2025). “Quantile Index predictors using R package <code>hyper.gam</code>.” <em>Bioinformatics</em>, <em>41</em>(8), btaf430. ISSN 1367-4811, doi:10.1093/bioinformatics/btaf430 <a href="https://doi.org/10.1093/bioinformatics/btaf430" class="uri">https://doi.org/10.1093/bioinformatics/btaf430</a>.</p>
+</blockquote>
+<details>
+<summary>
+<a href="https://ctan.org/pkg/bibtex">BibTeX</a> and/or <a href="https://ctan.org/pkg/biblatex">BibLaTeX</a> entries for <a href="https://www.latex-project.org">LaTeX</a> users
+</summary>
+<div class="cell">
+<pre><code>Warning in citation(package = &quot;groupedHyperframe&quot;): could not determine year
+for &#39;groupedHyperframe&#39; from package DESCRIPTION file
+@Article{,
+  title = {Quantile Index predictors using R package `hyper.gam`},
+  author = {Tingting Zhan and Misung Yi and Inna Chervoneva},
+  journal = {Bioinformatics},
+  volume = {41},
+  number = {8},
+  pages = {btaf430},
+  year = {2025},
+  month = {07},
+  issn = {1367-4811},
+  doi = {10.1093/bioinformatics/btaf430},
+}
+
+@Manual{,
+  title = {groupedHyperframe: Grouped Hyper Data Frame: An Extension of
+Hyper Data Frame},
+  author = {Tingting Zhan and Inna Chervoneva},
+  note = {R package version 0.3.0},
+  url = {https://github.com/tingtingzhan/groupedHyperframe},
+}</code></pre>
+</div>
+</details>
+<p>as well as <span class="citation" data-cites="Yi25">Yi et al. (2025)</span>; <span class="citation" data-cites="Yi23a">Yi et al. (2023b)</span>; <span class="citation" data-cites="Yi23b">Yi et al. (2023a)</span>, was featured with a hyper data frame <em><code>Ki67q</code></em> with a numeric-hypercolumn <em><code>logKi67.quantile</code></em>. Functions in the R code-chunk below are explained in the <a href="https://rpubs.com/tingtingzhan/groupedHyperframe">complete vignette</a>.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>R code in <span class="citation" data-cites="Zhan25">Zhan, Yi, and Chervoneva (2025)</span></summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>Ki67q <span class="ot">=</span> groupedHyperframe<span class="sc">::</span>Ki67 <span class="sc">|&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">within.data.frame</span>(<span class="at">expr =</span> {</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">=</span> y <span class="ot">=</span> <span class="cn">NULL</span> <span class="co"># remove x- and y-coords for non-spacial application</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  }) <span class="sc">|&gt;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.groupedHyperframe</span>(<span class="at">group =</span> <span class="sc">~</span> patientID<span class="sc">/</span>tissueID) <span class="sc">|&gt;</span> </span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">quantile</span>(<span class="at">probs =</span> <span class="fu">seq.int</span>(<span class="at">from =</span> .<span class="dv">01</span>, <span class="at">to =</span> .<span class="dv">99</span>, <span class="at">by =</span> .<span class="dv">01</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aggregate</span>(<span class="at">by =</span> <span class="sc">~</span> patientID)</span></code></pre></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>A <code>hyperframe</code> object <em><code>Ki67q</code></em>: aggregated quantiles</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>Ki67q <span class="sc">|&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Hyperframe:</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   Tstage  PFS adj_rad adj_chemo histology  Her2   HR  node  race age patientID</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 1      2 100+   FALSE     FALSE         3  TRUE TRUE  TRUE White  66   PT00037</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2      1   22   FALSE     FALSE         3 FALSE TRUE FALSE Black  42   PT00039</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 3      1  99+   FALSE        NA         3 FALSE TRUE FALSE White  60   PT00040</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 4      1  99+   FALSE      TRUE         3 FALSE TRUE  TRUE White  53   PT00042</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 5      1  112    TRUE      TRUE         3 FALSE TRUE  TRUE White  52   PT00054</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 6      4   12    TRUE     FALSE         2  TRUE TRUE  TRUE Black  51   PT00059</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co">#   logKi67.quantile</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 1        (numeric)</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 2        (numeric)</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 3        (numeric)</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co"># 4        (numeric)</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 5        (numeric)</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="co"># 6        (numeric)</span></span></code></pre></div>
+</details>
+</div>
+<p>Readers are encouraged to learn more about this application from package <strong><code>hyper.gam</code></strong> <span class="citation" data-cites="hypergam">(Zhan and Chervoneva 2025, <a href="https://CRAN.R-project.org/package=hyper.gam">CRAN</a>, <a href="https://github.com/tingtingzhan/hyper.gam">Github</a>)</span> <a href="https://rpubs.com/tingtingzhan/hyper_gam">vignette</a>, section <em>Quantile Index</em>.</p>
+<h1 data-number="4" id="acknowledgement"><span class="header-section-number">4</span> Acknowledgement</h1>
 <p>This work is supported by National Institutes of Health, U.S. Department of Health and Human Services grants</p>
 <ul>
 <li>R01CA222847 (<a href="https://orcid.org/0000-0002-9104-4505">I. Chervoneva</a>, <a href="https://orcid.org/0000-0001-9971-4844">T. Zhan</a>, and <a href="https://orcid.org/0000-0002-8778-261X">H. Rui</a>)</li>
 <li>R01CA253977 (H. Rui and I. Chervoneva).</li>
 </ul>
-<h1 id="grouped-hyper-data-frame">Grouped Hyper Data Frame</h1>
-<p>We introduce a new <code>S3</code> class <code>groupedHyperframe</code> for <strong>grouped hyper data frame</strong>, which <code>inherits</code> from the hyper data frame <code>hyperframe</code> class from package <strong><code>spatstat.geom</code></strong> <span class="citation" data-cites="spatstat15 spatstat05">(Baddeley, Rubak, and Turner 2015; Baddeley and Turner 2005)</span>. A <code>hyperframe</code> contains columns either as <code>vector</code>s like in a <code>data.frame</code>, or as <code>list</code>s of objects of the same class, a.k.a, the <code>hypercolumns</code>. This data structure is particularly useful in spatial analysis, e.g., with medical images, where the spatial information in each image would be represented by one element in a <code>hypercolumn</code>. The derived class <code>groupedHyperframe</code> has additional <code>attributes</code></p>
-<ul>
-<li><code>attr(., &#39;group&#39;)</code>, a <code>formula</code> of the (nested) grouping structure, e.g., <code>~patient/image</code> when each patient has one or more images</li>
-</ul>
-<p>The grammar of the nested grouping structure <span class="math inline">g_1/.../g_m</span> (<code>~g1/.../gm</code>) follows that of the parameter <code>random</code> of functions <code>nlme::lme()</code> and <code>nlme::nlme()</code>. In fact, the <code>&#39;grouped&#39;</code> extension of a <code>hyperframe</code> is inspired by the <code>nlme::groupedData</code> class which inherits from <code>data.frame</code> <span class="citation" data-cites="nlme">(Pinheiro, Bates, and R Core Team 2025)</span>.</p>
-<p>In this section, we introduce several <code>S3</code> method dispatches of the <code>S3</code> generic <code>as.groupedHyperframe()</code> to convert various classes into a <code>groupedHyperframe</code>. We also introduce aggregation functions <code>aggregate_*()</code> of the hypercolumns in a <code>groupedHyperframe</code>, at either one of the nested grouping levels <span class="math inline">g_1,\cdots,g_{m-1}</span>. Aggregation at the lowest grouping level <span class="math inline">g_m</span> is ignored, i.e., no aggregation to be performed. Available aggregation methods are the parallel minima <code>base::pmin()</code>, parallel maxima <code>base::pmax()</code>, parallel means <code>pmean()</code> (default) and parallel medians <code>pmedian()</code>.</p>
-<h2 id="from-data.frame">From <code>data.frame</code></h2>
-<p>User may convert a <code>data.frame</code> with substantial amount of duplicated information into a <code>groupedHyperframe</code> using the <code>S3</code> method dispatch <code>as.groupedHyperframe.data.frame()</code>. This function</p>
-<ol type="1">
-<li>inspects the input <code>data.frame</code> by the user-specified (nested) <code>group</code>ing structure;</li>
-<li>identifies the column(s) with <strong><em>non-identical elements</em></strong> within the lowest group, and converts them into hypercolumn(s);</li>
-<li>returns a <code>groupedHyperframe</code> with the user-specified (nested) grouping structure.</li>
-</ol>
-<p>In the following example, consider a toy data set <strong><code>wrobel_lung0</code></strong> with non-identical column <em><code>hladr</code></em> in the lowest group <em><code>image_id</code></em> of the nested grouping structure <em><code>~patient_id/image_id</code></em>.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>wrobel_lung0 <span class="ot">=</span> wrobel_lung <span class="sc">|&gt;</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">within.data.frame</span>(<span class="at">expr =</span> {</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">=</span> y <span class="ot">=</span> <span class="cn">NULL</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    dapi <span class="ot">=</span> phenotype <span class="ot">=</span> tissue <span class="ot">=</span> <span class="cn">NULL</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  })</span></code></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>wrobel_lung0 <span class="sc">|&gt;</span> <span class="fu">head</span>()</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;            image_id    patient_id gender stage_numeric pack_years</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 [40864,18015].im3 #01 0-889-121      F             1         60</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 [40864,18015].im3 #01 0-889-121      F             1         60</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 [40864,18015].im3 #01 0-889-121      F             1         60</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 [40864,18015].im3 #01 0-889-121      F             1         60</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5 [40864,18015].im3 #01 0-889-121      F             1         60</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6 [40864,18015].im3 #01 0-889-121      F             1         60</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   adjuvant_therapy hladr    OS mhcII stage age</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1               No 0.115 3488+   low    IA  85</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2               No 0.239 3488+   low    IA  85</span></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3               No 0.268 3488+   low    IA  85</span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4               No 0.245 3488+   low    IA  85</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5               No 0.127 3488+   low    IA  85</span></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6               No 0.136 3488+   low    IA  85</span></span></code></pre></div>
-</div>
-<p>By converting <strong><code>wrobel_lung0</code></strong> into a <code>groupedHyperframe</code>, the numeric <em><code>hladr</code></em> from each <em><code>~patient_id/image_id</code></em> are converted into elements of the numeric-hypercolumn <em><code>hladr</code></em> in the returned <strong><code>wrobel_lung0g</code></strong>. Each row of a <code>groupedHyperframe</code> represents the lowest group of the nested grouping structure. The <code>R</code> console output (<code>S3</code> method dispatch <code>print.groupedHyperframe()</code>) highlights the nested grouping structure, number of clusters at each grouping level, as well as the first 10 (or less) rows of the <code>groupedHyperframe</code>.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>(<span class="at">wrobel_lung0g =</span> wrobel_lung0 <span class="sc">|&gt;</span> <span class="fu">as.groupedHyperframe</span>(<span class="at">group =</span> <span class="sc">~</span> patient_id<span class="sc">/</span>image_id))</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Grouped Hyperframe: ~patient_id/image_id</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 15 image_id nested in</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 patient_id</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Preview of first 10 (or less) rows:</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;        hladr          image_id    patient_id gender stage_numeric pack_years</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1  (numeric) [40864,18015].im3 #01 0-889-121      F             1         60</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2  (numeric) [42689,19214].im3 #01 0-889-121      F             1         60</span></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3  (numeric) [42806,16718].im3 #01 0-889-121      F             1         60</span></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4  (numeric) [44311,17766].im3 #01 0-889-121      F             1         60</span></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5  (numeric) [45366,16647].im3 #01 0-889-121      F             1         60</span></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6  (numeric) [56576,16907].im3 #02 1-037-393      M             1         30</span></span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7  (numeric) [56583,15235].im3 #02 1-037-393      M             1         30</span></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8  (numeric) [57130,16082].im3 #02 1-037-393      M             1         30</span></span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9  (numeric) [57396,17896].im3 #02 1-037-393      M             1         30</span></span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10 (numeric) [57403,16934].im3 #02 1-037-393      M             1         30</span></span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    adjuvant_therapy    OS mhcII stage age</span></span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1                No 3488+   low    IA  85</span></span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2                No 3488+   low    IA  85</span></span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3                No 3488+   low    IA  85</span></span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4                No 3488+   low    IA  85</span></span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5                No 3488+   low    IA  85</span></span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6                No  1605   low    IA  66</span></span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7                No  1605   low    IA  66</span></span>
-<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8                No  1605   low    IA  66</span></span>
-<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9                No  1605   low    IA  66</span></span>
-<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10               No  1605   low    IA  66</span></span></code></pre></div>
-</div>
-<h3 id="reducing-memory-allocation">Reducing memory allocation</h3>
-<p>Converting a <code>data.frame</code> with substantial amount of duplicated information like <strong><code>wrobel_lung0</code></strong> into a <code>groupedHyperframe</code> greatly reduces the memory allocation.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unclass</span>(<span class="fu">object.size</span>(wrobel_lung0g)) <span class="sc">/</span> <span class="fu">unclass</span>(<span class="fu">object.size</span>(wrobel_lung0))</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.113451</span></span></code></pre></div>
-</div>
-<p>A <code>groupedHyperframe</code>, however, would not reduce much the <code>save</code>d <code>file.size</code> compared to a <code>data.frame</code>, if <code>xz</code> compression is used for both.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>f_g <span class="ot">=</span> <span class="fu">tempfile</span>(<span class="at">fileext =</span> <span class="st">&#39;.rds&#39;</span>)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>wrobel_lung0g <span class="sc">|&gt;</span> <span class="fu">saveRDS</span>(<span class="at">file =</span> f_g, <span class="at">compress =</span> <span class="st">&#39;xz&#39;</span>)</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>f <span class="ot">=</span> <span class="fu">tempfile</span>(<span class="at">fileext =</span> <span class="st">&#39;.rds&#39;</span>)</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>wrobel_lung0 <span class="sc">|&gt;</span> <span class="fu">saveRDS</span>(<span class="at">file =</span> f, <span class="at">compress =</span> <span class="st">&#39;xz&#39;</span>)</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">file.size</span>(f_g) <span class="sc">/</span> <span class="fu">file.size</span>(f) <span class="co"># not much reduction</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.9386422</span></span></code></pre></div>
-</div>
-<h3 id="aggregation-of-numeric-hypercolumn">Aggregation of numeric-hypercolumn</h3>
-<p>We use function <code>aggregate_quantile()</code> to aggregate the <code>quantile</code>s of each element in the numeric-hypercolumn <em><code>hladr</code></em> in <strong><code>wrobel_lung0g</code></strong> by point-wise means (default of parameter <code>f_aggr_</code>) at the second-lowest group <em><code>~patient_id</code></em>. The returned object is a <code>hyperframe</code> instead of a <code>groupedHyperframe</code>, as we have <strong><em>one</em></strong> aggregated <em><code>hladr.quantile</code></em> per <em><code>~patient_id</code></em>, thus eliminates the need for a grouping structure.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>wrobel_lung0g <span class="sc">|&gt;</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aggregate_quantile</span>(<span class="at">by =</span> <span class="sc">~</span> patient_id, <span class="at">probs =</span> <span class="fu">seq.int</span>(<span class="at">from =</span> .<span class="dv">01</span>, <span class="at">to =</span> .<span class="dv">99</span>, <span class="at">by =</span> .<span class="dv">01</span>))</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Hyperframe:</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      patient_id gender stage_numeric pack_years adjuvant_therapy    OS mhcII</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 #01 0-889-121      F             1         60               No 3488+   low</span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 #02 1-037-393      M             1         30               No  1605   low</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 #03 2-080-378      M             3         50               No   176  high</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   stage age hladr.quantile</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1    IA  85      (numeric)</span></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2    IA  66      (numeric)</span></span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3  IIIA  84      (numeric)</span></span></code></pre></div>
-</div>
-<p>In this package, we have include a <code>groupedHyperframe</code> example <strong><code>Ki67</code></strong> with a numeric-hypercolumn <em><code>logKi67</code></em> and a nested grouping structure <em><code>~patientID/tissueID</code></em>.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(Ki67, <span class="at">package =</span> <span class="st">&#39;groupedHyperframe&#39;</span>)</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>Ki67</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Grouped Hyperframe: ~patientID/tissueID</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 645 tissueID nested in</span></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 622 patientID</span></span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Preview of first 10 (or less) rows:</span></span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      logKi67 tissueID Tstage  PFS recfreesurv_mon recurrence adj_rad adj_chemo</span></span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1  (numeric) TJUe_I17      2 100+             100          0   FALSE     FALSE</span></span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2  (numeric) TJUe_G17      1   22              22          1   FALSE     FALSE</span></span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3  (numeric) TJUe_F17      1  99+              99          0   FALSE        NA</span></span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4  (numeric) TJUe_D17      1  99+              99          0   FALSE      TRUE</span></span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5  (numeric) TJUe_J18      1  112             112          1    TRUE      TRUE</span></span>
-<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6  (numeric) TJUe_N17      4   12              12          1    TRUE     FALSE</span></span>
-<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7  (numeric) TJUe_J17      2  64+              64          0   FALSE     FALSE</span></span>
-<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8  (numeric) TJUe_F19      2  56+              56          0   FALSE     FALSE</span></span>
-<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9  (numeric) TJUe_P19      2  79+              79          0   FALSE     FALSE</span></span>
-<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10 (numeric) TJUe_O19      2   26              26          1   FALSE      TRUE</span></span>
-<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    histology  Her2   HR  node  race age patientID</span></span>
-<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1          3  TRUE TRUE  TRUE White  66   PT00037</span></span>
-<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2          3 FALSE TRUE FALSE Black  42   PT00039</span></span>
-<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3          3 FALSE TRUE FALSE White  60   PT00040</span></span>
-<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4          3 FALSE TRUE  TRUE White  53   PT00042</span></span>
-<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5          3 FALSE TRUE  TRUE White  52   PT00054</span></span>
-<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6          2  TRUE TRUE  TRUE Black  51   PT00059</span></span>
-<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7          3 FALSE TRUE  TRUE Asian  50   PT00062</span></span>
-<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8          2  TRUE TRUE  TRUE White  37   PT00068</span></span>
-<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9          3  TRUE TRUE FALSE White  68   PT00082</span></span>
-<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10         2  TRUE TRUE FALSE Black  55   PT00084</span></span></code></pre></div>
-</div>
-<p>Similarly, we use function <code>aggregate_quantile()</code> to aggregate the <code>quantile</code>s of each element in the numeric-hypercolumn <em><code>logKi67</code></em> at the second-lowest group <code>~patientID</code>.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>s <span class="ot">=</span> Ki67 <span class="sc">|&gt;</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aggregate_quantile</span>(<span class="at">by =</span> <span class="sc">~</span> patientID, <span class="at">probs =</span> <span class="fu">seq.int</span>(<span class="at">from =</span> .<span class="dv">01</span>, <span class="at">to =</span> .<span class="dv">99</span>, <span class="at">by =</span> .<span class="dv">01</span>))</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>s <span class="sc">|&gt;</span> <span class="fu">head</span>()</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Hyperframe:</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   Tstage  PFS recfreesurv_mon recurrence adj_rad adj_chemo histology  Her2   HR</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1      2 100+             100          0   FALSE     FALSE         3  TRUE TRUE</span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2      1   22              22          1   FALSE     FALSE         3 FALSE TRUE</span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3      1  99+              99          0   FALSE        NA         3 FALSE TRUE</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4      1  99+              99          0   FALSE      TRUE         3 FALSE TRUE</span></span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5      1  112             112          1    TRUE      TRUE         3 FALSE TRUE</span></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6      4   12              12          1    TRUE     FALSE         2  TRUE TRUE</span></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    node  race age patientID logKi67.quantile</span></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1  TRUE White  66   PT00037        (numeric)</span></span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 FALSE Black  42   PT00039        (numeric)</span></span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 FALSE White  60   PT00040        (numeric)</span></span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4  TRUE White  53   PT00042        (numeric)</span></span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5  TRUE White  52   PT00054        (numeric)</span></span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6  TRUE Black  51   PT00059        (numeric)</span></span></code></pre></div>
-</div>
-<p>Users are encouraged to learn more about the applications of the aggregated quantiles of <strong><code>Ki67</code></strong> data from package <strong><code>hyper.gam</code></strong> vignettes (<a href="https://rpubs.com/tingtingzhan/hyper_gam">RPubs</a>, <a href="https://CRAN.R-project.org/package=hyper.gam/vignettes/applications.html"><code>CRAN</code></a>), section <em>Quantile Index</em>, as well as from our peer-reviewed publications <span class="citation" data-cites="Yi25">Yi et al. (2025)</span>; <span class="citation" data-cites="Yi23a">Yi et al. (2023b)</span>; <span class="citation" data-cites="Yi23b">Yi et al. (2023a)</span>.</p>
-<h2 id="from-hyperframe">From <code>hyperframe</code></h2>
-<p>Users may convert a <code>hyperframe</code> provided in the package <strong><code>spatstat.data</code></strong> into a <code>groupedHyperframe</code> using the <code>S3</code> method dispatch <code>as.groupedHyperframe.hyperframe()</code>. This function simply inspects and adds a (nested) grouping structure to the input <code>hyperframe</code>.</p>
-<p>In the following example, we inspect the data set <code>spatstat.data::osteo</code>, which has the serial number of sampling volume <code>brick</code> nested in the bone sample <code>id</code>, and add the nested grouping structure <code>~id/brick</code> to it.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>spatstat.data<span class="sc">::</span>osteo <span class="sc">|&gt;</span> </span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.groupedHyperframe</span>(<span class="at">group =</span> <span class="sc">~</span> id<span class="sc">/</span>brick)</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Grouped Hyperframe: ~id/brick</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 40 brick nested in</span></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 id</span></span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Preview of first 10 (or less) rows:</span></span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;        id shortid brick   pts depth</span></span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1  c77za4       4     1 (pp3)    45</span></span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2  c77za4       4     2 (pp3)    60</span></span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3  c77za4       4     3 (pp3)    55</span></span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4  c77za4       4     4 (pp3)    60</span></span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5  c77za4       4     5 (pp3)    85</span></span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6  c77za4       4     6 (pp3)    90</span></span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7  c77za4       4     7 (pp3)    95</span></span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8  c77za4       4     8 (pp3)    65</span></span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9  c77za4       4     9 (pp3)   100</span></span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10 c77za4       4    10 (pp3)   100</span></span></code></pre></div>
-</div>
-<p>In this vignette, we do not place much emphasize on the objects provided in package <strong><code>spatstat.data</code></strong>, for now.</p>
-<h1 id="grouping-structure-on-ppp-hypercolumn">Grouping Structure on <code>ppp</code>-Hypercolumn</h1>
-<p>In this section, we introduce the creation of <code>groupedHyperframe</code> with <em>one-and-only-one</em> point pattern (<code>ppp</code>) hypercolumn, as well as the batch processes of spatial point pattern analyses on the <em>one-and-only-one</em> <code>ppp</code>-hypercolumn of a <code>hyperframe</code> (and/or <code>groupedHyperframe</code>).</p>
-<p>These batch processes are not intended for a <code>hyperframe</code> (and/or <code>groupedHyperframe</code>) with multiple <code>ppp</code>-hypercolumn in the foreseeable future, as that would require checking for name clashes in the <code>marks</code> from multiple <code>ppp</code>-hypercolumn.</p>
-<h2 id="grouped-hyper-data-frame-with-ppp-hypercolumn">Grouped hyper data frame with <code>ppp</code>-hypercolumn</h2>
-<p>Function <code>grouped_ppp()</code> creates a <code>groupedHyperframe</code> with <em>one-and-only-one</em> <code>ppp</code>-hypercolumn.</p>
-<p>In the following example, the argument <code>formula</code> specifies</p>
-<ul>
-<li>the point pattern <code>marks</code>, e.g., numeric mark <em><code>hladr</code></em> and <code>multitype</code> mark <em><code>phenotype</code></em>, on the left-hand-side</li>
-<li>the additional predictors and/or endpoints for downstream analysis, e.g., <em><code>OS</code></em>, <em><code>gender</code></em> and <em><code>age</code></em>, before the <code>|</code> separator on the right-hand-side</li>
-<li>the (nested) grouping structure, e.g., <em><code>image_id</code></em> nested in <em><code>patient_id</code></em>, after the <code>|</code> separator on the right-hand-side.</li>
-</ul>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>(<span class="at">s =</span> wrobel_lung <span class="sc">|&gt;</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>   <span class="fu">grouped_ppp</span>(<span class="at">formula =</span> hladr <span class="sc">+</span> phenotype <span class="sc">~</span> OS <span class="sc">+</span> gender <span class="sc">+</span> age <span class="sc">|</span> patient_id<span class="sc">/</span>image_id))</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Grouped Hyperframe: ~patient_id/image_id</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 15 image_id nested in</span></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 patient_id</span></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Preview of first 10 (or less) rows:</span></span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       OS gender age    patient_id          image_id  ppp.</span></span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1  3488+      F  85 #01 0-889-121 [40864,18015].im3 (ppp)</span></span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2  3488+      F  85 #01 0-889-121 [42689,19214].im3 (ppp)</span></span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3  3488+      F  85 #01 0-889-121 [42806,16718].im3 (ppp)</span></span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4  3488+      F  85 #01 0-889-121 [44311,17766].im3 (ppp)</span></span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5  3488+      F  85 #01 0-889-121 [45366,16647].im3 (ppp)</span></span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6   1605      M  66 #02 1-037-393 [56576,16907].im3 (ppp)</span></span>
-<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7   1605      M  66 #02 1-037-393 [56583,15235].im3 (ppp)</span></span>
-<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8   1605      M  66 #02 1-037-393 [57130,16082].im3 (ppp)</span></span>
-<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9   1605      M  66 #02 1-037-393 [57396,17896].im3 (ppp)</span></span>
-<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10  1605      M  66 #02 1-037-393 [57403,16934].im3 (ppp)</span></span></code></pre></div>
-</div>
-<h2 id="batch-processes">Batch processes</h2>
-<h3 id="batch-processes-to-return-fv-hypercolumn">Batch processes to return <code>fv</code>-hypercolumn</h3>
-<p>In this section, we discuss the batch processes that return a function value table (<code>fv</code>) hypercolumn, i.e., a hypercolumn which consists of a <code>list</code> of <code>fv.object</code>s.</p>
-<h4 id="batch-processes-applicable-to-numeric-marks">Batch processes applicable to numeric <code>marks</code></h4>
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>Batch Process</th>
-<th>Workhorse in package <strong><code>spatstat.explore</code></strong></th>
-<th><code>fv</code>-hypercolumns Suffix</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>Emark_()</code> and <code>Vmark_()</code></td>
-<td><a href="https://search.r-project.org/CRAN/refmans/spatstat.explore/html/Emark.html"><code>Emark</code> and <code>Vmark</code></a>, conditional mean <span class="math inline">E(r)</span> and conditional variance <span class="math inline">V(r)</span>, diagnostics for dependence between the points and the marks <span class="citation" data-cites="Emark">(Schlather, Ribeiro, and Diggle 2003)</span></td>
-<td><code>.E</code> and <code>.V</code></td>
-</tr>
-<tr class="even">
-<td><code>markcorr_()</code></td>
-<td><a href="https://search.r-project.org/CRAN/refmans/spatstat.explore/html/markcorr.html"><code>markcorr</code></a>, marked correlation <span class="math inline">k_{mm}(r)</span> or generalized mark correlation <span class="math inline">k_f(r)</span> <span class="citation" data-cites="markcorr">(Stoyan and Stoyan 1994)</span></td>
-<td><code>.k</code></td>
-</tr>
-<tr class="odd">
-<td><code>markvario_()</code></td>
-<td><a href="https://search.r-project.org/CRAN/refmans/spatstat.explore/html/markvario.html"><code>markvario</code></a>, mark variogram <span class="math inline">\gamma(r)</span> <span class="citation" data-cites="markvario">(Wälder and Stoyan 1996)</span></td>
-<td><code>.gamma</code></td>
-</tr>
-<tr class="even">
-<td><code>Kmark_()</code></td>
-<td><a href="https://search.r-project.org/CRAN/refmans/spatstat.explore/html/Kmark.html"><code>Kmark</code></a>, mark-weighted <span class="math inline">K_f(r)</span> function <span class="citation" data-cites="Kmark">(Penttinen, Stoyan, and Henttonen 1992)</span></td>
-<td><code>.K</code></td>
-</tr>
-</tbody>
-</table>
-<h5 id="exception-handling">Exception handling</h5>
-<p>In package <strong><code>spatstat.explore</code></strong> (up to version <code>3.4.3</code>, 2025-05-21), function <code>markcorr()</code> is the workhorse inside functions <code>Emark()</code>, <code>Vmark()</code> and <code>markvario()</code>. Function <code>markcorr()</code> relies on the un-exported workhorse function <code>spatstat.explore:::sewsmod()</code>, whose default <code>method = &quot;density&quot;</code> contains the calculation of the ratio of two kernel densities. Due to the floating-point precision of <code>R</code>, such density ratios may have exceptional returns of</p>
-<ul>
-<li><code>0</code>, from <span class="math inline">0/\delta</span>, where <span class="math inline">\delta\geq</span> (approximately) <code>2.6e-324</code></li>
-<li><code>NaN</code>, from <span class="math inline">0/\varepsilon</span>, where <span class="math inline">\varepsilon\leq</span> (approximately) <code>2.5e-324</code></li>
-<li><code>Inf</code>, from <span class="math inline">\delta/0</span>, where <span class="math inline">\delta\geq</span> (approximately) <code>2.6e-324</code></li>
-</ul>
-<div class="cell">
-<details class="code-fold">
-<summary>See for yourself</summary>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="dv">0</span> <span class="sc">/</span> <span class="fu">c</span>(<span class="fl">2.6e-324</span>, <span class="fl">2.5e-324</span>)</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1]   0 NaN</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="fl">2.5e-324</span>, <span class="fl">2.6e-324</span>) <span class="sc">/</span> <span class="dv">0</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] NaN Inf</span></span></code></pre></div>
-</details>
-</div>
-<p>Function <code>markcorr()</code> provides a default argument of parameter <span class="math inline">r</span>, at which the mark correlation function <span class="math inline">k_f(r)</span> are evaluated, using function <code>spatstat.geom::handle.r.b.args()</code>. The S3 method dispatch <code>spatstat.explore::print.fv()</code> prints the <em>recommended range</em> and <em>available range</em> of the argument <span class="math inline">r</span>.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>spatstat.data<span class="sc">::</span>spruces <span class="sc">|&gt;</span> </span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  spatstat.explore<span class="sc">::</span><span class="fu">markcorr</span>()</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Function value object (class &#39;fv&#39;)</span></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; for the function r -&gt; k[mm](r)</span></span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ................................................................................</span></span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       Math.label             </span></span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; r     r                      </span></span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; theo  {k[mm]^{iid}}(r)       </span></span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; trans {hat(k)[mm]^{trans}}(r)</span></span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; iso   {hat(k)[mm]^{iso}}(r)  </span></span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       Description                                       </span></span>
-<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; r     distance argument r                               </span></span>
-<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; theo  theoretical value (independent marks) for k[mm](r)</span></span>
-<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; trans translation-corrected estimate of k[mm](r)        </span></span>
-<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; iso   Ripley isotropic correction estimate of k[mm](r)  </span></span>
-<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ................................................................................</span></span>
-<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Default plot formula:  .~r</span></span>
-<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; where &quot;.&quot; stands for &#39;iso&#39;, &#39;trans&#39;, &#39;theo&#39;</span></span>
-<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Recommended range of argument r: [0, 9.5]</span></span>
-<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Available range of argument r: [0, 9.5]</span></span>
-<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Unit of length: 1 metre</span></span></code></pre></div>
-</div>
-<p>We may observe exceptional returns if we go beyond the <em>recommended range</em> and/or <em>available range</em>. In the following example, we see that the mark correlation <span class="math inline">k_f(r)</span> (column <code>iso</code>) having value <code>NaN</code> at <span class="math inline">r=81,88,89,90</span>, value <code>0</code> at <span class="math inline">r=82</span> and value <code>Inf</code> at <span class="math inline">r=83,84,87</span>.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>spatstat.data<span class="sc">::</span>spruces <span class="sc">|&gt;</span> </span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  spatstat.explore<span class="sc">::</span><span class="fu">markcorr</span>(<span class="at">r =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">90</span>) <span class="sc">|&gt;</span></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  spatstat.explore<span class="sc">::</span><span class="fu">as.data.frame.fv</span>() <span class="sc">|&gt;</span></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  utils<span class="sc">::</span><span class="fu">tail</span>(<span class="at">n =</span> <span class="dv">10</span>L)</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     r theo      trans        iso</span></span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 82 81    1 0.83312629 0.05832148</span></span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 83 82    1 7.85844905 0.00000000</span></span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 84 83    1 0.91665313 0.51369152</span></span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 85 84    1 1.34455861 0.23996942</span></span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 86 85    1 2.45829352 0.00000000</span></span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 87 86    1 1.62990007 0.24344830</span></span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 88 87    1 0.00000000 0.32811666</span></span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 89 88    1        Inf 0.00000000</span></span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 90 89    1 0.03699099 0.01725363</span></span>
-<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 91 90    1        NaN 0.00000000</span></span></code></pre></div>
-</div>
-<p>The batch process <code>markcorr_()</code>, as well as <code>Emark_()</code>, <code>Vmark_()</code> and <code>markvario_()</code> which rely on the workhorse <code>markcorr()</code>, prints the <em>Recommended</em> <span class="math inline">r_\text{max}</span> from each of the <code>fv</code>-returns, no matter a user-specified argument for parameter <code>r</code> is provided or not.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>s <span class="sc">|&gt;</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">Emark_</span>(<span class="at">correction =</span> <span class="st">&#39;none&#39;</span>)</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Recommended rmax for hladr.E are 15⨯ 125.625</span></span></code></pre></div>
-</div>
-<p>When a user-specified <code>r</code> is provided for a batch process on <em>all</em> <code>ppp.object</code>s in the <code>ppp</code>-hypercolumn, inevitably some of the <code>fv</code>-returns may have exceptional values. We discuss this exception handling in the next section <em>Aggregation over nested grouping structure</em>.</p>
-<h4 id="batch-processes-applicable-to-multitype-marks">Batch processes applicable to <code>multitype</code> <code>marks</code></h4>
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>Batch Process</th>
-<th>Workhorse in package <strong><code>spatstat.explore</code></strong></th>
-<th><code>fv</code>-hypercolumns Suffix</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>Gcross_()</code></td>
-<td><a href="https://search.r-project.org/CRAN/refmans/spatstat.explore/html/Gcross.html"><code>Gcross</code></a>, multitype nearest-neighbour distance <span class="math inline">G_{ij}(r)</span></td>
-<td><code>.G</code></td>
-</tr>
-<tr class="even">
-<td><code>Kcross_()</code></td>
-<td><a href="https://search.r-project.org/CRAN/refmans/spatstat.explore/html/Kcross.html"><code>Kcross</code></a>, multitype <span class="math inline">K_{ij}(r)</span></td>
-<td><code>.K</code></td>
-</tr>
-<tr class="odd">
-<td><code>Jcross_()</code></td>
-<td><a href="https://search.r-project.org/CRAN/refmans/spatstat.explore/html/Jcross.html"><code>Jcross</code></a>, multitype <span class="math inline">J_{ij}(r)</span> <span class="citation" data-cites="Jcross">(Van Lieshout and Baddeley 1999)</span></td>
-<td><code>.J</code></td>
-</tr>
-<tr class="even">
-<td><code>Lcross_()</code></td>
-<td><a href="https://search.r-project.org/CRAN/refmans/spatstat.explore/html/Lcross.html"><code>Lcross</code></a>, multitype <span class="math inline">L_{ij}(r)=\sqrt{\frac{K_{ij}(r)}{\pi}}</span></td>
-<td><code>.L</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="batch-processes-to-return-numeric-hypercolumn">Batch processes to return numeric-hypercolumn</h3>
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>Batch Process</th>
-<th>Workhorse in package <strong><code>spatstat.geom</code></strong></th>
-<th>Applicable to</th>
-<th>numeric-hypercolumns Suffix</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>nncross_()</code></td>
-<td><a href="https://search.r-project.org/CRAN/refmans/spatstat.geom/html/nncross.html"><code>nncross.ppp</code></a><code>(., what = &#39;dist&#39;)</code>, nearest neighbour distance</td>
-<td><code>multitype</code> marks</td>
-<td><code>.nncross</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="batch-processes-in-a-pipeline">Batch processes in a pipeline</h3>
-<p>Multiple batch processes may be applied to a <code>hyperframe</code> (and/or <code>groupedHyperframe</code>) in a pipeline using the native pipe operator <code>|&gt;</code> introduced since <code>R</code> 4.1.0.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>r <span class="ot">=</span> <span class="fu">seq.int</span>(<span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">250</span>, <span class="at">by =</span> <span class="dv">10</span>)</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>out <span class="ot">=</span> s <span class="sc">|&gt;</span></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">Emark_</span>(<span class="at">r =</span> r, <span class="at">correction =</span> <span class="st">&#39;none&#39;</span>) <span class="sc">|&gt;</span> <span class="co"># slow</span></span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Vmark_(r = r, correction = &#39;none&#39;) |&gt; # slow</span></span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># markcorr_(r = r, correction = &#39;none&#39;) |&gt; # slow</span></span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># markvario_(r = r, correction = &#39;none&#39;) |&gt; # slow</span></span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Kmark_(r = r, correction = &#39;none&#39;) |&gt; # fast</span></span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">Gcross_</span>(<span class="at">i =</span> <span class="st">&#39;CK+.CD8-&#39;</span>, <span class="at">j =</span> <span class="st">&#39;CK-.CD8+&#39;</span>, <span class="at">r =</span> r, <span class="at">correction =</span> <span class="st">&#39;none&#39;</span>) <span class="sc">|&gt;</span> <span class="co"># fast</span></span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Kcross_(i = &#39;CK+.CD8-&#39;, j = &#39;CK-.CD8+&#39;, r = r, correction = &#39;none&#39;) |&gt; # fast</span></span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nncross_</span>(<span class="at">i =</span> <span class="st">&#39;CK+.CD8-&#39;</span>, <span class="at">j =</span> <span class="st">&#39;CK-.CD8+&#39;</span>, <span class="at">correction =</span> <span class="st">&#39;none&#39;</span>) <span class="co"># fast</span></span>
-<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Recommended rmax for hladr.E are 15⨯ 125.625</span></span>
-<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span></code></pre></div>
-</div>
-<p>The returned <code>hyperframe</code> (or <code>groupedHyperframe</code>) has</p>
-<ul>
-<li><code>fv</code>-hypercolumn <em><code>hladr.E</code></em>, created by function <code>Emark_()</code> on numeric mark <em><code>hladr</code></em></li>
-<li><code>fv</code>-hypercolumn <em><code>phenotype.G</code></em>, created by function <code>Gcross_()</code> on <code>multitype</code> mark <em><code>phenotype</code></em></li>
-<li>numeric-hypercolumn <em><code>phenotype.nncross</code></em>, created by function <code>nncross_()</code> on <code>multitype</code> mark <em><code>phenotype</code></em></li>
-</ul>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>out</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Grouped Hyperframe: ~patient_id/image_id</span></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 15 image_id nested in</span></span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 patient_id</span></span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Preview of first 10 (or less) rows:</span></span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       OS gender age    patient_id          image_id  ppp. hladr.E phenotype.G</span></span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1  3488+      F  85 #01 0-889-121 [40864,18015].im3 (ppp)    (fv)        (fv)</span></span>
-<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2  3488+      F  85 #01 0-889-121 [42689,19214].im3 (ppp)    (fv)        (fv)</span></span>
-<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3  3488+      F  85 #01 0-889-121 [42806,16718].im3 (ppp)    (fv)        (fv)</span></span>
-<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4  3488+      F  85 #01 0-889-121 [44311,17766].im3 (ppp)    (fv)        (fv)</span></span>
-<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5  3488+      F  85 #01 0-889-121 [45366,16647].im3 (ppp)    (fv)        (fv)</span></span>
-<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6   1605      M  66 #02 1-037-393 [56576,16907].im3 (ppp)    (fv)        (fv)</span></span>
-<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7   1605      M  66 #02 1-037-393 [56583,15235].im3 (ppp)    (fv)        (fv)</span></span>
-<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8   1605      M  66 #02 1-037-393 [57130,16082].im3 (ppp)    (fv)        (fv)</span></span>
-<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9   1605      M  66 #02 1-037-393 [57396,17896].im3 (ppp)    (fv)        (fv)</span></span>
-<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10  1605      M  66 #02 1-037-393 [57403,16934].im3 (ppp)    (fv)        (fv)</span></span>
-<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    phenotype.nncross</span></span>
-<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1          (numeric)</span></span>
-<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2          (numeric)</span></span>
-<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3          (numeric)</span></span>
-<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4          (numeric)</span></span>
-<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5          (numeric)</span></span>
-<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6          (numeric)</span></span>
-<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7          (numeric)</span></span>
-<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8          (numeric)</span></span>
-<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9          (numeric)</span></span>
-<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10         (numeric)</span></span></code></pre></div>
-</div>
-<h2 id="aggregation-over-nested-grouping-structure">Aggregation over nested grouping structure</h2>
-<h3 id="of-fv-hypercolumns">Of <code>fv</code>-hypercolumn(s)</h3>
-<p>Function <code>aggregate_fv()</code> aggregates</p>
-<ul>
-<li>the <em>function values</em>, i.e., the black-solid-curve of <code>plot.fv</code>.</li>
-<li>the <em>cumulative trapezoidal integration</em> under the black-solid-curve.</li>
-</ul>
-<p>In the following example, we have</p>
-<ul>
-<li>numeric-hypercolumns <em><code>hladr.E.value</code></em> and <em><code>phenotype.G.value</code></em>, the aggregated function values from <code>fv</code>-hypercolumns <em><code>hladr.E</code></em> and <em><code>phenotype.G</code></em>, respectively.</li>
-<li>numeric-hypercolumns <em><code>hladr.E.cumtrapz</code></em> and <em><code>phenotype.G.cumtrapz</code></em>, the aggregated cumulative trapezoidal integrations from <code>fv</code>-hypercolumns <em><code>hladr.E</code></em> and <em><code>phenotype.G</code></em>, respectively.</li>
-</ul>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>(<span class="at">afv =</span> out <span class="sc">|&gt;</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aggregate_fv</span>(<span class="at">by =</span> <span class="sc">~</span> patient_id, <span class="at">f_aggr_ =</span> pmean))</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Hyperframe:</span></span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      OS gender age    patient_id hladr.E.value hladr.E.cumtrapz</span></span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 3488+      F  85 #01 0-889-121     (numeric)        (numeric)</span></span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2  1605      M  66 #02 1-037-393     (numeric)        (numeric)</span></span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3   176      M  84 #03 2-080-378     (numeric)        (numeric)</span></span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   phenotype.G.value phenotype.G.cumtrapz</span></span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1         (numeric)            (numeric)</span></span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2         (numeric)            (numeric)</span></span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3         (numeric)            (numeric)</span></span></code></pre></div>
-</div>
-<p>Each of the numeric-hypercolumns contains tabulated values on the common grid of <code>r</code>. One “slice” of this grid may be extracted by</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>afv<span class="sc">$</span>hladr.E.cumtrapz <span class="sc">|&gt;</span> <span class="fu">.slice</span>(<span class="at">j =</span> <span class="st">&#39;50&#39;</span>)</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;        1        2        3 </span></span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10.60151 10.49337 31.05115</span></span></code></pre></div>
-</div>
-<h4 id="exception-handling-1">Exception handling</h4>
-<p>As we have mentioned in the previous section <em>Batch processes</em>, a same user-specified argument of <code>r</code> will be used for <em>all</em> <code>ppp.object</code>s in the <code>ppp</code>-hypercolumn. Suppose a naive user uses an <span class="math inline">r</span>-vector well beyond the <em>recommended range</em> and/or <em>available range</em>. In this case, function <code>aggregate_fv()</code> prints a <code>message</code> of <em>Legal</em> <span class="math inline">r_\text{max}</span>, which is determined by the last value of <span class="math inline">r</span>, that no value of <code>NaN</code> and/or <code>Inf</code> appears in any of the <code>fv</code>-returns, e.g., in the hypercolumn <em><code>hladr.E</code></em>. Note that the <code>0</code>-values in an <code>fv</code>-return are typically a sign of degeneration as well, but function <code>aggregate_fv()</code> does <strong>not</strong> eliminate <code>0</code>-values from the determination of legal <span class="math inline">r_\text{max}</span>.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>r <span class="ot">=</span> <span class="fu">seq.int</span>(<span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">1000</span>, <span class="at">by =</span> <span class="dv">50</span>)</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>s <span class="sc">|&gt;</span></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">Emark_</span>(<span class="at">r =</span> r, <span class="at">correction =</span> <span class="st">&#39;none&#39;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aggregate_fv</span>(<span class="at">by =</span> <span class="sc">~</span> patient_id, <span class="at">f_aggr_ =</span> pmean)</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Recommended rmax for hladr.E are 15⨯ 125.625</span></span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Legal rmax for hladr.E is 800</span></span></code></pre></div>
-</div>
-<h3 id="of-numeric-hypercolumn-and-numeric-marks-in-ppp-hypercolumn">Of numeric-hypercolumn and numeric marks in <code>ppp</code>-hypercolumn</h3>
-<h4 id="on-quantiles">On <code>quantile</code>s</h4>
-<p>Function <code>aggregate_quantile()</code> aggregates the <code>quantile</code>s of the numeric-hypercolumns and the numeric marks in the <code>ppp</code>-hypercolumn.</p>
-<p>In the following example, we have</p>
-<ul>
-<li>numeric-hypercolumn <em><code>phenotype.nncross.quantile</code></em>, the aggregated <code>quantile</code>s of numeric-hypercolumn <em><code>phenotype.nncross</code></em>.</li>
-<li>numeric-hypercolumn <em><code>hladr.quantile</code></em>, the aggregated <code>quantile</code>s of numeric mark <em><code>hladr</code></em> in <code>ppp</code>-hypercolumn.</li>
-</ul>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>out <span class="sc">|&gt;</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aggregate_quantile</span>(<span class="at">by =</span> <span class="sc">~</span> patient_id, <span class="at">probs =</span> <span class="fu">seq.int</span>(<span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> <span class="dv">1</span>, <span class="at">by =</span> .<span class="dv">1</span>))</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Hyperframe:</span></span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      OS gender age    patient_id phenotype.nncross.quantile hladr.quantile</span></span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 3488+      F  85 #01 0-889-121                  (numeric)      (numeric)</span></span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2  1605      M  66 #02 1-037-393                  (numeric)      (numeric)</span></span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3   176      M  84 #03 2-080-378                  (numeric)      (numeric)</span></span></code></pre></div>
-</div>
-<h4 id="on-kernel-densities">On kernel densities</h4>
-<p>Function <code>aggregate_kerndens()</code> aggregates the kernel density of the numeric-hypercolumns and the numeric marks in the <code>ppp</code>-hypercolumn.</p>
-<p>In the following example, we have</p>
-<ul>
-<li>numeric-hypercolumn <em><code>phenotype.nncross.kerndens</code></em>, the aggregated kernel densities of numeric-hypercolumn <em><code>phenotype.nncross</code></em>.</li>
-<li>numeric-hypercolumn <em><code>hladr.kerndens</code></em>, the aggregated kernel densities of numeric mark <em><code>hladr</code></em> in <code>ppp</code>-hypercolumn.</li>
-</ul>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>(<span class="at">mdist =</span> out<span class="sc">$</span>phenotype.nncross <span class="sc">|&gt;</span> <span class="fu">unlist</span>() <span class="sc">|&gt;</span> <span class="fu">max</span>())</span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 333.2417</span></span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>out <span class="sc">|&gt;</span> </span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aggregate_kerndens</span>(<span class="at">by =</span> <span class="sc">~</span> patient_id, <span class="at">from =</span> <span class="dv">0</span>, <span class="at">to =</span> mdist)</span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Hyperframe:</span></span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      OS gender age    patient_id phenotype.nncross.kerndens hladr.kerndens</span></span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 3488+      F  85 #01 0-889-121                  (numeric)      (numeric)</span></span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2  1605      M  66 #02 1-037-393                  (numeric)      (numeric)</span></span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3   176      M  84 #03 2-080-378                  (numeric)      (numeric)</span></span></code></pre></div>
-</div>
-<h1 id="appendix-a-minor-functionalities">Appendix A: Minor Functionalities</h1>
-<h2 id="k-means-clustering"><span class="math inline">k</span>-Means Clustering</h2>
-<p>The <code>S3</code> generic <code>.kmeans()</code> performs <span class="math inline">k</span>-means clustering (workhorse function <code>stats::kmeans</code>).</p>
-<h3 id="on-ppp.object">On <code>ppp.object</code></h3>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(shapley, <span class="at">package =</span> <span class="st">&#39;spatstat.data&#39;</span>)</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>shapley</span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Marked planar point pattern: 4215 points</span></span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Mark variables: Mag, V, SigV </span></span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; window: polygonal boundary</span></span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; enclosing rectangle: [192.80185, 216.26227] x [-37.75511, -27.40664] degrees</span></span></code></pre></div>
-</div>
-<p>The <code>S3</code> method dispatch <code>.kmeans.ppp()</code> performs <span class="math inline">k</span>-means clustering, with paramters</p>
-<ul>
-<li><code>formula</code>, user-specified coordinate(s) and/or numeric <code>marks</code>;</li>
-<li><code>centers</code>, number of clusters, see <code>?stats::kmeans</code></li>
-<li><code>clusterSize</code>, “expected” cluster size.</li>
-</ul>
-<h4 id="by-coordinates-andor-marks">By coordinate(s) and/or <code>marks</code></h4>
-<p>Example below shows a clustering based on the <span class="math inline">x</span>- and <span class="math inline">y</span>-coordinates, as well as the numeric mark <em><code>Mag</code></em>.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>km <span class="ot">=</span> shapley <span class="sc">|&gt;</span> <span class="fu">.kmeans</span>(<span class="at">formula =</span> <span class="sc">~</span> x <span class="sc">+</span> y <span class="sc">+</span> Mag, <span class="at">centers =</span> <span class="dv">3</span>L)</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>km <span class="sc">|&gt;</span> <span class="fu">class</span>()</span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;kmeans&quot;</span></span></code></pre></div>
-</div>
-<p>Example below shows a clustering based on <span class="math inline">x</span>-coordinate and <em><code>Mag</code></em>.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>km1 <span class="ot">=</span> shapley <span class="sc">|&gt;</span> <span class="fu">.kmeans</span>(<span class="at">formula =</span> <span class="sc">~</span> x <span class="sc">+</span> Mag, <span class="at">centers =</span> <span class="dv">3</span>L)</span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>km1 <span class="sc">|&gt;</span> <span class="fu">class</span>()</span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;kmeans&quot;</span></span></code></pre></div>
-</div>
-<p>Example below shows a clustering based on <span class="math inline">x</span>- and <span class="math inline">y</span>-coordinates only.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>km2 <span class="ot">=</span> shapley <span class="sc">|&gt;</span> <span class="fu">.kmeans</span>(<span class="at">formula =</span> <span class="sc">~</span> x <span class="sc">+</span> y, <span class="at">centers =</span> <span class="dv">3</span>L)</span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>km2 <span class="sc">|&gt;</span> <span class="fu">class</span>()</span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;kmeans&quot;</span></span></code></pre></div>
-</div>
-<h4 id="by-clustersize">By <code>clusterSize</code></h4>
-<p>Example below shows a clustering specified by <code>clusterSize</code>.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>km3 <span class="ot">=</span> shapley <span class="sc">|&gt;</span> <span class="fu">.kmeans</span>(<span class="at">formula =</span> <span class="sc">~</span> x <span class="sc">+</span> y, <span class="at">clusterSize =</span> <span class="fl">1e3</span>L)</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>km3 <span class="sc">|&gt;</span> <span class="fu">class</span>()</span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;kmeans&quot;</span></span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>km3<span class="sc">$</span>centers <span class="co"># 5 clusters needed</span></span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          x         y</span></span>
-<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 210.2438 -31.12496</span></span>
-<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 194.6948 -29.94795</span></span>
-<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 202.1755 -31.00384</span></span>
-<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 205.7199 -33.97703</span></span>
-<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5 198.9476 -34.85859</span></span>
-<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>km3<span class="sc">$</span>cluster <span class="sc">|&gt;</span> <span class="fu">table</span>()</span>
-<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    1    2    3    4    5 </span></span>
-<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  640 1099 1475  565  436</span></span></code></pre></div>
-</div>
-<h2 id="split-by-k-means-clustering">Split by <span class="math inline">k</span>-Means Clustering</h2>
-<p>The <code>S3</code> generic <code>split_kmeans()</code> <code>split</code>s <code>ppp.object</code>, <code>listof</code> <code>ppp.object</code>s, and <code>hyperframe</code> by <span class="math inline">k</span>-means clustering.</p>
-<p>Note that many functions in package <strong><code>groupedHyperframe</code></strong> require a <code>&#39;dataframe&#39;</code> <code>markformat</code> for <code>ppp.object</code>s.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(flu, <span class="at">package =</span> <span class="st">&#39;spatstat.data&#39;</span>)</span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>flu<span class="sc">$</span>pattern[[<span class="dv">1</span>L]] <span class="sc">|&gt;</span> </span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  spatstat.geom<span class="sc">::</span><span class="fu">markformat</span>()</span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;vector&quot;</span></span></code></pre></div>
-</div>
-<p>User may convert a <code>&#39;vector&#39;</code> <code>markformat</code> to <code>&#39;dataframe&#39;</code> using the syntactic sugar <code>`mark_name&lt;-`</code>,</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>flu<span class="sc">$</span>pattern[] <span class="ot">=</span> flu<span class="sc">$</span>pattern <span class="sc">|&gt;</span> </span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lapply</span>(<span class="at">FUN =</span> <span class="st">`</span><span class="at">mark_name&lt;-</span><span class="st">`</span>, <span class="at">value =</span> <span class="st">&#39;stain&#39;</span>) <span class="co"># read ?flu carefully</span></span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>flu<span class="sc">$</span>pattern[[<span class="dv">1</span>L]] <span class="sc">|&gt;</span> </span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  spatstat.geom<span class="sc">::</span><span class="fu">markformat</span>()</span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;dataframe&quot;</span></span></code></pre></div>
-</div>
-<h3 id="split-a-ppp.object">Split a <code>ppp.object</code></h3>
-<p>The <code>S3</code> method dispatch <code>split_kmeans.default()</code> splits a <code>ppp.object</code> by <span class="math inline">k</span>-means clustering.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>flu<span class="sc">$</span>pattern[[<span class="dv">1</span>L]] <span class="sc">|&gt;</span> <span class="fu">split_kmeans</span>(<span class="at">formula =</span> <span class="sc">~</span> x <span class="sc">+</span> y, <span class="at">centers =</span> <span class="dv">3</span>L)</span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Point pattern split by factor </span></span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1:</span></span>
-<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Marked planar point pattern: 145 points</span></span>
-<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Multitype, with levels = M2, M1 </span></span>
-<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; window: rectangle = [0, 3331] x [0, 3331] nm</span></span>
-<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2:</span></span>
-<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Marked planar point pattern: 169 points</span></span>
-<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Multitype, with levels = M2, M1 </span></span>
-<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; window: rectangle = [0, 3331] x [0, 3331] nm</span></span>
-<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3:</span></span>
-<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Marked planar point pattern: 157 points</span></span>
-<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Multitype, with levels = M2, M1 </span></span>
-<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; window: rectangle = [0, 3331] x [0, 3331] nm</span></span></code></pre></div>
-</div>
-<h3 id="split-a-listof-ppp.objects">Split a <code>listof</code> <code>ppp.object</code>s</h3>
-<p>The <code>S3</code> method dispatch <code>split_kmeans.listof()</code> splits a <code>listof</code> <code>ppp.object</code>s by <span class="math inline">k</span>-means clustering.</p>
-<p>The returned object has <code>attributes</code></p>
-<ul>
-<li><code>attr(.,&#39;.id&#39;)</code>, indices of the <code>ppp.object</code>s before splitting.</li>
-<li><code>attr(.,&#39;.cluster&#39;)</code>, indices of <span class="math inline">k</span>-means clusters, nested in <code>.id</code>.</li>
-</ul>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>flu<span class="sc">$</span>pattern[<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>] <span class="sc">|&gt;</span> <span class="fu">split_kmeans</span>(<span class="at">formula =</span> <span class="sc">~</span> x <span class="sc">+</span> y, <span class="at">centers =</span> <span class="dv">3</span>L) </span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $`wt M2-M1 13.1`</span></span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Marked planar point pattern: 157 points</span></span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Multitype, with levels = M2, M1 </span></span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; window: rectangle = [0, 3331] x [0, 3331] nm</span></span>
-<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $`wt M2-M1 13.2`</span></span>
-<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Marked planar point pattern: 169 points</span></span>
-<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Multitype, with levels = M2, M1 </span></span>
-<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; window: rectangle = [0, 3331] x [0, 3331] nm</span></span>
-<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $`wt M2-M1 13.3`</span></span>
-<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Marked planar point pattern: 145 points</span></span>
-<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Multitype, with levels = M2, M1 </span></span>
-<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; window: rectangle = [0, 3331] x [0, 3331] nm</span></span>
-<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $`wt M2-M1 22.1`</span></span>
-<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Marked planar point pattern: 77 points</span></span>
-<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Multitype, with levels = M2, M1 </span></span>
-<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; window: rectangle = [0, 3331] x [0, 3331] nm</span></span>
-<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $`wt M2-M1 22.2`</span></span>
-<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Marked planar point pattern: 57 points</span></span>
-<span id="cb34-24"><a href="#cb34-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Multitype, with levels = M2, M1 </span></span>
-<span id="cb34-25"><a href="#cb34-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; window: rectangle = [0, 3331] x [0, 3331] nm</span></span>
-<span id="cb34-26"><a href="#cb34-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb34-27"><a href="#cb34-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $`wt M2-M1 22.3`</span></span>
-<span id="cb34-28"><a href="#cb34-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Marked planar point pattern: 83 points</span></span>
-<span id="cb34-29"><a href="#cb34-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Multitype, with levels = M2, M1 </span></span>
-<span id="cb34-30"><a href="#cb34-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; window: rectangle = [0, 3331] x [0, 3331] nm</span></span>
-<span id="cb34-31"><a href="#cb34-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb34-32"><a href="#cb34-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;id&quot;)</span></span>
-<span id="cb34-33"><a href="#cb34-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 1 1 1 2 2 2</span></span>
-<span id="cb34-34"><a href="#cb34-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;cluster&quot;)</span></span>
-<span id="cb34-35"><a href="#cb34-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 1 2 3 1 2 3</span></span></code></pre></div>
-</div>
-<h3 id="split-a-hyperframe-andor-groupedhyperframe">Split a <code>hyperframe</code> and/or <code>groupedHyperframe</code></h3>
-<p>The <code>S3</code> method dispatch <code>split_kmeans.hyperframe()</code> splits a <code>hyperframe</code> and/or <code>groupedHyperframe</code> by <span class="math inline">k</span>-means clustering of the <em>one-and-only-one</em> <code>ppp</code>-hypercolumn.</p>
-<p>The returned object is a <code>groupedHyperframe</code> with grouping structure</p>
-<ul>
-<li><code>~.id/.cluster</code>, if the input is a <code>hyperframe</code></li>
-<li><code>~ existing/grouping/structure/.cluster</code>, if the input is a <code>groupedHyperframe</code>. Note that the grouping level <code>.id</code> is <strong>believed</strong> to be equivalent to <em>the lowest level of existing grouping structure</em>.</li>
-</ul>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>flu[<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>,] <span class="sc">|&gt;</span> <span class="fu">split_kmeans</span>(<span class="at">formula =</span> <span class="sc">~</span> x <span class="sc">+</span> y, <span class="at">centers =</span> <span class="dv">3</span>L)</span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Grouped Hyperframe: ~.id/.cluster</span></span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6 .cluster nested in</span></span>
-<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 .id</span></span>
-<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Preview of first 10 (or less) rows:</span></span>
-<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   pattern .id .cluster virustype stain frameid</span></span>
-<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1   (ppp)   1        1        wt M2-M1      13</span></span>
-<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2   (ppp)   1        2        wt M2-M1      13</span></span>
-<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3   (ppp)   1        3        wt M2-M1      13</span></span>
-<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4   (ppp)   2        1        wt M2-M1      22</span></span>
-<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5   (ppp)   2        2        wt M2-M1      22</span></span>
-<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6   (ppp)   2        3        wt M2-M1      22</span></span></code></pre></div>
-</div>
-<h2 id="pairwise-tjøstheims-coefficient">Pairwise Tjøstheim’s Coefficient</h2>
-<p>The <code>S3</code> generic <code>pairwise_cor_spatial()</code> calculates the nonparametric, rank-based, Tjøstheim’s correlation coefficients <span class="citation" data-cites="Tjostheim78 Hubert82">(Tjøstheim 1978; Hubert and Golledge 1982)</span> in a pairwise-combination fashion, using the workhorse function <code>SpatialPack::cor.spatial()</code>. All <code>S3</code> method dispatches return a object of class <code>&#39;pairwise_cor_spatial&#39;</code>, which <code>inherits</code> from class <code>&#39;dist&#39;</code>.</p>
-<h3 id="of-ppp.object">Of <code>ppp.object</code></h3>
-<p>The <code>S3</code> method dispatch <code>pairwise_cor_spatial.ppp()</code> finds the nonparametric Tjøstheim’s correlation coefficients from the pairwise-combinations of all numeric marks of a <code>ppp.object</code>.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(finpines, <span class="at">package =</span> <span class="st">&#39;spatstat.data&#39;</span>)</span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>(<span class="at">r =</span> finpines <span class="sc">|&gt;</span> <span class="fu">pairwise_cor_spatial</span>())</span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         diameter</span></span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; height 0.7287879</span></span></code></pre></div>
-</div>
-<p>The printing of <code>&#39;pairwise_cor_spatial&#39;</code> is taken care of by function <code>stats:::print.dist</code>.</p>
-<h3 id="matrix-of-pairwise-tjøstheims-coefficient">Matrix of pairwise Tjøstheim’s coefficient</h3>
-<p>The <code>S3</code> method dispatch <code>as.matrix.pairwise_cor_spatial()</code> returns a <code>matrix</code> with <code>diag</code>onal values of 1.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>r <span class="sc">|&gt;</span> <span class="fu">as.matrix</span>()</span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           diameter    height</span></span>
-<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; diameter 1.0000000 0.7287879</span></span>
-<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; height   0.7287879 1.0000000</span></span></code></pre></div>
-</div>
-<p>Note that this matrix is <strong><em>not</em></strong> a <code>cor</code>relation matrix, because Tjøstheim’s correlation coefficient</p>
-<ul>
-<li>is nonparametric, i.e., there is no definition of the corresponding <code>cov</code>ariance, standard deviation <code>sd</code>, nor the conversion <code>cov2cor</code> method;</li>
-<li>does not provide a mathematical mechanism to ensure this matrix is <a href="https://en.wikipedia.org/wiki/Definite_matrix">positive definite</a>.</li>
-</ul>
-<h1 id="appendix-b-what-we-dont-do">Appendix B: What We Don’t Do</h1>
-<h2 id="s4-method-dispatch-merge">S4 method dispatch <code>merge</code></h2>
-<p>The authors plan <span style="background-color: #FFFF00"><strong>not</strong></span> to implement an S4 method dispatch <code>merge</code> (e.g., S3 method dispatch <code>base::merge.data.frame()</code>) for <code>hyperframe</code> and/or <code>groupedHyperframe</code> classes, for several reasons.</p>
-<ul>
-<li>There is not an S3 method dispatch <code>merge.hyperframe</code> in package <strong><code>spatstat.geom</code></strong> (as of version 3.4-1);</li>
-<li>Should the authors decide to implement the <code>merge</code> functionality for <code>hyperframe</code> class, at least two S4 method dispatches need to be written for <code>setMethod(f = merge, ...)</code>
-<ul>
-<li><code>signature = c(x = &#39;hyperframe&#39;, y = &#39;data.frame&#39;)</code></li>
-<li><code>signature = c(x = &#39;hyperframe&#39;, y = &#39;hyperframe&#39;)</code></li>
-</ul></li>
-<li>Should the authors decide to implement the <code>merge</code> functionality for <code>groupedHyperframe</code> class, at least three S4 method dispatches need to be written for <code>setMethod(f = merge, ...)</code>
-<ul>
-<li><code>signature = c(x = &#39;groupedHyperframe&#39;, y = &#39;data.frame&#39;)</code></li>
-<li><code>signature = c(x = &#39;groupedHyperframe&#39;, y = &#39;hyperframe&#39;)</code></li>
-<li><code>signature = c(x = &#39;groupedHyperframe&#39;, y = &#39;groupedHyperframe&#39;)</code>, for which the authors need to consider the (potentially different) grouping structures of <code>x</code> and <code>y</code> inputs.</li>
-</ul></li>
-</ul>
-<p>The authors suggest users do <code>base::merge.data.frame()</code> first, then do <code>as.groupedHyperframe()</code> as a workaround.</p>
-<h1 id="references">References</h1>
+<h1 class="appendix" data-number="5" id="references"><span class="header-section-number">5</span> References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
 <div id="ref-spatstat15" class="csl-entry" role="listitem">
 Baddeley, Adrian, Ege Rubak, and Rolf Turner. 2015. <em>Spatial Point Patterns: Methodology and Applications with <span>R</span></em>. London: Chapman; Hall/CRC Press. <a href="https://www.routledge.com/Spatial-Point-Patterns-Methodology-and-Applications-with-R/Baddeley-Rubak-Turner/p/book/9781482210200/">https://www.routledge.com/Spatial-Point-Patterns-Methodology-and-Applications-with-R/Baddeley-Rubak-Turner/p/book/9781482210200/</a>.
@@ -1184,44 +392,8 @@ Baddeley, Adrian, Ege Rubak, and Rolf Turner. 2015. <em>Spatial Point Patterns: 
 <div id="ref-spatstat05" class="csl-entry" role="listitem">
 Baddeley, Adrian, and Rolf Turner. 2005. <span>“<span class="nocase">spatstat</span>: An <span>R</span> Package for Analyzing Spatial Point Patterns.”</span> <em>Journal of Statistical Software</em> 12 (6): 1–42. <a href="https://doi.org/10.18637/jss.v012.i06">https://doi.org/10.18637/jss.v012.i06</a>.
 </div>
-<div id="ref-matrixStats" class="csl-entry" role="listitem">
-Bengtsson, Henrik. 2025. <em><span class="nocase">matrixStats</span>: Functions That Apply to Rows and Columns of Matrices (and to Vectors)</em>. <a href="https://doi.org/10.32614/CRAN.package.matrixStats">https://doi.org/10.32614/CRAN.package.matrixStats</a>.
-</div>
-<div id="ref-pracma" class="csl-entry" role="listitem">
-Borchers, Hans W. 2023. <em><span class="nocase">pracma</span>: Practical Numerical Math Functions</em>. <a href="https://doi.org/10.32614/CRAN.package.pracma">https://doi.org/10.32614/CRAN.package.pracma</a>.
-</div>
-<div id="ref-cli" class="csl-entry" role="listitem">
-Csárdi, Gábor. 2025. <em><span class="nocase">cli</span>: Helpers for Developing Command Line Interfaces</em>. <a href="https://doi.org/10.32614/CRAN.package.cli">https://doi.org/10.32614/CRAN.package.cli</a>.
-</div>
-<div id="ref-kmeans" class="csl-entry" role="listitem">
-Hartigan, J. A., and M. A. Wong. 1979. <span>“A <span class="math inline">K</span>-Means Clustering Algorithm.”</span> <em>Journal of the Royal Statistical Society: Series C (Applied Statistics)</em> 28 (1): 100–108. <a href="https://doi.org/10.2307/2346830">https://doi.org/10.2307/2346830</a>.
-</div>
-<div id="ref-Hubert82" class="csl-entry" role="listitem">
-Hubert, Lawrence J., and Reginald G. Golledge. 1982. <span>“Measuring Association Between Spatially Defined Variables: Tjøstheim’s Index and Some Extensions.”</span> <em>Geographical Analysis</em> 14 (3): 273–78. <a href="https://doi.org/10.1111/j.1538-4632.1982.tb00077.x">https://doi.org/10.1111/j.1538-4632.1982.tb00077.x</a>.
-</div>
-<div id="ref-Kmark" class="csl-entry" role="listitem">
-Penttinen, Antti, Dietrich Stoyan, and Helena M. Henttonen. 1992. <span>“Marked Point Processes in Forest Statistics.”</span> <em>Forest Science</em> 38 (4): 806–24. <a href="https://doi.org/10.1093/forestscience/38.4.806">https://doi.org/10.1093/forestscience/38.4.806</a>.
-</div>
-<div id="ref-nlme" class="csl-entry" role="listitem">
-Pinheiro, José, Douglas Bates, and R Core Team. 2025. <em><span class="nocase">nlme</span>: Linear and Nonlinear Mixed Effects Models</em>. <a href="https://doi.org/10.32614/CRAN.package.nlme">https://doi.org/10.32614/CRAN.package.nlme</a>.
-</div>
-<div id="ref-Emark" class="csl-entry" role="listitem">
-Schlather, Martin, Jr Ribeiro Paulo J., and Peter J. Diggle. 2003. <span>“Detecting Dependence Between Marks and Locations of Marked Point Processes.”</span> <em>Journal of the Royal Statistical Society Series B: Statistical Methodology</em> 66 (1): 79–93. <a href="https://doi.org/10.1046/j.1369-7412.2003.05343.x">https://doi.org/10.1046/j.1369-7412.2003.05343.x</a>.
-</div>
-<div id="ref-markcorr" class="csl-entry" role="listitem">
-Stoyan, Helga, and Dietrich Stoyan. 1994. <em>Fractals, Random Shapes and Point Fields: Methods of Geometrical Statistics</em>. John Wiley; Sons. <a href="https://www.wiley.com/Fractals%2C+Random+Shapes+and+Point+Fields%3A+Methods+of+Geometrical+Statistics-p-9780471937579">https://www.wiley.com/Fractals%2C+Random+Shapes+and+Point+Fields%3A+Methods+of+Geometrical+Statistics-p-9780471937579</a>.
-</div>
-<div id="ref-Tjostheim78" class="csl-entry" role="listitem">
-Tjøstheim, Dag. 1978. <span>“A Measure of Association for Spatial Variables.”</span> <em>Biometrika</em> 65 (1): 109–14. <a href="https://doi.org/10.1093/biomet/65.1.109">https://doi.org/10.1093/biomet/65.1.109</a>.
-</div>
-<div id="ref-SpatialPack" class="csl-entry" role="listitem">
-Vallejos, R., F. Osorio, and M. Bevilacqua. 2020. <em>Spatial Relationships Between Two Georeferenced Variables: With Applications in r</em>. New York: Springer. <a href="http://srb2gv.mat.utfsm.cl/">http://srb2gv.mat.utfsm.cl/</a>.
-</div>
-<div id="ref-Jcross" class="csl-entry" role="listitem">
-Van Lieshout, M. N. M., and A. J. Baddeley. 1999. <span>“Indices of Dependence Between Types in Multivariate Point Patterns.”</span> <em>Scandinavian Journal of Statistics</em> 26 (4): 511–32. <a href="https://doi.org/10.1111/1467-9469.00165">https://doi.org/10.1111/1467-9469.00165</a>.
-</div>
-<div id="ref-markvario" class="csl-entry" role="listitem">
-Wälder, Olga, and Dietrich Stoyan. 1996. <span>“On Variograms in Point Process Statistics.”</span> <em>Biometrical Journal</em> 38 (8): 895–905. <a href="https://doi.org/10.1002/bimj.4710380802">https://doi.org/10.1002/bimj.4710380802</a>.
+<div id="ref-RStudio" class="csl-entry" role="listitem">
+Posit team. 2025. <em>RStudio: Integrated Development Environment for <span>R</span></em>. Boston, MA: Posit Software, PBC. <a href="https://posit.co/">https://posit.co/</a>.
 </div>
 <div id="ref-Yi23b" class="csl-entry" role="listitem">
 Yi, Misung, Tingting Zhan, Amy R. Peck, Jeffrey A. Hooke, Albert J. Kovatich, Craig D. Shriver, Hai Hu, Yunguang Sun, Hallgeir Rui, and Inna Chervoneva. 2023a. <span>“Quantile Index Biomarkers Based on Single-Cell Expression Data.”</span> <em>Laboratory Investigation</em> 103 (8): 100158. <a href="https://doi.org/10.1016/j.labinv.2023.100158">https://doi.org/10.1016/j.labinv.2023.100158</a>.
@@ -1232,8 +404,43 @@ Yi, Misung, Tingting Zhan, Amy R. Peck, Jeffrey A. Hooke, Albert J. Kovatich, Cr
 <div id="ref-Yi25" class="csl-entry" role="listitem">
 Yi, Misung, Tingting Zhan, Hallgeir Rui, and Inna Chervoneva. 2025. <span>“Functional Protein Biomarkers Based on Distributions of Expression Levels in Single-Cell Imaging Data.”</span> <em>Bioinformatics</em>, April, btaf182. <a href="https://doi.org/10.1093/bioinformatics/btaf182">https://doi.org/10.1093/bioinformatics/btaf182</a>.
 </div>
+<div id="ref-hypergam" class="csl-entry" role="listitem">
+Zhan, Tingting, and Inna Chervoneva. 2025. <em><span class="nocase">hyper.gam</span>: Generalized Additive Models with Hyper Column</em>. <a href="https://CRAN.R-project.org/package=hyper.gam">https://CRAN.R-project.org/package=hyper.gam</a>.
+</div>
+<div id="ref-Zhan25" class="csl-entry" role="listitem">
+Zhan, Tingting, Misung Yi, and Inna Chervoneva. 2025. <span>“Quantile Index Predictors Using r Package ‘Hyper.gam‘.”</span> <em>Bioinformatics</em>, July, btaf430. <a href="https://doi.org/10.1093/bioinformatics/btaf430">https://doi.org/10.1093/bioinformatics/btaf430</a>.
+</div>
 </div>
 
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+            // default icon
+            link.classList.add("external");
+        }
+      }
+  });
+  </script>
 
 
 

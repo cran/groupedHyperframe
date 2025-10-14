@@ -3,77 +3,102 @@
 #' @title Batch Operations of `'ppplist'` Object
 #' 
 #' @description
-#' Batch operations of function [fv_ppp()] or [dist_ppp()], for a `'ppplist'` input.
+#' Batch operations for a `'ppplist'` input.
 #' 
 #' @param x a `'ppplist'` object
 #' 
-#' @param op workhorse \link[base]{function}, either [fv_ppp()] or [dist_ppp()]
+#' @param op workhorse \link[base]{function}, either [ppp_numeric2fv()], [ppp_multitype2fv()] or [ppp2dist()]
 #' 
 #' @param mc.cores \link[base]{integer} scalar, see function \link[parallel]{mclapply}.
-#' Default is 1L on Windows, or \link[parallel]{detectCores} on Mac.
+#' Default is the return of function \link[parallel]{detectCores}.
 #' 
 #' @param ... additional parameters of workhorse functions 
-#' [fv_ppp()] or [dist_ppp()]
+#' [ppp_numeric2fv()], [ppp_multitype2fv()] or [ppp2dist()]
 #' 
 #' @details
 #' Function [op_ppplist()] is a \pkg{parallel} batch process of 
-#' the workhorse function [fv_ppp()] or [dist_ppp()].
+#' the workhorse function [ppp_numeric2fv()], [ppp_multitype2fv()] or [ppp2dist()].
 #' 
 #' @returns 
 #' Function [op_ppplist()] returns a \link[stats]{listof} 
 #' \itemize{
-#' \item function [fv_ppp()] returns, if `op = fv_ppp`.
-#' \item function [dist_ppp()] returns, if `op = dist_ppp`.
+#' \item function [ppp_numeric2fv()] returns, if `op = ppp_numeric2fv`.
+#' \item function [ppp_multitype2fv()] returns, if `op = ppp_multitype2fv`.
+#' \item function [ppp2dist()] returns, if `op = ppp2dist`.
 #' }
 #' 
-#' @examples
-#' \dontshow{options(mc.cores = 1L)}
-#' library(spatstat.data)
-#' library(spatstat.geom) # for ?spatstat.geom::split.ppp
-#' library(spatstat.explore) # for ?spatstat.explore::Emark, etc.
-#' 
-#' Vc = with(shapley$marks, expr = {
-#'  cut.default(V, breaks = quantile(V, probs = c(0, 1/3, 2/3, 1)), labels = c('L', 'M', 'H'))
-#' })
-#' \donttest{
-#' x1 = shapley |> 
-#'  subset.ppp(select = c('Mag', 'SigV')) |>
-#'  split.ppp(f = Vc) |>
-#'  op_ppplist(op = fv_ppp, fn = markcorr)
-#' names(x1)
-#' names(x1$L)
-#' }
-#' 
-#' x2 = nbfires |> 
-#'   subset.ppp(select = c('fire.type', 'cause', 'ign.src')) |>
-#'   na.omit.ppp() |> 
-#'   split.ppp(f = 'fire.type')
-#' x2 |> op_ppplist(op = dist_ppp, fn = .nncross, i = 'rrds', j = 'ltning')
-#' x2 |> op_ppplist(op = dist_ppp, fn = .nncross, i = 'unknown', j = 'burn.no.perm')
 #' @keywords internal
-#' @importFrom parallel mclapply detectCores
+#' @importFrom doParallel registerDoParallel
+#' @importFrom foreach foreach `%dopar%`
+#' @importFrom parallel mclapply makeCluster stopCluster
+#' @importFrom spatstat.geom anylist
 #' @export
 op_ppplist <- function(
     x, 
     op,
-    mc.cores = getOption('mc.cores'),
+    mc.cores = getOption('cores'),
     ...
 ) {
   
-  n <- length(x)
+  n <- length(x) # needed for progress-printing!
+  sq <- n |>
+    seq_len()
   
-  ret <- n |>
-    seq_len() |>
-    mclapply(mc.cores = mc.cores, FUN = \(i) {
-    #lapply(FUN = \(i) { # when debugging
-      # echo-command does not work with '\r' (carriage return)
-      if (identical(Sys.getenv('RSTUDIO'), '1')) sprintf(fmt = 'printf \'\r%d/%d done!    \'', i, n) |> system() |> on.exit()
-      x[[i]] |> op(...)
+  .rstudio <- identical(Sys.getenv('RSTUDIO'), '1') 
+  # Sys.getenv('RSTUDIO') # returns '' in both vanilla R and Positron
+  .positron <- identical(Sys.getenv('POSITRON'), '1')
+  # Sys.getenv('POSITRON') # returns '' in both vanilla R and RStudio 
+    
+  foo <- if (.rstudio && (.Platform$OS.type == 'unix')) {
+    # parameter name must be `.i` !!
+    # [Gcross_.ppp()] carries parameter `i` in `...` !!!
+    \(.i, x, ...) {
+      sprintf(fmt = 'printf \'\r%d/%d done!    \'', .i, n) |> 
+        # echo-command does not work with '\r' (carriage return)
+        system() |> 
+        on.exit()
+      # this command 
+      # .. kills vanilla R on Mac
+      # .. kills Positron on Mac !!!
+      # .. does not show up in RStudio on Windows
+      x[[.i]] |> op(...)
+    }
+  } else {
+    \(.i, x, ...) {
+      x[[.i]] |> op(...)
+    }
+  }
+  
+  switch(
+    EXPR = .Platform$OS.type, # as of R 4.5, only two responses, 'windows' or 'unix'
+    unix = {
+      ret0 <- sq |>
+        mclapply(mc.cores = mc.cores, FUN = foo, x = x, ...) 
+        #lapply(FUN = foo, x = x, ...) # when debugging
+    }, windows = {
+      i <- NULL # just to suppress devtools::check NOTE
+      registerDoParallel(cl = (cl <- makeCluster(spec = mc.cores)))
+      ret0 <- foreach(i = sq, .options.multicore = list(cores = mc.cores)) %dopar% foo(.i = i, x = x, ...)
+      stopCluster(cl)
     })
+  # `ret0`: 1st subject, 2nd mark
+  
   message() |> on.exit()
   
-  names(ret) <- names(x)
-  return(ret)
+  names(ret0) <- names(x)
+  
+  # re-organize the list!!
+  # `ret`: 1st mark, 2nd subject
+  #ret <- .mapply(FUN = list, dots = ret0, MoreArgs = NULL)
+  ret <- .mapply(FUN = anylist, dots = ret0, MoreArgs = NULL) # 2025-09-24
+  # using `anylist` obviously correct and better, but does it actually improve anything?
+  names(ret) <- names(ret0[[1L]])
+
+  mapply(
+    FUN = as.fvlist, 
+    X = ret, data.name = names(ret), 
+    MoreArgs = NULL, SIMPLIFY = FALSE
+  )
   
 }
 
