@@ -102,7 +102,7 @@ cumvtrapz.fv <- function(x, key = fvnames(x, a = '.y'), ...) {
 #' smoothed \eqn{x} and \eqn{y} values, 
 #' to beautify the \link[geomtextpath]{geom_textpath} of a \link[stats]{stepfun}
 #' 
-#' @param x_labels,y_labels ..
+#' @param x_labels,y_labels \link[base]{character} scalars
 #' 
 #' @param yname (optional) \link[base]{character} scalar, name of function
 #' 
@@ -117,8 +117,9 @@ cumvtrapz.fv <- function(x, key = fvnames(x, a = '.y'), ...) {
 #' 
 #' @param label.v,label.cumv \link[base]{character} scalars
 #' 
-#' @param n \link[base]{integer}, number of \eqn{x}-values at which to evaluate, 
-#' only applicable when the input is the return of function \link[stats]{splinefun}.
+#' @param n \link[base]{integer}, number of \eqn{(x,y)}-values at which to evaluate, 
+#' only applicable when the input `inherits` from the `S3` class \link[base]{function},
+#' or has an `S3` method of `predict.*()` available.
 #' 
 #' @param ... additional parameters, currently of no use
 #' 
@@ -309,8 +310,7 @@ visualize_vtrapz.ecdf <- function(x, ...) {
 
 
 #' @rdname visualize_vtrapz
-#' @importFrom ggplot2 labs
-#' @importFrom stats lowess
+#' @importFrom ggplot2 labs geom_point aes
 #' @export visualize_vtrapz.function
 #' @export
 visualize_vtrapz.function <- function(x, ..., n = 513L) {
@@ -320,28 +320,75 @@ visualize_vtrapz.function <- function(x, ..., n = 513L) {
   yname <- if (exists('yname', envir = ev)) {
     get('yname', envir = ev)
   } # else NULL
+  xname <- if (exists('xname', envir = ev)) {
+    get('xname', envir = ev)
+  } # else NULL
   
   if (exists('x', envir = ev, inherits = FALSE)) { # returned from ?stats::approxfun
-    x <- get('x', envir = ev)
-    y <- get('y', envir = ev) # let err
-    
+    fn_from <- 'approxfun'
+    x0 <- get('x', envir = ev)
+    y0 <- get('y', envir = ev)
   } else if (exists('z', envir = ev, inherits = FALSE)) { # returned from ?stats::splinefun
+    fn_from <- 'splinefun'
     z <- get('z', envir = ev)
-    x <- z$x |>
-      range() |>
-      as.list() |>
-      c(list(length.out = n)) |>
-      do.call(what = seq.int, args = _)
-    y <- fn(x)
+    x0 <- z$x
+    y0 <- z$y
   } else stop('not supported')
+  
+  x <- x0 |>
+    range() |>
+    as.list() |>
+    c(list(length.out = n)) |>
+    do.call(what = seq.int, args = _)
+  y <- fn(x)
   
   visualize_vtrapz.numeric(
     x = x, y = y,
     yname = yname,
     ...
   ) +
-    labs(x = 'x', y = NULL)
+    switch(fn_from, splinefun =, approxfun = {
+      geom_point(mapping = aes(x = x0, y = y0), color = 'firebrick')
+    }) +
+    labs(x = xname, y = NULL)
   
 }
+
+
+
+
+#' @rdname visualize_vtrapz
+#' @importFrom ggplot2 labs geom_point aes
+#' @importFrom stats predict
+#' @export visualize_vtrapz.loess
+#' @export
+visualize_vtrapz.loess <- function(x, ..., n = 513L) {
+
+  obj <- x; x <- NULL # make code more readable
+  if (!is.matrix(obj$x)) stop('stats-package updated?')
+  if (ncol(obj$x) != 1L) stop('one-and-only-one predictor in loess model!')
+  
+  xname <- colnames(obj$x)[1L]
+  
+  newx <- obj$x[, 1L] |>
+    range() |>
+    c(length.out = n) |>
+    as.list() |>
+    do.call(what = seq.int)
+  newdata <- data.frame(newx)
+  names(newdata) <- xname
+  newy <- obj |>
+    predict(newdata = newdata, se = FALSE) # ?stats:::predict.loess
+  
+  visualize_vtrapz.numeric(
+    x = newx, y = newy, 
+    yname = obj$yname %||% 'stats::loess',
+    ...
+  ) +
+    geom_point(mapping = aes(x = obj$x[, 1L], y = obj$y), alpha = .1) +
+    labs(x = xname, y = NULL)
+  
+}
+
 
 

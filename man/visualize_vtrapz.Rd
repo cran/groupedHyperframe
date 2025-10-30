@@ -8,6 +8,7 @@
 \alias{visualize_vtrapz.density}
 \alias{visualize_vtrapz.ecdf}
 \alias{visualize_vtrapz.function}
+\alias{visualize_vtrapz.loess}
 \title{Visualize \code{\link[=vtrapz]{vtrapz()}} and \code{\link[=cumvtrapz]{cumvtrapz()}}}
 \usage{
 visualize_vtrapz(
@@ -51,6 +52,8 @@ visualize_vtrapz(
 \method{visualize_vtrapz}{ecdf}(x, ...)
 
 \method{visualize_vtrapz}{`function`}(x, ..., n = 513L)
+
+\method{visualize_vtrapz}{loess}(x, ..., n = 513L)
 }
 \arguments{
 \item{x}{see \strong{Usage}}
@@ -61,7 +64,7 @@ visualize_vtrapz(
 smoothed \eqn{x} and \eqn{y} values,
 to beautify the \link[geomtextpath]{geom_textpath} of a \link[stats]{stepfun}}
 
-\item{x_labels, y_labels}{..}
+\item{x_labels, y_labels}{\link[base]{character} scalars}
 
 \item{yname}{(optional) \link[base]{character} scalar, name of function}
 
@@ -78,8 +81,9 @@ default is determined by parameter \code{draw.rect}.}
 
 \item{...}{additional parameters, currently of no use}
 
-\item{n}{\link[base]{integer}, number of \eqn{x}-values at which to evaluate,
-only applicable when the input is the return of function \link[stats]{splinefun}.}
+\item{n}{\link[base]{integer}, number of \eqn{(x,y)}-values at which to evaluate,
+only applicable when the input \code{inherits} from the \code{S3} class \link[base]{function},
+or has an \code{S3} method of \verb{predict.*()} available.}
 }
 \value{
 The \code{S3} generic function \code{\link[=visualize_vtrapz]{visualize_vtrapz()}} returns a \link[ggplot2]{ggplot} object.

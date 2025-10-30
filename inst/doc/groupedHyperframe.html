@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Tingting Zhan">
-<meta name="dcterms.date" content="2025-10-12">
+<meta name="dcterms.date" content="2025-10-29">
 
 <title>Grouped Hyper Data Frame</title>
 <style>
@@ -230,7 +230,7 @@ text-decoration: underline; }
 <h1 class="title">Grouped Hyper Data Frame</h1>
 <p class="author">Tingting Zhan</p>
 
-<p class="date">2025-10-12</p>
+<p class="date">2025-10-29</p>
 </header>
 
 <nav id="TOC" role="doc-toc">
@@ -242,18 +242,13 @@ text-decoration: underline; }
   <li><a href="#enhancement-dependency" id="toc-enhancement-dependency"><span class="header-section-number">1.2</span> Enhancement &amp; Dependency</a></li>
   <li><a href="#installation" id="toc-installation"><span class="header-section-number">1.3</span> Installation</a></li>
   </ul></li>
-  <li><a href="#getting-started" id="toc-getting-started"><span class="header-section-number">2</span> Getting Started</a></li>
-  <li><a href="#peer-reviewed-publications" id="toc-peer-reviewed-publications"><span class="header-section-number">3</span> Peer-Reviewed Publications</a>
-  <ul>
-  <li><a href="#zhan25" id="toc-zhan25"><span class="header-section-number">3.1</span> <span class="citation" data-cites="Zhan25">Zhan, Yi, and Chervoneva (2025)</span></a></li>
-  </ul></li>
-  <li><a href="#acknowledgement" id="toc-acknowledgement"><span class="header-section-number">4</span> Acknowledgement</a></li>
-  <li><a href="#references" id="toc-references"><span class="header-section-number">5</span> References</a></li>
+  <li><a href="#acknowledgement" id="toc-acknowledgement"><span class="header-section-number">2</span> Acknowledgement</a></li>
+  <li><a href="#references" id="toc-references"><span class="header-section-number">3</span> References</a></li>
   </ul>
 </nav>
-<p>The complete vignette of R package <strong><code>groupedHyperframe</code></strong> (v0.3.0)</p>
+<p>A <a href="https://quarto.org">Quarto</a> book of R package <strong><code>groupedHyperframe</code></strong> (v0.3.1)</p>
 <blockquote>
-<p><a href="https://rpubs.com/tingtingzhan/groupedHyperframe" class="uri">https://rpubs.com/tingtingzhan/groupedHyperframe</a></p>
+<p><a href="https://tingtingzhan.quarto.pub/groupedhyperframe/" class="uri">https://tingtingzhan.quarto.pub/groupedhyperframe/</a></p>
 </blockquote>
 <p>documents</p>
 <ul>
@@ -263,10 +258,10 @@ text-decoration: underline; }
 <li>the computation of various summary statistics from one or more function-value-table hypercolumn(s) of a (grouped) hyper data frame;</li>
 <li>the aggregation of summary statistics, over a (nested) grouping structure, in a grouped hyper data frame.</li>
 </ul>
-<p>The complete vignette exceeds the file size limit allowed on <a href="https://cran.r-project.org/package=groupedHyperframe">CRAN</a>.</p>
+<p>The complete book exceeds the file size limit allowed on <a href="https://cran.r-project.org/package=groupedHyperframe">CRAN</a>.</p>
 <h1 data-number="1" id="prerequisite"><span class="header-section-number">1</span> Prerequisite</h1>
 <h2 data-number="1.1" id="environment"><span class="header-section-number">1.1</span> Environment</h2>
-<p>Package <strong><code>groupedHyperframe</code></strong> (v0.3.0) requires R version 4.5.0 (released 2025-04-11) or higher (<a href="https://cran.r-project.org/bin/macosx/">macOS</a>, <a href="https://cran.r-project.org/bin/windows/base/">Windows</a>, <a href="https://cran.r-project.org/bin/linux/">Linux</a>).</p>
+<p>Package <strong><code>groupedHyperframe</code></strong> (v0.3.1) requires R version 4.5.0 (released 2025-04-11) or higher (<a href="https://cran.r-project.org/bin/macosx/">macOS</a>, <a href="https://cran.r-project.org/bin/windows/base/">Windows</a>, <a href="https://cran.r-project.org/bin/linux/">Linux</a>).</p>
 <p>An Integrated Development Environment (IDE), e.g., <a href="https://posit.co/download/rstudio-desktop/">RStudio</a> <span class="citation" data-cites="RStudio">(Posit team 2025)</span> or <a href="https://positron.posit.co/download.html">Positron</a>, is not required, but highly recommended.</p>
 <div class="cell">
 <details class="code-fold">
@@ -293,98 +288,21 @@ text-decoration: underline; }
 </details>
 </div>
 <h2 data-number="1.2" id="enhancement-dependency"><span class="header-section-number">1.2</span> Enhancement &amp; Dependency</h2>
-<p>Package <strong><code>groupedHyperframe</code></strong> (v0.3.0) <code>Enhances</code> the <strong><code>spatstat.*</code></strong> family of packages <span class="citation" data-cites="spatstat15 spatstat05">(Baddeley, Rubak, and Turner 2015; Baddeley and Turner 2005)</span>, especially <strong><code>spatstat.geom</code></strong> and <strong><code>spatstat.explore</code></strong>. Details are provided in the <a href="https://rpubs.com/tingtingzhan/groupedHyperframe">complete vignette</a>, Section 4.1.</p>
-<p>The dependencies of package <strong><code>groupedHyperframe</code></strong> are detailed in the <a href="https://rpubs.com/tingtingzhan/groupedHyperframe">complete vignette</a>, Section 4.1.</p>
-<p>Package <strong><code>groupedHyperframe</code></strong> requires the <em>development versions</em> of the <strong><code>spatstat.*</code></strong> family of packages. Installation instructions are provided in the <a href="https://rpubs.com/tingtingzhan/groupedHyperframe">complete vignette</a>, Section 4.1.</p>
+<p>Package <strong><code>groupedHyperframe</code></strong> (v0.3.1) <code>Enhances</code> the <strong><code>spatstat.*</code></strong> family of packages <span class="citation" data-cites="spatstat15 spatstat05">(Baddeley, Rubak, and Turner 2015; Baddeley and Turner 2005)</span>, especially <strong><code>spatstat.geom</code></strong> and <strong><code>spatstat.explore</code></strong>. Details are provided in the <a href="https://tingtingzhan.quarto.pub/groupedhyperframe/">book</a>, Section 7.1.</p>
+<p>The dependencies of package <strong><code>groupedHyperframe</code></strong> are detailed in the <a href="https://tingtingzhan.quarto.pub/groupedhyperframe/">book</a>, Section 7.1.</p>
+<p>Package <strong><code>groupedHyperframe</code></strong> requires the <em>development versions</em> of the <strong><code>spatstat.*</code></strong> family of packages. Installation instructions are provided in the <a href="https://tingtingzhan.quarto.pub/groupedhyperframe/">book</a>, Section 7.1.</p>
 <h2 data-number="1.3" id="installation"><span class="header-section-number">1.3</span> Installation</h2>
-<p>Package <strong><code>groupedHyperframe</code></strong> (v0.3.0) can be installed using the following command.</p>
+<p>Package <strong><code>groupedHyperframe</code></strong> (v0.3.1) can be installed using the following command.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>utils<span class="sc">::</span><span class="fu">install.packages</span>(<span class="st">&#39;groupedHyperframe&#39;</span>)</span></code></pre></div>
 </div>
-<h1 data-number="2" id="getting-started"><span class="header-section-number">2</span> Getting Started</h1>
-<p>Examples in the <a href="https://rpubs.com/tingtingzhan/groupedHyperframe">complete vignette</a> require that the <code>search</code> path has</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(groupedHyperframe)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survival)</span></code></pre></div>
-</div>
-<h1 data-number="3" id="peer-reviewed-publications"><span class="header-section-number">3</span> Peer-Reviewed Publications</h1>
-<p>Package <strong><code>groupedHyperframe</code></strong> (v0.3.0) plays a pivotal role in these peer reviewed publications from the authors.</p>
-<h2 data-number="3.1" id="zhan25"><span class="header-section-number">3.1</span> <span class="citation" data-cites="Zhan25">Zhan, Yi, and Chervoneva (2025)</span></h2>
-<blockquote>
-<p>Zhan T, Yi M, Chervoneva I (2025). “Quantile Index predictors using R package <code>hyper.gam</code>.” <em>Bioinformatics</em>, <em>41</em>(8), btaf430. ISSN 1367-4811, doi:10.1093/bioinformatics/btaf430 <a href="https://doi.org/10.1093/bioinformatics/btaf430" class="uri">https://doi.org/10.1093/bioinformatics/btaf430</a>.</p>
-</blockquote>
-<details>
-<summary>
-<a href="https://ctan.org/pkg/bibtex">BibTeX</a> and/or <a href="https://ctan.org/pkg/biblatex">BibLaTeX</a> entries for <a href="https://www.latex-project.org">LaTeX</a> users
-</summary>
-<div class="cell">
-<pre><code>Warning in citation(package = &quot;groupedHyperframe&quot;): could not determine year
-for &#39;groupedHyperframe&#39; from package DESCRIPTION file
-@Article{,
-  title = {Quantile Index predictors using R package `hyper.gam`},
-  author = {Tingting Zhan and Misung Yi and Inna Chervoneva},
-  journal = {Bioinformatics},
-  volume = {41},
-  number = {8},
-  pages = {btaf430},
-  year = {2025},
-  month = {07},
-  issn = {1367-4811},
-  doi = {10.1093/bioinformatics/btaf430},
-}
-
-@Manual{,
-  title = {groupedHyperframe: Grouped Hyper Data Frame: An Extension of
-Hyper Data Frame},
-  author = {Tingting Zhan and Inna Chervoneva},
-  note = {R package version 0.3.0},
-  url = {https://github.com/tingtingzhan/groupedHyperframe},
-}</code></pre>
-</div>
-</details>
-<p>as well as <span class="citation" data-cites="Yi25">Yi et al. (2025)</span>; <span class="citation" data-cites="Yi23a">Yi et al. (2023b)</span>; <span class="citation" data-cites="Yi23b">Yi et al. (2023a)</span>, was featured with a hyper data frame <em><code>Ki67q</code></em> with a numeric-hypercolumn <em><code>logKi67.quantile</code></em>. Functions in the R code-chunk below are explained in the <a href="https://rpubs.com/tingtingzhan/groupedHyperframe">complete vignette</a>.</p>
-<div class="cell">
-<details class="code-fold">
-<summary>R code in <span class="citation" data-cites="Zhan25">Zhan, Yi, and Chervoneva (2025)</span></summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>Ki67q <span class="ot">=</span> groupedHyperframe<span class="sc">::</span>Ki67 <span class="sc">|&gt;</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">within.data.frame</span>(<span class="at">expr =</span> {</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">=</span> y <span class="ot">=</span> <span class="cn">NULL</span> <span class="co"># remove x- and y-coords for non-spacial application</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  }) <span class="sc">|&gt;</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.groupedHyperframe</span>(<span class="at">group =</span> <span class="sc">~</span> patientID<span class="sc">/</span>tissueID) <span class="sc">|&gt;</span> </span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">quantile</span>(<span class="at">probs =</span> <span class="fu">seq.int</span>(<span class="at">from =</span> .<span class="dv">01</span>, <span class="at">to =</span> .<span class="dv">99</span>, <span class="at">by =</span> .<span class="dv">01</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aggregate</span>(<span class="at">by =</span> <span class="sc">~</span> patientID)</span></code></pre></div>
-</details>
-</div>
-<div class="cell">
-<details class="code-fold">
-<summary>A <code>hyperframe</code> object <em><code>Ki67q</code></em>: aggregated quantiles</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>Ki67q <span class="sc">|&gt;</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Hyperframe:</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   Tstage  PFS adj_rad adj_chemo histology  Her2   HR  node  race age patientID</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 1      2 100+   FALSE     FALSE         3  TRUE TRUE  TRUE White  66   PT00037</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2      1   22   FALSE     FALSE         3 FALSE TRUE FALSE Black  42   PT00039</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 3      1  99+   FALSE        NA         3 FALSE TRUE FALSE White  60   PT00040</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 4      1  99+   FALSE      TRUE         3 FALSE TRUE  TRUE White  53   PT00042</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 5      1  112    TRUE      TRUE         3 FALSE TRUE  TRUE White  52   PT00054</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 6      4   12    TRUE     FALSE         2  TRUE TRUE  TRUE Black  51   PT00059</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co">#   logKi67.quantile</span></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 1        (numeric)</span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 2        (numeric)</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 3        (numeric)</span></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co"># 4        (numeric)</span></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 5        (numeric)</span></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="co"># 6        (numeric)</span></span></code></pre></div>
-</details>
-</div>
-<p>Readers are encouraged to learn more about this application from package <strong><code>hyper.gam</code></strong> <span class="citation" data-cites="hypergam">(Zhan and Chervoneva 2025, <a href="https://CRAN.R-project.org/package=hyper.gam">CRAN</a>, <a href="https://github.com/tingtingzhan/hyper.gam">Github</a>)</span> <a href="https://rpubs.com/tingtingzhan/hyper_gam">vignette</a>, section <em>Quantile Index</em>.</p>
-<h1 data-number="4" id="acknowledgement"><span class="header-section-number">4</span> Acknowledgement</h1>
+<h1 data-number="2" id="acknowledgement"><span class="header-section-number">2</span> Acknowledgement</h1>
 <p>This work is supported by National Institutes of Health, U.S. Department of Health and Human Services grants</p>
 <ul>
 <li>R01CA222847 (<a href="https://orcid.org/0000-0002-9104-4505">I. Chervoneva</a>, <a href="https://orcid.org/0000-0001-9971-4844">T. Zhan</a>, and <a href="https://orcid.org/0000-0002-8778-261X">H. Rui</a>)</li>
 <li>R01CA253977 (H. Rui and I. Chervoneva).</li>
 </ul>
-<h1 class="appendix" data-number="5" id="references"><span class="header-section-number">5</span> References</h1>
+<h1 class="appendix" data-number="3" id="references"><span class="header-section-number">3</span> References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
 <div id="ref-spatstat15" class="csl-entry" role="listitem">
 Baddeley, Adrian, Ege Rubak, and Rolf Turner. 2015. <em>Spatial Point Patterns: Methodology and Applications with <span>R</span></em>. London: Chapman; Hall/CRC Press. <a href="https://www.routledge.com/Spatial-Point-Patterns-Methodology-and-Applications-with-R/Baddeley-Rubak-Turner/p/book/9781482210200/">https://www.routledge.com/Spatial-Point-Patterns-Methodology-and-Applications-with-R/Baddeley-Rubak-Turner/p/book/9781482210200/</a>.
@@ -394,21 +312,6 @@ Baddeley, Adrian, and Rolf Turner. 2005. <span>“<span class="nocase">spatstat<
 </div>
 <div id="ref-RStudio" class="csl-entry" role="listitem">
 Posit team. 2025. <em>RStudio: Integrated Development Environment for <span>R</span></em>. Boston, MA: Posit Software, PBC. <a href="https://posit.co/">https://posit.co/</a>.
-</div>
-<div id="ref-Yi23b" class="csl-entry" role="listitem">
-Yi, Misung, Tingting Zhan, Amy R. Peck, Jeffrey A. Hooke, Albert J. Kovatich, Craig D. Shriver, Hai Hu, Yunguang Sun, Hallgeir Rui, and Inna Chervoneva. 2023a. <span>“Quantile Index Biomarkers Based on Single-Cell Expression Data.”</span> <em>Laboratory Investigation</em> 103 (8): 100158. <a href="https://doi.org/10.1016/j.labinv.2023.100158">https://doi.org/10.1016/j.labinv.2023.100158</a>.
-</div>
-<div id="ref-Yi23a" class="csl-entry" role="listitem">
-———. 2023b. <span>“Selection of Optimal Quantile Protein Biomarkers Based on Cell-Level Immunohistochemistry Data.”</span> <em>BMC Bioinformatics</em> 24 (1): 298. <a href="https://doi.org/10.1186/s12859-023-05408-8">https://doi.org/10.1186/s12859-023-05408-8</a>.
-</div>
-<div id="ref-Yi25" class="csl-entry" role="listitem">
-Yi, Misung, Tingting Zhan, Hallgeir Rui, and Inna Chervoneva. 2025. <span>“Functional Protein Biomarkers Based on Distributions of Expression Levels in Single-Cell Imaging Data.”</span> <em>Bioinformatics</em>, April, btaf182. <a href="https://doi.org/10.1093/bioinformatics/btaf182">https://doi.org/10.1093/bioinformatics/btaf182</a>.
-</div>
-<div id="ref-hypergam" class="csl-entry" role="listitem">
-Zhan, Tingting, and Inna Chervoneva. 2025. <em><span class="nocase">hyper.gam</span>: Generalized Additive Models with Hyper Column</em>. <a href="https://CRAN.R-project.org/package=hyper.gam">https://CRAN.R-project.org/package=hyper.gam</a>.
-</div>
-<div id="ref-Zhan25" class="csl-entry" role="listitem">
-Zhan, Tingting, Misung Yi, and Inna Chervoneva. 2025. <span>“Quantile Index Predictors Using r Package ‘Hyper.gam‘.”</span> <em>Bioinformatics</em>, July, btaf430. <a href="https://doi.org/10.1093/bioinformatics/btaf430">https://doi.org/10.1093/bioinformatics/btaf430</a>.
 </div>
 </div>
 
