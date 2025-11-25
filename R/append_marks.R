@@ -67,6 +67,13 @@
     append_marks(x) <- iv # lazy and beautiful!
   }
   
+  vnm <- names(v)
+  if (length(vnm) && !anyNA(vnm) && all(nzchar(vnm))) {
+    nv <- length(v)
+    nm <- length(x$marks)
+    names(x$marks)[(nm-nv+1):nm] <- vnm
+  }
+  
   return(x)
   
 } 

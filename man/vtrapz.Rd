@@ -2,34 +2,20 @@
 % Please edit documentation in R/vtrapz.R
 \name{vtrapz}
 \alias{vtrapz}
-\alias{cumvtrapz}
-\alias{vtrapz.default}
-\alias{vtrapz.fv}
-\alias{cumvtrapz.default}
-\alias{cumvtrapz.fv}
-\title{(Cumulative) Average Vertical Height of Trapezoidal Integration}
+\title{Average Vertical Height of Trapezoidal Integration}
 \usage{
 vtrapz(x, ...)
-
-cumvtrapz(x, ...)
-
-\method{vtrapz}{default}(x, ...)
-
-\method{vtrapz}{fv}(x, key = fvnames(x, a = ".y"), ...)
-
-\method{cumvtrapz}{default}(x, ...)
-
-\method{cumvtrapz}{fv}(x, key = fvnames(x, a = ".y"), ...)
 }
 \arguments{
 \item{x}{\link[base]{numeric} \link[base]{vector}}
 
-\item{...}{additional parameters of function \link[pracma]{trapz} and \link[pracma]{cumtrapz}}
-
-\item{key}{\link[base]{character} scalar, see function \code{\link[=keyval.fv]{keyval.fv()}}}
+\item{...}{additional parameters of function \link[pracma]{trapz}}
+}
+\value{
+Function \code{\link[=vtrapz]{vtrapz()}} return a \link[base]{numeric} scalar.
 }
 \description{
-(Cumulative) trapezoidal integration divided by \eqn{x}-domain.
+Trapezoidal integration divided by \eqn{x}-domain.
 }
 \note{
 This is a tentative thought: the prefix \code{v} stands for 'vertical'.

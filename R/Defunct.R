@@ -59,14 +59,18 @@ cli_QuartoPub_ <- function(author = 'tingtingzhan', pub, chapter) {
 #' @description
 #' Functions mentioned in hard-copy journals, but later \link[base]{.Defunct}.
 #' 
+#' @param ... previous parameters
+#' 
 #' @param new \link[base]{character} scalar, see function \link[base]{.Defunct}.
 #' 
 #' @keywords internal
 #' @name defunct
 #' @export
-aggregate_quantile <- function(new = '<groupedHyperframe> |> quantile() |> aggregate()') {
+aggregate_quantile <- function(..., new = '<groupedHyperframe> |> quantile() |> aggregate()') {
   
-  match.call()[[1L]] |> deparse1() |> col_cyan() |> style_bold() |>
+  match.call()[[1L]] |> deparse1() |> 
+    sprintf(fmt = '%s()') |>
+    col_cyan() |> style_bold() |>
     sprintf(fmt = 'Function %s described in') |> message()
   cli_doi_('10.1093/bioinformatics/btaf430')
   'has been replaced by pipeline' |> message()
@@ -76,18 +80,21 @@ aggregate_quantile <- function(new = '<groupedHyperframe> |> quantile() |> aggre
     message()
   
   'Read vignette for details' |> message()
-  cli_RPubs_(pub = 'groupedHyperframe')
+  cli_QuartoPub_(pub = 'groupedhyperframe')
 
   .Defunct(new = new)
   
 }
 
 
+
 #' @rdname defunct
 #' @export
-aggregate_fv <- function(new = '<groupedHyperframe> |> summary_fv() |> aggregate()') {
+summary_fv <- function(..., new = '<hyperframe> |> keyval() |> cumvtrapz()') {
   
-  match.call()[[1L]] |> deparse1() |> col_cyan() |> style_bold() |>
+  match.call()[[1L]] |> deparse1() |> 
+    sprintf(fmt = '%s()') |>
+    col_cyan() |> style_bold() |>
     sprintf(fmt = 'Function %s has been replaced by pipeline') |> message()
   
   new |>
@@ -95,11 +102,10 @@ aggregate_fv <- function(new = '<groupedHyperframe> |> summary_fv() |> aggregate
     message()
   
   'Read vignette for details' |> message()
-  cli_RPubs_(pub = 'groupedHyperframe')
+  cli_QuartoPub_(pub = 'groupedhyperframe')
   
   .Defunct(new = new)
-
+  
 }
-
 
 

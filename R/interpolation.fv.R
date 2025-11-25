@@ -4,7 +4,7 @@
 #' 
 #' @param x an \link[spatstat.explore]{fv.object}
 #' 
-#' @param key \link[base]{character} scalar, see function [keyval.fv()]
+#' @param key,.x \link[base]{character} scalars
 #' 
 #' @param ... additional parameters of functions 
 #' \link[stats]{approxfun} and \link[stats]{splinefun}.
@@ -14,12 +14,17 @@
 #' @importFrom spatstat.explore fvnames
 #' @importFrom stats approxfun
 #' @export
-approxfun.fv <- function(x, key = fvnames(fv, a = '.y'), ...) {
+approxfun.fv <- function(
+    x, 
+    key = fvnames(fv, a = '.y'), 
+    .x = fvnames(fv, a = '.x'),
+    ...
+) {
   fv <- x; x <- NULL # make code more readable
-  .x <- fvnames(fv, a = '.x')
   force(key)
+  force(.x)
   if (key == .x) stop('first column of `x` is not the output of `fv.object`')
-  fn <- approxfun(x = fv[[.x]], y = fv[[key]], ...)
+  fn <- approxfun(x = fv[[.x]], y = fv[[key]], ...) # no need to drop additional attributes
   fv |> 
     attr(which = 'ylab', exact = TRUE) |> 
     deparse1() |>
@@ -35,12 +40,17 @@ approxfun.fv <- function(x, key = fvnames(fv, a = '.y'), ...) {
 #' @importFrom spatstat.explore fvnames
 #' @importFrom stats splinefun
 #' @export
-splinefun.fv <- function(x, key = fvnames(fv, a = '.y'), ...) {
+splinefun.fv <- function(
+    x, 
+    key = fvnames(fv, a = '.y'), 
+    .x = fvnames(fv, a = '.x'),
+    ...
+) {
   fv <- x; x <- NULL # make code more readable
-  .x <- fvnames(fv, a = '.x')
   force(key)
+  force(.x)
   if (key == .x) stop('first column of `x` is not the output of `fv.object`')
-  fn <- splinefun(x = fv[[.x]], y = fv[[key]], ...)
+  fn <- splinefun(x = fv[[.x]], y = fv[[key]], ...) # no need to drop additional attributes
   if (FALSE) {
     # fn |> environment() |> ls(envir = _) # only 'z' !!!
     z <- fn |> environment() |> get('z', envir = _)

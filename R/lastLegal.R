@@ -50,6 +50,8 @@ lastLegal <- function(v) {
 #' 
 #' @param X an \link[spatstat.explore]{fv.object}
 #' 
+#' @param key,.x \link[base]{character} scalars
+#' 
 #' @keywords internal
 #' @name fv2theo
 #' @export
@@ -64,22 +66,29 @@ lastLegal <- function(v) {
 #' @importFrom spatstat.explore fvnames
 #' @export .illegal2theo.fv
 #' @export
-.illegal2theo.fv <- function(X, ...) {
+.illegal2theo.fv <- function(
+    X, 
+    key = fvnames(X, a = '.y'), 
+    .x = fvnames(X, a = '.x'),
+    ...
+) {
   
-  key <- X |> 
-    fvnames(a = '.y')
-  rnm <- X |> 
-    fvnames(a = '.x')
+  force(key)
+  force(.x)
+  if (key == .x) stop('first column of `x` is not the output of `fv.object`')
   
   theo <- X$theo
   if (is.null(theo)) stop('this fv.object does not have theo ?')
   
-  .y <- X[[key]]
+  .y <- c(X[[key]]) # # drop attributes since \pkg{spatstat.explore} v3.5.3.9
 
   id0 <- .y |>
     lastLegal()
+  
+  if (id0 == length(.y)) return(X) # all legal; exception handling
+  
   id <- id0 + 1L # first illegal
-  X[[rnm]][id] |>
+  X[[.x]][id] |>
     sprintf(
       fmt = 'r\u2265%.1f replaced with %s', 
       'theo' |> col_red() |> style_bold()
@@ -97,26 +106,33 @@ lastLegal <- function(v) {
 #' @importFrom spatstat.explore fvnames
 #' @export .disrecommend2theo.fv
 #' @export
-.disrecommend2theo.fv <- function(X, ...) {
+.disrecommend2theo.fv <- function(
+    X, 
+    key = fvnames(X, a = '.y'), 
+    .x = fvnames(X, a = '.x'),
+    ...
+) {
   
-  key <- X |> 
-    fvnames(a = '.y')
-  rnm <- X |> 
-    fvnames(a = '.x')
+  force(key)
+  force(.x)
+  if (key == .x) stop('first column of `x` is not the output of `fv.object`')
   
   theo <- X$theo
   if (is.null(theo)) stop('this fv.object does not have theo ?')
   
-  .y <- X[[key]]
+  .y <- c(X[[key]]) # # drop attributes since \pkg{spatstat.explore} v3.5.3.9
   
   # in ?spatstat.explore::fv documentation
   # alim specifies the recommended range of the function argument.
   recommend_rmax <- attr(X, which = 'alim', exact = TRUE)[2L]
-  id <- (X[[rnm]] > recommend_rmax) |> 
-    which() |> 
-    min()
+  id0 <- (X[[.x]] > recommend_rmax) |> 
+    which()
   
-  X[[rnm]][id] |>
+  if (!length(id0)) return(X) # exception handling
+  
+  id <- min(id0)
+  
+  X[[.x]][id] |>
     sprintf(
       fmt = 'r\u2265%.1f replaced with %s', 
       'theo' |> col_red() |> style_bold()
@@ -136,8 +152,14 @@ lastLegal <- function(v) {
 #' @export .illegal2theo.fvlist
 #' @export
 .illegal2theo.fvlist <- function(X, ...) {
+  tmp <- X |> 
+    is.fvlist()
+  key <- tmp |>
+    attr(which = '.y', exact = TRUE)
+  .x <- tmp |>
+    attr(which = '.x', exact = TRUE)
   X |> 
-    lapply(FUN = .illegal2theo.fv, ...) |>
+    lapply(FUN = .illegal2theo.fv, key = key, .x = .x, ...) |>
     as.fvlist()
 }
 
@@ -145,24 +167,56 @@ lastLegal <- function(v) {
 #' @export .disrecommend2theo.fvlist
 #' @export
 .disrecommend2theo.fvlist <- function(X, ...) {
+  tmp <- X |> 
+    is.fvlist()
+  key <- tmp |>
+    attr(which = '.y', exact = TRUE)
+  .x <- tmp |>
+    attr(which = '.x', exact = TRUE)
   X |> 
-    lapply(FUN = .disrecommend2theo.fv, ...) |>
+    lapply(FUN = .disrecommend2theo.fv, key = key, .x = .x, ...) |>
     as.fvlist()
 }
 
 
 #' @rdname fv2theo
+#' @importFrom spatstat.geom as.list.hyperframe names.hyperframe
 #' @export .illegal2theo.hyperframe
 #' @export
 .illegal2theo.hyperframe <- function(X, ...) {
-  #suppressMessages() |> only here
-  stop('still working')
+  
+  if (!any(id <- (unclass(X)$vclass == 'fv'))) stop('input `x` must contain at least one `fv` column')
+  nm <- names.hyperframe(X)[id]
+  
+  ret0 <- (as.list.hyperframe(X)[nm]) |>
+    lapply(FUN = .disrecommend2theo.fvlist) |>
+    suppressMessages()
+  
+  # to replace original fv-hypercolumn!!!
+  z <- unclass(X)
+  z$hypercolumns[nm] <- ret0
+  class(z) <- class(X)
+  return(z)
+  
 }
 
 #' @rdname fv2theo
+#' @importFrom spatstat.geom as.list.hyperframe names.hyperframe
 #' @export .disrecommend2theo.hyperframe
 #' @export
 .disrecommend2theo.hyperframe <- function(X, ...) {
-  #suppressMessages() |> # only here
-  stop('still working')
+  
+  if (!any(id <- (unclass(X)$vclass == 'fv'))) stop('input `x` must contain at least one `fv` column')
+  nm <- names.hyperframe(X)[id]
+  
+  ret0 <- (as.list.hyperframe(X)[nm]) |>
+    lapply(FUN = .disrecommend2theo.fvlist) |>
+    suppressMessages()
+  
+  # to replace original fv-hypercolumn!!!
+  z <- unclass(X)
+  z$hypercolumns[nm] <- ret0
+  class(z) <- class(X)
+  return(z)
+  
 }

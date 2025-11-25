@@ -1,84 +1,203 @@
 
-#' @title (Cumulative) Average Vertical Height of Trapezoidal Integration
+
+
+#' @title Average Vertical Height of Trapezoidal Integration
 #' 
 #' @description
-#' (Cumulative) trapezoidal integration divided by \eqn{x}-domain.
+#' Trapezoidal integration divided by \eqn{x}-domain.
 #' 
 #' @param x \link[base]{numeric} \link[base]{vector}
 #' 
-#' @param key \link[base]{character} scalar, see function [keyval.fv()]
-#' 
-#' @param ... additional parameters of function \link[pracma]{trapz} and \link[pracma]{cumtrapz}
+#' @param ... additional parameters of function \link[pracma]{trapz}
 #' 
 #' @note
 #' This is a tentative thought: the prefix `v` stands for 'vertical'.
 #' 
+#' @returns 
+#' Function [vtrapz()] return a \link[base]{numeric} scalar.
+#' 
 #' @keywords internal
-#' @name vtrapz
-#' @export
-vtrapz <- function(x, ...) UseMethod(generic = 'vtrapz')
-
-#' @rdname vtrapz
-#' @export
-cumvtrapz <- function(x, ...) UseMethod(generic = 'cumvtrapz')
-
-
-#' @rdname vtrapz
 #' @importFrom pracma trapz
-#' @export vtrapz.default
 #' @export
-vtrapz.default <- function(x, ...) {
+vtrapz <- function(x, ...) {
   if (!is.vector(x, mode = 'numeric')) stop('`x` must be double numeric')
   if (anyDuplicated(x)) stop('`x` must not have duplicates')
   if (is.unsorted(x)) stop('`x` must be sorted')
   trapz(x, ...) / (max(x) - min(x))
 }
 
-#' @rdname vtrapz
-#' @importFrom spatstat.explore fvnames
-#' @export vtrapz.fv
+
+
+
+
+
+
+#' @title Cumulative Average Vertical Height of Trapezoidal Integration
+#' 
+#' @description
+#' Cumulative trapezoidal integration divided by \eqn{x}-domain.
+#' 
+#' @param x \link[base]{numeric} \link[base]{vector}
+#' 
+#' @param y see function \link[pracma]{cumtrapz}
+#' 
+#' @param key,.x \link[base]{character} scalars
+#' 
+#' @param rm1 \link[base]{logical} scalar, whether to remove the first `NaN`-value from
+#' function [cumvtrapz()] return, default `TRUE`
+#' 
+#' @param ... additional parameters of function \link[pracma]{trapz} and \link[pracma]{cumtrapz}
+#' 
+#' @note
+#' This is a tentative thought: the prefix `v` stands for 'vertical'.
+#' 
+#' @returns 
+#' Function `vtrapz.*()` return a \link[base]{numeric} scalar.
+#' 
+#' @keywords internal
+#' @name cumvtrapz
 #' @export
-vtrapz.fv <- function(x, key = fvnames(x, a = '.y'), ...) {
-  .x <- fvnames(x, a = '.x')
-  if (key == .x) stop('first column of `x` is not the output of `fv.object`')
-  vtrapz.default(x = x[[.x]], y = x[[key]]) |>
-    unname()
-}
+cumvtrapz <- function(x, ...) UseMethod(generic = 'cumvtrapz')
 
 
-#' @rdname vtrapz
+
+
+#' @rdname cumvtrapz
 #' @importFrom pracma cumtrapz
 #' @export cumvtrapz.default
 #' @export
-cumvtrapz.default <- function(x, ...) {
+cumvtrapz.default <- function(x, y, ..., rm1 = TRUE) {
   if (!is.vector(x, mode = 'numeric')) stop('`x` must be double numeric')
   if (anyDuplicated(x)) stop('`x` must not have duplicates')
   if (is.unsorted(x)) stop('`x` must be sorted')
-  cumtrapz(x, ...) / (x - min(x))
+  if (length(x) == 1L) return(invisible()) # exception handling
+  # needed! Otherwise ?pracma::cumtrapz errs
+  
+  z <- cumtrapz(x, y) / (x - min(x)) # always a 'matrix', even if ncol-1L 
+  attr(z, which = 'x') <- x
+  attr(z, which = 'method') <- 'pracma::trapz'
+  class(z) <- c('cumv', class(z)) |> 
+    unique.default()
+  
+  # a trapz needs two points; therefore `[-1L]` by default
+  if (rm1) return(z[-1L]) # `[.cumv`
+
+  return(z)
 }
 
-#' @rdname vtrapz
+
+
+
+
+#' @export
+`[.cumv` <- function(x, i) {
+  z <- unclass(x)[i, , drop = FALSE] # 'matrix'
+  attr(z, which = 'x') <- attr(x, which = 'x', exact = TRUE)[i]
+  attr(z, which = 'method') <- attr(x, which = 'method', exact = TRUE)
+  class(z) <- class(x)
+  return(z)
+}
+
+
+#' @export
+print.cumv <- function(x, ...) {
+  x0 <- unclass(x)
+  attributes(x0)[c('x', 'method')] <- NULL
+  print.default(x0)
+}
+
+
+#' @rdname cumvtrapz
 #' @importFrom spatstat.explore fvnames
 #' @export cumvtrapz.fv
 #' @export 
-cumvtrapz.fv <- function(x, key = fvnames(x, a = '.y'), ...) {
-  
-  .x <- fvnames(x, a = '.x')
+cumvtrapz.fv <- function(
+    x, 
+    key = fvnames(x, a = '.y'), 
+    .x = fvnames(x, a = '.x'),
+    ...
+) {
+  force(key)
+  force(.x)
   if (key == .x) stop('first column of `x` is not the output of `fv.object`')
+  cumvtrapz.default(
+    x = x[[.x]], 
+    y = c(x[[key]]), # drop attributes since \pkg{spatstat.explore} v3.5.3.9
+    ...)
+}
+
+
+
+#' @rdname cumvtrapz
+#' 
+#' @param mc.cores \link[base]{integer} scalar, see function \link[parallel]{mclapply}.
+#' Default is the return of function \link[parallel]{detectCores}.
+#' 
+#' @keywords internal
+#' @importFrom doParallel registerDoParallel
+#' @importFrom foreach foreach `%dopar%`
+#' @importFrom parallel mclapply makeCluster stopCluster
+#' @export cumvtrapz.fvlist
+#' @export
+cumvtrapz.fvlist <- function(
+    x, 
+    mc.cores = getOption('cores'), 
+    ...
+) {
   
-  n <- length(x[[.x]])
-  if (n == 1L) return(invisible()) # exception handling
-  # needed! Otherwise ?pracma::cumtrapz errs
+  tmp <- x |>
+    is.fvlist()
+  .y <- tmp |>
+    attr(which = '.y', exact = TRUE)
+  .x <- tmp |>
+    attr(which = '.x', exact = TRUE)
   
-  ret0 <- cumvtrapz.default(x = x[[.x]], y = x[[key]])
-  # a trapz needs two points; therefore `[-1L]`
-  ret <- c(ret0[-1L])
-  names(ret) <- x[[.x]][-1L]
-  return(ret)
+  fn <- \(i, ...) {
+    z <- cumvtrapz.fv(i, key = .y, .x = .x, ...)
+    ret <- c(z)
+    names(ret) <- attr(z, which = 'x', exact = TRUE)
+    return(ret)
+  }
+  switch(
+    EXPR = .Platform$OS.type, # as of R 4.5, only two responses, 'windows' or 'unix'
+    unix = {
+      cumvt <- x |> 
+        mclapply(mc.cores = mc.cores, FUN = fn) # `-1L` super important!!!
+    }, windows = {
+      i <- NULL # just to suppress devtools::check NOTE
+      registerDoParallel(cl = (cl <- makeCluster(spec = mc.cores)))
+      cumvt <- foreach(i = x, .options.multicore = list(cores = mc.cores)) %dopar% fn(i, ...)
+      stopCluster(cl)
+    })
+  
+  return(cumvt)
   
 }
 
 
+
+
+#' @rdname cumvtrapz
+#' @importFrom spatstat.geom names.hyperframe as.list.hyperframe
+#' @export cumvtrapz.hyperframe
+#' @export
+cumvtrapz.hyperframe <- function(x, ...) {
+  
+  if (!any(id <- (unclass(x)$vclass == 'fv'))) stop('input `x` must contain at least one `fv` column')
+  nm <- names.hyperframe(x)[id]
+  
+  ret0 <- (as.list.hyperframe(x)[nm]) |>
+    lapply(FUN = cumvtrapz.fvlist, ...)
+  
+  names(ret0) <- names(ret0) |>
+    sprintf(fmt = '%s.cumvtrapz')
+  
+  return(do.call(
+    what = cbind, # dispatch to \link[spatstat.geom]{cbind.hyperframe} or [cbind.groupedHyperframe()]
+    args = c(list(x), ret0)
+  ))
+  
+}
 
 
 
@@ -102,7 +221,7 @@ cumvtrapz.fv <- function(x, key = fvnames(x, a = '.y'), ...) {
 #' smoothed \eqn{x} and \eqn{y} values, 
 #' to beautify the \link[geomtextpath]{geom_textpath} of a \link[stats]{stepfun}
 #' 
-#' @param x_labels,y_labels \link[base]{character} scalars
+#' @param xlabs,ylabs \link[base]{character} scalars
 #' 
 #' @param yname (optional) \link[base]{character} scalar, name of function
 #' 
@@ -132,7 +251,7 @@ cumvtrapz.fv <- function(x, key = fvnames(x, a = '.y'), ...) {
 visualize_vtrapz <- function(
     x, y,
     x_smooth, y_smooth,
-    x_labels, y_labels, 
+    xlabs, ylabs, 
     yname,
     draw.rect, draw.v, label.v,
     draw.cumv, label.cumv,
@@ -152,7 +271,7 @@ visualize_vtrapz <- function(
 visualize_vtrapz.numeric <- function(
     x, y,
     x_smooth = x, y_smooth = y,
-    x_labels, y_labels, 
+    xlabs, ylabs, 
     yname,
     draw.rect = TRUE, draw.v = draw.rect, label.v = 'Average Vertical Height',
     draw.cumv = TRUE, label.cumv = 'Cumulative Average Vertical Height',
@@ -164,8 +283,11 @@ visualize_vtrapz.numeric <- function(
   if (anyNA(y)) stop('`y` must not have missing value(s)')
   if (any(y < 0)) stop('for visualization, force `y > 0`')
   
-  v <- vtrapz.default(x, y)
-  cv <- cumvtrapz.default(x, y)
+  v <- vtrapz(x, y)
+  cv <- cumvtrapz.default(x, y, rm1 = TRUE)
+  method <- attr(cv, which = 'method', exact = TRUE)
+  #label.v <- paste(label.v, method, sep = '; ')
+  #label.cumv <- paste(label.cumv, method, sep = '; ')
   
   xmin <- min(x)
   xmax <- max(x)
@@ -175,38 +297,59 @@ visualize_vtrapz.numeric <- function(
   
   doi_pracma <- unclass(citation(package = 'pracma'))[[1L]]$doi
   
-  ggplot() + 
-    (if (missing(yname) || !length(yname)) {
-      geom_path(mapping = aes(x = x, y = y), alpha = .3, linewidth = 1.3)
-    } else {
-      geom_textpath(
-        mapping = aes(x = x_smooth, y = y_smooth, label = yname),
-        hjust = .1, alpha = .3, linewidth = 1.3, 
-        #colour = 'blue', fontface = 'bold', alpha = .7
-      )
-    }) +
-    (if (draw.rect) geom_rect(mapping = aes(xmin = min(x), xmax = max(x), ymin = 0, ymax = v), alpha = .1)) +
-    (if (draw.v) geom_textpath(
+  lyr_path <- if (missing(yname) || !length(yname)) {
+    geom_path(mapping = aes(x = x, y = y), alpha = .3, linewidth = 1.3)
+  } else {
+    geom_textpath(
+      mapping = aes(x = x_smooth, y = y_smooth, label = yname),
+      hjust = .1, alpha = .3, linewidth = 1.3, 
+      #colour = 'blue', fontface = 'bold', alpha = .7
+    )
+  }
+  
+  lyr_rect <- if (draw.rect) geom_rect(mapping = aes(xmin = min(x), xmax = max(x), ymin = 0, ymax = v), alpha = .1) # else NULL
+  
+  lyr_v <- if (draw.v) {
+    geom_textpath(
       mapping = aes(x = x, y = v, label = label.v),
       hjust = .1, text_only = TRUE, colour = 'red', fontface = 'bold', alpha = .7
-    )) +
-    (if (draw.cumv) geom_textpath(
-      mapping = aes(x = x[-1L], y = cv[-1L], label = label.cumv),
+    )
+  } # else NULL
+  
+  lyr_cumv <- if (draw.cumv) {
+    geom_textpath(
+      mapping = aes(
+        x = attr(cv, which = 'x', exact = TRUE), 
+        y = c(cv), 
+        label = label.cumv
+      ),
       colour = 'blue', fontface = 'bold', alpha = .7
-    )) +
-    (if (length(x) <= 10L) {
-      if (missing(x_labels) || !length(x_labels)) {
-        scale_x_continuous(breaks = x, labels = label_number(accuracy = .1), limits = x_lim)
-      } else scale_x_continuous(breaks = x, labels = x_labels, limits = x_lim)
-    } else {
-      if (missing(x_labels) || !length(x_labels)) {
-        # do nothing
-      } else scale_x_continuous(labels = x_labels)
-    }) + 
-    (if (missing(y_labels) || !length(y_labels)) {
+    )
+  } # else NULL
+  
+  lyr_x <- if (length(x) <= 10L) {
+    if (missing(xlabs) || !length(xlabs)) {
+      scale_x_continuous(breaks = x, labels = label_number(accuracy = .1), limits = x_lim)
+    } else scale_x_continuous(breaks = x, labels = xlabs, limits = x_lim)
+  } else {
+    if (missing(xlabs) || !length(xlabs)) {
       # do nothing
-    } else scale_y_continuous(labels = y_labels)) +
-    labs(caption = doi_pracma |> sprintf(fmt = 'pracma::trapz() via doi:%s'))
+    } else scale_x_continuous(labels = xlabs)
+  }
+  
+  lyr_y <- if (missing(ylabs) || !length(ylabs)) {
+    # do nothing
+  } else scale_y_continuous(labels = ylabs)
+    
+  ggplot() + 
+    lyr_path +
+    lyr_rect +
+    lyr_v +
+    lyr_cumv +
+    lyr_x + 
+    lyr_y +
+    #labs(caption = doi_pracma |> sprintf(fmt = 'pracma::trapz() via doi:%s'))
+    labs(caption = method)
   
 }
 
@@ -223,7 +366,7 @@ visualize_vtrapz.fv <- function(x, ...) {
   .x <- fvnames(fv, a = '.x')
   .y <- fvnames(fv, a = '.y')
   x <- fv[[.x]]
-  y <- fv[[.y]]
+  y <- c(fv[[.y]]) # drop attributes since \pkg{spatstat.explore} v3.5.3.9
   
   is_step <- inherits(fv, what = 'roc')
   if (is_step) {
@@ -235,13 +378,12 @@ visualize_vtrapz.fv <- function(x, ...) {
     deparse1()
   is_roc <- inherits(fv, what = 'roc')
   
-  
   visualize_vtrapz.numeric(
     x = x, y = y,
     x_smooth = if (is_step) l$x else x, 
     y_smooth = if (is_step) l$y else y, 
-    x_labels = if (is_roc) label_percent(), #else NULL
-    y_labels = if (is_roc) label_percent(), #else NULL
+    xlabs = if (is_roc) label_percent(), #else NULL
+    ylabs = if (is_roc) label_percent(), #else NULL
     yname = if (is_step) {
       yname |> sprintf(fmt = '%s (smoothed)') 
     } else yname,
