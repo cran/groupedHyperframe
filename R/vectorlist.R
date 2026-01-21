@@ -11,7 +11,7 @@
 #' @export
 is.vectorlist <- function(
     x, 
-    mode = c('logical', 'integer', 'numeric', 'double', 'character')
+    mode = c('any', 'logical', 'integer', 'numeric', 'double', 'character')
 ) {
   
   mode <- match.arg(mode)
@@ -27,6 +27,12 @@ is.vectorlist <- function(
     duplicated.default()
   if (!all(id[-1L])) return(FALSE)
     
+  id <- x |>
+    #lapply(FUN = names) |> # NULL-name compatible
+    lapply(FUN = attributes) |>
+    duplicated.default()
+  if (!all(id[-1L])) return(FALSE)
+  
   return(TRUE)
   
 }
@@ -44,6 +50,7 @@ as.vectorlist <- function(x, ...) {
   
   if (!is.vectorlist(x, ...)) stop('input does not qualify as a `vectorlist`')
   
+  attr(x, which = 'mode') <- mode(x[[1L]])
   class(x) <- c('vectorlist', 'anylist', 'listof', class(x)) |> 
     unique.default()
   return(x)
@@ -51,10 +58,62 @@ as.vectorlist <- function(x, ...) {
 }
 
 
+#' @title Print a `'vectorlist'`
+#' 
+#' @param x a `'vectorlist'`
+#' 
+#' @param ... additional parameters, currently of no use
+#' 
+#' @keywords internal
+#' @export print.vectorlist
+#' @export
+print.vectorlist <- function(x, ...) {
+  
+  x |>
+    length() |>
+    col_red () |> style_bold() |>
+    sprintf(fmt = 'A \'vectorlist\' of %s vectors') |>
+    cat('\n')
+  
+  nm <- x |>
+    names()
+  if (!all(nm == seq_along(x))) {
+    nm |>
+      col_cyan() |> style_bold() |>
+      paste(collapse = ', ') |>
+      sprintf(fmt = 'Name(s): %s') |>
+      cat('\n')
+  }
+  
+  x |> 
+    attr(which = 'mode', exact = TRUE) |>
+    col_blue() |> style_bold() |>
+    sprintf(fmt = 'Storage Mode: %s') |>
+    cat('\n')
+  
+  x[[1L]] |> 
+    length() |>
+    col_magenta() |> style_bold() |>
+    sprintf(fmt = 'Individual Vector Length: %s') |>
+    cat('\n')
+  
+  suffix. <- x |>
+    attr(which = 'suffix', exact = TRUE) 
+  if (length(suffix.)) {
+    suffix. |>
+      col_yellow() |> style_bold() |>
+      sprintf(fmt = 'Suffix: %s') |>
+      cat('\n')
+  }
+  
+  
+}
+
+
 
 #' @title Transpose a `'vectorlist'`
 #' 
-#' @param x a `'vectorlist'` of equi-\link[base]{length}
+#' @param x a `'vectorlist'`
 #' 
 #' @details
 #' tzh defines a derived class `'vectorlist'`,
@@ -84,6 +143,7 @@ as.vectorlist <- function(x, ...) {
 #' 
 #' @keywords internal
 #' @importFrom stats setNames
+#' @importFrom spatstat.geom anylist
 #' @export t.vectorlist
 #' @export
 t.vectorlist <- function(x) {
@@ -106,10 +166,10 @@ t.vectorlist <- function(x) {
       setNames(nm = colnames(x)) # colnames-NULL compatible
   }
   
-  ret <- x |> 
+  x |> 
     do.call(what = rbind, args = _) |>
-    .clist()
-  class(ret) <- c('vectorlist', 'anylist', 'listof', 'list')
-  return(ret)
-  
+    .clist() |>
+    do.call(what = anylist, args = _) |>
+    as.vectorlist()
+
 }

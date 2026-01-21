@@ -25,14 +25,13 @@
 #' 
 #' @keywords internal
 #' @name ppp2.
-#' @importFrom spatstat.geom unstack.ppp is.multitype.ppp
+#' @importFrom spatstat.geom unstack.ppp is.multitype.ppp anylapply
 #' @export
 ppp2dist <- function(x, fun, ...) {
   
   x. <- unstack.ppp(x)
   if (length(x.) == 1L && !length(names(x.))) {
     # unstacking a 'vector' `mark`
-    #stop('unstacked `x` must be named, see ?mark_names')
     names(x.) <- 'm'
   }
   
@@ -47,13 +46,18 @@ ppp2dist <- function(x, fun, ...) {
   
   if (!any(id_mtp)) stop('fun not supported')
 
-  ret <- lapply(x.[mtp], FUN = fun, ...)
-  names(ret) <- paste(names(ret), names(fn_mtp_)[id_mtp], sep = '.')
+  ret <- x.[mtp] |> 
+    anylapply(FUN = fun, ...)
+  #names(ret) <- paste(names(ret), names(fn_mtp_)[id_mtp], sep = '.')
   
   id <- (lengths(ret) > 0L)
   if (!any(id)) return(invisible())
   
-  return(ret[id])
+  #return(ret[id])
+  z <- ret[id] |>
+    as.vectorlist(mode = 'numeric')
+  attr(z, which = 'suffix') <- names(fn_mtp_)[id_mtp]
+  return(z)
   
 }
 
@@ -81,16 +85,18 @@ ppp_numeric2fv <- function(x, fun, ...) {
   # how to deal?
   
   ret <- x.[num] |> 
-    # lapply(FUN = fun, ...) # um..
-    anylapply(FUN = fun, ...) # after 2025-09-24
+    anylapply(FUN = fun, ...) |>
+    as.fvlist()
+  return(ret)
   
+  if (FALSE) {
   # restore names of `fv`-hypercolumns from the result
   # attr(,'fname') is determined by `fun`
   fname1 <- attr(ret[[1L]], which = 'fname', exact = TRUE)[1L]
   names(ret) <- paste(names(ret), fname1, sep = '.')
   
   return(ret)
-  
+  } # before 2025-12-05
 }
 
 
@@ -118,16 +124,18 @@ ppp_multitype2fv <- function(x, fun, ...) {
   # how to deal?
   
   ret <- x.[mtp] |> 
-    # lapply(FUN = fun, ...) # um..
-    anylapply(FUN = fun, ...) # after 2025-09-24
+    anylapply(FUN = fun, ...) |>
+    as.fvlist()
+  return(ret)
   
+  if (FALSE) {
   # restore names of `fv`-hypercolumns from the result
   # attr(,'fname') is determined by `fun`
   fname1 <- attr(ret[[1L]], which = 'fname', exact = TRUE)[1L]
   names(ret) <- paste(names(ret), fname1, sep = '.')
   
   return(ret)
-  
+  } # before 2025-12-05
 }
 
 

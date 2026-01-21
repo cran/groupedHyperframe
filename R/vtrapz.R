@@ -64,9 +64,9 @@ cumvtrapz <- function(x, ...) UseMethod(generic = 'cumvtrapz')
 
 #' @rdname cumvtrapz
 #' @importFrom pracma cumtrapz
-#' @export cumvtrapz.default
+#' @export cumvtrapz.numeric
 #' @export
-cumvtrapz.default <- function(x, y, ..., rm1 = TRUE) {
+cumvtrapz.numeric <- function(x, y, ..., rm1 = TRUE) {
   if (!is.vector(x, mode = 'numeric')) stop('`x` must be double numeric')
   if (anyDuplicated(x)) stop('`x` must not have duplicates')
   if (is.unsorted(x)) stop('`x` must be sorted')
@@ -87,8 +87,14 @@ cumvtrapz.default <- function(x, y, ..., rm1 = TRUE) {
 
 
 
-
-
+#' @title Extract Parts of `'cumv'` Object
+#' 
+#' @param x a `'cumv'` object
+#' 
+#' @param i \link[base]{integer} scalar or \link[base]{vector}; or \link[base]{logical} \link[base]{vector}
+#' 
+#' @keywords internal
+#' @export [.cumv
 #' @export
 `[.cumv` <- function(x, i) {
   z <- unclass(x)[i, , drop = FALSE] # 'matrix'
@@ -99,6 +105,14 @@ cumvtrapz.default <- function(x, y, ..., rm1 = TRUE) {
 }
 
 
+#' @title Print `'cumv'` Object
+#' 
+#' @param x a `'cumv'` object
+#' 
+#' @param ... additional parameters, currently of no use
+#' 
+#' @keywords internal
+#' @export print.cumv
 #' @export
 print.cumv <- function(x, ...) {
   x0 <- unclass(x)
@@ -120,7 +134,7 @@ cumvtrapz.fv <- function(
   force(key)
   force(.x)
   if (key == .x) stop('first column of `x` is not the output of `fv.object`')
-  cumvtrapz.default(
+  cumvtrapz.numeric(
     x = x[[.x]], 
     y = c(x[[key]]), # drop attributes since \pkg{spatstat.explore} v3.5.3.9
     ...)
@@ -137,6 +151,7 @@ cumvtrapz.fv <- function(
 #' @importFrom doParallel registerDoParallel
 #' @importFrom foreach foreach `%dopar%`
 #' @importFrom parallel mclapply makeCluster stopCluster
+#' @importFrom spatstat.geom anylist
 #' @export cumvtrapz.fvlist
 #' @export
 cumvtrapz.fvlist <- function(
@@ -170,7 +185,11 @@ cumvtrapz.fvlist <- function(
       stopCluster(cl)
     })
   
-  return(cumvt)
+  z <- cumvt |>
+    do.call(what = anylist, args = _) |>
+    as.vectorlist(mode = 'numeric')
+  attr(z, which = 'suffix') <- 'cumvtrapz'
+  return(z)
   
 }
 
@@ -190,7 +209,7 @@ cumvtrapz.hyperframe <- function(x, ...) {
     lapply(FUN = cumvtrapz.fvlist, ...)
   
   names(ret0) <- names(ret0) |>
-    sprintf(fmt = '%s.cumvtrapz')
+    sprintf(fmt = '%s.cumvtrapz') # not using attr(., 'suffix')
   
   return(do.call(
     what = cbind, # dispatch to \link[spatstat.geom]{cbind.hyperframe} or [cbind.groupedHyperframe()]
@@ -284,16 +303,10 @@ visualize_vtrapz.numeric <- function(
   if (any(y < 0)) stop('for visualization, force `y > 0`')
   
   v <- vtrapz(x, y)
-  cv <- cumvtrapz.default(x, y, rm1 = TRUE)
+  cv <- cumvtrapz.numeric(x, y, rm1 = TRUE)
   method <- attr(cv, which = 'method', exact = TRUE)
   #label.v <- paste(label.v, method, sep = '; ')
   #label.cumv <- paste(label.cumv, method, sep = '; ')
-  
-  xmin <- min(x)
-  xmax <- max(x)
-  xmed <- median.default(x)
-  x_lim <- c(xmin - (xmed - xmin) * .2, xmax + (xmax - xmed) * .2)
-  y_lim <- if (draw.rect) c(0, max(y)*1.1) else c(min(y)*.95, max(y)*1.05)
   
   doi_pracma <- unclass(citation(package = 'pracma'))[[1L]]$doi
   
@@ -329,8 +342,8 @@ visualize_vtrapz.numeric <- function(
   
   lyr_x <- if (length(x) <= 10L) {
     if (missing(xlabs) || !length(xlabs)) {
-      scale_x_continuous(breaks = x, labels = label_number(accuracy = .1), limits = x_lim)
-    } else scale_x_continuous(breaks = x, labels = xlabs, limits = x_lim)
+      scale_x_continuous(breaks = x, labels = label_number(accuracy = .1))
+    } else scale_x_continuous(breaks = x, labels = xlabs)
   } else {
     if (missing(xlabs) || !length(xlabs)) {
       # do nothing
@@ -397,16 +410,15 @@ visualize_vtrapz.fv <- function(x, ...) {
 
 
 #' @rdname visualize_vtrapz
-#' @importFrom ggplot2 labs
-#' @importFrom spatstat.explore fvnames
-#' @export visualize_vtrapz.fvlist
+#' @export visualize_vtrapz.listof
 #' @export 
-visualize_vtrapz.fvlist <- function(x, ...) {
+visualize_vtrapz.listof <- function(x, ...) {
   x |>
-    as.fvlist() |>
-    lapply(FUN = visualize_vtrapz.fv, ...) |>
+    lapply(FUN = visualize_vtrapz, ...) |> # use generic, beautiful!!
     Reduce(f = '+', x = _) # requires patchwork!!
 }
+
+
 
 
 
@@ -431,19 +443,20 @@ visualize_vtrapz.density <- function(x, ...) {
 #' @rdname visualize_vtrapz
 #' @importFrom ggplot2 labs
 #' @importFrom stats lowess
-#' @export visualize_vtrapz.ecdf
+#' @export visualize_vtrapz.stepfun
 #' @export
-visualize_vtrapz.ecdf <- function(x, ...) {
+visualize_vtrapz.stepfun <- function(x, ...) {
   fn <- x; x <- NULL # make code more readable
   ev <- environment(fn)
-  # stopifnot(stats::is.stepfun(fn)) # !!!
   x <- get('x', envir = ev)
   y <- get('y', envir = ev)
   l <- lowess(x = x, y = y, f = min(1, 5/length(x))) # read ?stats::lowess carefully for parameter `f`
   visualize_vtrapz.numeric(
     x = x, y = y,
     x_smooth = l$x, y_smooth = l$y,
-    yname = 'stats::ecdf (smoothed)',
+    yname = paste(if (inherits(fn, what = 'ecdf')) {
+      'stats::ecdf'
+    } else 'stats::stepfun', '(smoothed)'),
     ...
   ) +
     labs(x = 'x', y = NULL)

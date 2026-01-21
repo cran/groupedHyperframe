@@ -4,10 +4,11 @@
 #' Help files of individual functions are intentionally suppressed in the `pdf` manual.
 #' Users are encouraged to get started with the vignettes.
 #' 
-#' \url{https://rpubs.com/tingtingzhan/groupedHyperframe}
+#' \url{https://tingtingzhan.quarto.pub/groupedhyperframe}
 #' 
 #' @import cli
 #' @import patchwork
+#' @import survival
 '_PACKAGE'
 
 if (FALSE) {

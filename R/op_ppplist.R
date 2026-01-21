@@ -92,14 +92,31 @@ op_ppplist <- function(
   #ret <- .mapply(FUN = list, dots = ret0, MoreArgs = NULL)
   ret <- .mapply(FUN = anylist, dots = ret0, MoreArgs = NULL) # 2025-09-24
   # using `anylist` obviously correct and better, but does it actually improve anything?
-  names(ret) <- names(ret0[[1L]])
-
-  mapply(
-    FUN = as.fvlist, 
-    X = ret, data.name = names(ret), 
-    MoreArgs = NULL, SIMPLIFY = FALSE
-  )
   
+  nm <- names(ret0[[1L]])
+  names(ret) <- nm
+  
+  if (all(vapply(ret0, FUN = inherits, what = 'fvlist', FUN.VALUE = NA))) {
+    return(mapply(
+      FUN = as.fvlist, 
+      X = ret, data.name = nm,
+      MoreArgs = NULL, SIMPLIFY = FALSE
+    ))
+  } 
+  
+  if (all(vapply(ret0, FUN = inherits, what = 'vectorlist', FUN.VALUE = NA))) {
+    suffix. <- ret0[[1L]] |>
+      attr(which = 'suffix', exact = TRUE)
+    z <- ret |>
+      lapply(FUN = \(i) {
+        attr(i, which = 'suffix') <- suffix.
+        return(i)
+      })
+    return(z)
+  } 
+  
+  stop('should not come here')
+
 }
 
 

@@ -180,7 +180,17 @@ print.fvlist <- function(x, ...) {
     length() |>
     col_red () |> style_bold() |>
     sprintf(fmt = 'An \'fvlist\' of %s fv.objects %s', ftext) |>
-    message()
+    cat('\n')
+  
+  nm <- x |>
+    names() 
+  if (length(nm) && !anyNA(nm) && all(nzchar(nm))) {
+    nm |>
+      col_cyan() |> style_bold() |>
+      paste(collapse = ', ') |> # will create `''` from NULL input!!
+      sprintf(fmt = 'Name(s): %s') |>
+      cat('\n')
+  }
   
   available_rmax <- x |>
     attr(which = 'r', exact = TRUE) |>
@@ -188,26 +198,35 @@ print.fvlist <- function(x, ...) {
     col_magenta() |> style_bold()
   
   sprintf(fmt = 'Available %smax: %s', .x, available_rmax) |>
-    message()
+    cat('\n')
   
   x |>
     attr(which = 'rmax', exact = TRUE) |>
     sprintf(fmt = '%.4g') |>
     col_green() |> style_bold() |>
     sprintf(fmt = 'Minimum Legal rmax: %s') |>
-    message()
+    cat('\n')
 
 }
 
 
-
-
-
-
-
-
-
-
+#' @title [as.list.fvlist()]
+#' 
+#' @description
+#' Converts an `fvlist` to a simple \link[base]{list}
+#' 
+#' @param x `fvlist`
+#' 
+#' @param ... additional parameters, currently of no use
+#' 
+#' @keywords internal
+#' @export as.list.fvlist
+#' @export
+as.list.fvlist <- function(x, ...) {
+  class(x) <- 'list'
+  attributes(x)[c('r', '.x', '.y', 'fname', 'rmax')] <- NULL
+  return(x)
+}
 
 
 

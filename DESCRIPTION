@@ -1,13 +1,8 @@
 Package: groupedHyperframe
 Type: Package
-Title: Grouped Hyper Data Frame: An Extension of Hyper Data Frame
-Version: 0.3.2
-Description: An S3 class 'groupedHyperframe' that
-     inherits from hyper data frame. Batch
-     processes on point-pattern hyper column.
-     Aggregation of function-value-table hyper
-     column(s) and numeric hyper column(s) over a
-     nested grouping structure.
+Title: Grouped Hyper Data Frame
+Version: 0.3.3
+Description: An S3 class 'groupedHyperframe' that inherits from hyper data frame. Batch processes and aggregation of hyper column(s) over a nested grouping structure.
 RoxygenNote: 7.3.3
 LazyData: true
 LazyDataCompression: xz
@@ -22,19 +17,20 @@ Authors@R: c(person(given = 'Tingting', family =
      c('ctb'), email =
      'Inna.Chervoneva@jefferson.edu', comment =
      c(ORCID = '0000-0002-9104-4505')))
-URL: https://github.com/tingtingzhan/groupedHyperframe
+URL: https://github.com/tingtingzhan/groupedHyperframe,
+        https://tingtingzhan.quarto.pub/groupedhyperframe
 Depends: R (>= 4.5)
 Imports: cli, methods, parallel, doParallel, foreach, matrixStats,
         pracma, GET, SpatialPack, ggplot2, geomtextpath, scales,
-        patchwork, knitr, spatstat.explore, spatstat.geom,
+        survival, patchwork, knitr, spatstat.explore, spatstat.geom,
         spatstat.random
-Suggests: quarto, rmarkdown, rpart, survival, spatstat.data
+Suggests: quarto, rmarkdown, rpart, spatstat.data
 VignetteBuilder: quarto
 NeedsCompilation: no
-Packaged: 2025-11-24 15:15:20 UTC; tingtingzhan
+Packaged: 2026-01-21 13:37:56 UTC; tingtingzhan
 Author: Tingting Zhan [aut, cre] (ORCID:
     <https://orcid.org/0000-0001-9971-4844>),
   Inna Chervoneva [ctb] (ORCID: <https://orcid.org/0000-0002-9104-4505>)
 Maintainer: Tingting Zhan <tingtingzhan@gmail.com>
 Repository: CRAN
-Date/Publication: 2025-11-25 06:10:46 UTC
+Date/Publication: 2026-01-21 14:10:02 UTC
