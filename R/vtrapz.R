@@ -240,7 +240,7 @@ cumvtrapz.hyperframe <- function(x, ...) {
 #' smoothed \eqn{x} and \eqn{y} values, 
 #' to beautify the \link[geomtextpath]{geom_textpath} of a \link[stats]{stepfun}
 #' 
-#' @param xlabs,ylabs \link[base]{character} scalars
+#' @param xlabs,ylabs \link[base]{function}s
 #' 
 #' @param yname (optional) \link[base]{character} scalar, name of function
 #' 
@@ -402,7 +402,7 @@ visualize_vtrapz.fv <- function(x, ...) {
     } else yname,
     ...
   ) + 
-    labs(x = .x, y = NULL)
+    labs(x = .x, y = .y)
 }
 
 
@@ -475,8 +475,11 @@ visualize_vtrapz.function <- function(x, ..., n = 513L) {
   yname <- if (exists('yname', envir = ev)) {
     get('yname', envir = ev)
   } # else NULL
-  xname <- if (exists('xname', envir = ev)) {
-    get('xname', envir = ev)
+  xlab <- if (exists('xlab', envir = ev)) {
+    get('xlab', envir = ev)
+  } # else NULL
+  ylab <- if (exists('ylab', envir = ev)) {
+    get('ylab', envir = ev)
   } # else NULL
   
   if (exists('x', envir = ev, inherits = FALSE)) { # returned from ?stats::approxfun
@@ -505,7 +508,7 @@ visualize_vtrapz.function <- function(x, ..., n = 513L) {
     switch(fn_from, splinefun =, approxfun = {
       geom_point(mapping = aes(x = x0, y = y0), color = 'firebrick')
     }) +
-    labs(x = xname, y = NULL)
+    labs(x = xlab, y = ylab)
   
 }
 
@@ -523,7 +526,7 @@ visualize_vtrapz.loess <- function(x, ..., n = 513L) {
   if (!is.matrix(obj$x)) stop('stats-package updated?')
   if (ncol(obj$x) != 1L) stop('one-and-only-one predictor in loess model!')
   
-  xname <- colnames(obj$x)[1L]
+  xlab <- colnames(obj$x)[1L]
   
   newx <- obj$x[, 1L] |>
     range() |>
@@ -531,7 +534,7 @@ visualize_vtrapz.loess <- function(x, ..., n = 513L) {
     as.list() |>
     do.call(what = seq.int)
   newdata <- data.frame(newx)
-  names(newdata) <- xname
+  names(newdata) <- xlab
   newy <- obj |>
     predict(newdata = newdata, se = FALSE) # ?stats:::predict.loess
   
@@ -541,9 +544,129 @@ visualize_vtrapz.loess <- function(x, ..., n = 513L) {
     ...
   ) +
     geom_point(mapping = aes(x = obj$x[, 1L], y = obj$y), alpha = .1) +
-    labs(x = xname, y = NULL)
+    labs(x = xlab, y = deparse1(obj$call$formula[[2L]]))
   
 }
+
+
+
+
+
+#' @rdname visualize_vtrapz
+#' @importFrom ggplot2 labs geom_point aes
+#' @importFrom stats predict
+#' @method visualize_vtrapz smooth.spline
+#' @export visualize_vtrapz.smooth.spline
+#' @export
+visualize_vtrapz.smooth.spline <- function(x, ..., n = 513L) {
+  
+  obj <- x; x <- NULL # make code more readable
+  
+  if (!length(obj$data)) stop('re-run stats::smooth.spline() with `keep.data = TRUE`')
+
+  pred <- obj$x |>
+    range() |>
+    c(length.out = n) |>
+    as.list() |>
+    do.call(what = seq.int) |>
+    predict(object = obj, x = _) 
+  # ?stats:::predict.smooth.spline does *not* use parameter name `newdata` !!!
+  # `pred` is a list with elements `$x` and `$y`
+  
+  visualize_vtrapz.numeric(
+    x = pred$x, y = pred$y, 
+    yname = obj$yname %||% 'stats::smooth.spline',
+    ...
+  ) +
+    geom_point(mapping = aes(x = obj$data$x, y = obj$data$y), alpha = .1) +
+    labs(x = deparse1(obj$call$x), y = deparse1(obj$call$y))
+  
+}
+
+
+
+#' @rdname visualize_vtrapz
+#' @export visualize_vtrapz.ksmooth
+#' @export
+visualize_vtrapz.ksmooth <- function(x, ...) {
+  
+  obj <- x; x <- NULL # make code more readable
+  
+  x <- obj |>
+    attr(which = 'x', exact = TRUE)
+  y <- obj |>
+    attr(which = 'y', exact = TRUE)
+  xlab <- obj |>
+    attr(which = 'xlab', exact = TRUE)
+  ylab <- obj |>
+    attr(which = 'ylab', exact = TRUE)
+  yname <- obj |>
+    attr(which = 'yname', exact = TRUE)
+  
+  visualize_vtrapz.numeric(
+    x = obj$x, y = obj$y, 
+    yname = obj$yname %||% 'stats::ksmooth',
+    ...
+  ) +
+    geom_point(mapping = aes(x = x, y = y), alpha = .1) +
+    labs(x = xlab, y = ylab)
+  
+}
+
+
+#' @rdname visualize_vtrapz
+#' @export visualize_vtrapz.spline
+#' @export
+visualize_vtrapz.spline <- function(x, ..., n = 513L) {
+  
+  obj <- x; x <- NULL # make code more readable
+  
+  x <- obj |>
+    attr(which = 'x', exact = TRUE)
+  y <- obj |>
+    attr(which = 'y', exact = TRUE)
+  xlab <- obj |>
+    attr(which = 'xlab', exact = TRUE)
+  ylab <- obj |>
+    attr(which = 'ylab', exact = TRUE)
+  yname <- obj |>
+    attr(which = 'yname', exact = TRUE)
+  
+  # obj$knots |> 
+  # for some sub-class of 'spline', `obj$knots` is wider than input `x`-vector
+  x |>
+    range() |>
+    c(length.out = n) |>
+    as.list() |>
+    do.call(what = seq.int) |>
+    predict(object = obj, x = _) |> # an 'xyVector' object
+    # ?stats::predict dispatch to sub-classes of 'spline'
+    # ?splines:::predict.npolySpline 
+    # ?splines:::predict.nbSpline
+    # both do *not* use parameter name `newdata` !!!
+    # but why 'npolySpline' and 'nbSpline' returns have all.equal.numeric predicted values ??
+    visualize_vtrapz.xyVector(yname = yname, ...) +
+    geom_point(mapping = aes(x = x, y = y), color = 'firebrick') +
+    labs(x = xlab, y = ylab)
+  
+}
+
+
+# splines::xyVector
+#' @rdname visualize_vtrapz
+#' @export visualize_vtrapz.xyVector
+#' @export
+visualize_vtrapz.xyVector <- function(x, ...) {
+  
+  obj <- x; x <- NULL # make code more readable
+  
+  visualize_vtrapz.numeric(
+    x = obj$x, y = obj$y,
+    ...
+  )
+  
+}
+
 
 
 
