@@ -6,19 +6,14 @@
 \alias{groupedHyperframe-package}
 \title{groupedHyperframe: Grouped Hyper Data Frame}
 \description{
-An S3 class 'groupedHyperframe' that inherits from hyper data frame. Batch processes and aggregation of hyper column(s) over a nested grouping structure.
-}
-\note{
-Help files of individual functions are intentionally suppressed in the \code{pdf} manual.
-Users are encouraged to get started with the vignettes.
-
-\url{https://tingtingzhan.quarto.pub/groupedhyperframe}
+An S3 class 'groupedHyperframe' that inherits from the hyper data frame class from the 'spatstat' packages. Batch process and aggregation of the hyper column(s) over a nested grouping structure.
 }
 \seealso{
 Useful links:
 \itemize{
   \item \url{https://github.com/tingtingzhan/groupedHyperframe}
   \item \url{https://tingtingzhan.quarto.pub/groupedhyperframe}
+  \item \url{https://tingtingzhan-groupedhyperframe.netlify.app}
 }
 
 }
