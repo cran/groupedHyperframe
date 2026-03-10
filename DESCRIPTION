@@ -1,7 +1,8 @@
 Package: groupedHyperframe
 Type: Package
 Title: Grouped Hyper Data Frame
-Version: 0.3.5
+Version: 0.3.6
+Date: 2026-03-10
 Description: An S3 class 'groupedHyperframe' that inherits from 
     the hyper data frame class from the 'spatstat' packages. 
     Batch process and aggregation of the hyper column(s) 
@@ -26,9 +27,9 @@ Imports: cli, methods, parallel, doParallel, foreach, matrixStats,
         spatstat.random, splines
 Suggests: spatstat.data
 NeedsCompilation: no
-Packaged: 2026-03-01 20:55:59 UTC; tingtingzhan
+Packaged: 2026-03-10 14:19:21 UTC; tingtingzhan
 Author: Tingting Zhan [aut, cre] (ORCID:
     <https://orcid.org/0000-0001-9971-4844>)
 Maintainer: Tingting Zhan <tingtingzhan@gmail.com>
 Repository: CRAN
-Date/Publication: 2026-03-02 06:10:32 UTC
+Date/Publication: 2026-03-10 16:30:02 UTC
