@@ -1,22 +1,44 @@
 
 
-#' @title [is.vectorlist]
+#' @title Vector-List
 #' 
-#' @param x an \link[spatstat.geom]{anylist}
+#' @description
+#' To determine if an R object is a \link[base]{list} of 
+#' \link[base]{vector}s with the same 
+#' \link[base]{storage.mode},
+#' \link[base]{length} and
+#' \link[base]{attributes}.
+#' 
+#' 
+#' @param x a \link[stats]{listof}
 #' 
 #' @param mode \link[base]{character} scalar other than `'any'`, `'complex'` and '`raw`',
-#' see function \link[base]{is.vector}
+#' see the function \link[base]{is.vector}
 #' 
-#' @keywords internal
+#' @returns
+#' The function [is.vectorlist()] returns a \link[base]{logical} scalar.
+#' 
+#' @examples
+#' spatstat.data::Kovesi$values |>
+#'  is.vectorlist(mode = 'character') |>
+#'  stopifnot()
+#' spatstat.data::Kovesi$values |>
+#'  is.vectorlist(mode = 'numeric')
 #' @export
 is.vectorlist <- function(
     x, 
-    mode = c('any', 'logical', 'integer', 'numeric', 'double', 'character')
+    mode = c('logical', 'integer', 'numeric', 'double', 'character')
 ) {
   
+  if (missing(mode)) {
+    mode <- x[[1L]] |> 
+      storage.mode()
+    # mode(1.2) # 'numeric'
+    # storage.mode(1.2) # 'double'
+  }
   mode <- match.arg(mode)
   
-  if (!inherits(x, what = 'anylist')) return(FALSE)
+  if (!is.list(x)) return(FALSE)
 
   id <- x |>
     vapply(FUN = is.vector, mode = mode, FUN.VALUE = NA)
@@ -38,45 +60,49 @@ is.vectorlist <- function(
 }
 
 
-#' @title [as.vectorlist]
+#' @title Convert R Object to `vectorlist`
 #' 
-#' @param x an \link[spatstat.geom]{anylist}
+#' @param x a \link[base]{list}
 #' 
 #' @param ... additional parameters of the function [is.vectorlist()]
 #' 
-#' @keywords internal
-#' @importFrom spatstat.geom anylist
+#' @returns
+#' The function [as.vectorlist()] returns an R object of `S3` class `'vectorlist'`.
+#' 
+#' @examples
+#' list(rnorm(6L), rnorm(6L)) |>
+#'  as.vectorlist()
+#' 
 #' @export
 as.vectorlist <- function(x, ...) {
-  
-  x <- x |> 
-    do.call(what = anylist, args = _)
-  
   if (!is.vectorlist(x, ...)) stop('input does not qualify as a `vectorlist`')
-  
-  attr(x, which = 'mode') <- mode(x[[1L]])
-  class(x) <- c('vectorlist', 'anylist', 'listof', class(x)) |> 
-    unique.default()
+  class(x) <- c('vectorlist', 'listof', 'list')
   return(x)
-  
 }
 
 
-#' @title Print a `'vectorlist'`
-#' 
-#' @param x a `'vectorlist'`
-#' 
-#' @param ... additional parameters, currently of no use
-#' 
-#' @keywords internal
-#' @export print.vectorlist
+if (FALSE) {
+  library(spatstat)
+  methods(class = 'anylist') |>
+    attr(which = 'info')
+  # tzh don't want/need to use ?spatstat.geom::print.anylist
+  # 'vectorlist' does **not** base::inherits from 'anylist'
+}
+
+
+
+
 #' @export
 print.vectorlist <- function(x, ...) {
   
+  '\'vectorlist\'' |>
+    col_br_red() |> style_bold() |>
+    cat('\n')
+  
   x |>
     length() |>
-    col_red () |> style_bold() |>
-    sprintf(fmt = 'A \'vectorlist\' of %s vectors') |>
+    col_green() |> style_bold() |>
+    sprintf(fmt = 'Number of Vectors: %s') |>
     cat('\n')
   
   nm <- x |>
@@ -89,8 +115,8 @@ print.vectorlist <- function(x, ...) {
       cat('\n')
   }
   
-  x |> 
-    attr(which = 'mode', exact = TRUE) |>
+  x[[1L]] |> 
+    storage.mode() |>
     col_blue() |> style_bold() |>
     sprintf(fmt = 'Storage Mode: %s') |>
     cat('\n')
@@ -101,56 +127,23 @@ print.vectorlist <- function(x, ...) {
     sprintf(fmt = 'Individual Vector Length: %s') |>
     cat('\n')
   
-  suffix. <- x |>
-    attr(which = 'suffix', exact = TRUE) 
-  if (length(suffix.)) {
-    suffix. |>
-      col_yellow() |> style_bold() |>
-      sprintf(fmt = 'Suffix: %s') |>
-      cat('\n')
-  }
-  
-  
 }
 
 
 
-#' @title Transpose a `'vectorlist'`
+# @note
+# The motivation of 
+# the derived class `'vectorlist'` and 
+# the method dispatch [t.vectorlist()] 
+# is that 
+# the `S3` method \link[spatstat.geom]{with.hyperframe}
+# could be slow in a batch process.
 #' 
-#' @param x a `'vectorlist'`
-#' 
-#' @details
-#' tzh defines a derived class `'vectorlist'`,
-#' i.e., a \link[stats]{listof} \link[base]{vector}s,
-#' which \link[base]{inherits} from 
-#' \link[spatstat.geom]{anylist}. 
-#' The implementation of `'vectorlist'` is 
-#' inspired by class \link[spatstat.geom]{solist}.
-#' 
-#' The `S3` method dispatch [t.vectorlist()], 
-#' of the generic function \link[base]{t},
-#' transposes a `'vectorlist'` of equi-\link[base]{length}.
-#' We illustrate this concept using data set 
-#' \link[spatstat.data]{Kovesi} in **Examples**.
-#' 
-#' @note
-#' The motivation of 
-#' the derived class `'vectorlist'` and 
-#' the method dispatch [t.vectorlist()] 
-#' is that 
-#' The function \link[spatstat.geom]{with.hyperframe}
-#' could be slow in a batch process.
-#' 
-#' @returns
-#' The `S3` method dispatch [t.vectorlist()] returns
-#' a `'vectorlist'` of equi-\link[base]{length}.
-#' 
-#' @references
-#' \url{https://tingtingzhan.quarto.pub/groupedhyperframe/topics.html}
-#' 
-#' @keywords internal
-#' @importFrom spatstat.geom anylist
-#' @export t.vectorlist
+# @returns
+# The `S3` method dispatch [t.vectorlist()] returns
+# a `'vectorlist'` of equi-\link[base]{length}.
+
+#' @importFrom stats setNames
 #' @export
 t.vectorlist <- function(x) {
   
@@ -163,19 +156,10 @@ t.vectorlist <- function(x) {
   nm <- lapply(x, FUN = names)
   if (!all(duplicated(nm)[-1L])) stop('each element of `x` must have the same names, or no name')
   
-  .clist <- \(x) {
-    # convert columns of 'matrix' to a 'list'
-    x |>
-      ncol() |>
-      seq_len() |>
-      lapply(FUN = \(i) x[, i, drop = TRUE]) |>
-      setNames(nm = colnames(x)) # colnames-NULL compatible
-  }
-  
   x |> 
     do.call(what = rbind, args = _) |>
-    .clist() |>
-    do.call(what = anylist, args = _) |>
+    asplit(MARGIN = 2L, drop = TRUE) |>
+    setNames(nm = names(x[[1L]])) |>
     as.vectorlist()
 
 }

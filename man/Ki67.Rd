@@ -8,8 +8,7 @@
 \describe{
 \item{\code{patientID}}{\link[base]{factor}, unique patient identifier}
 \item{\code{tissueID}}{\link[base]{factor}, TMA core identifier}
-\item{\code{recurrence}}{\link[base]{integer}, recurrence indicator, 1 = Recurred, 0 = not Recurred}
-\item{\code{recfreesurv_mon}}{\link[base]{integer}, recurrence-free survival time in months}
+\item{\code{PFS}}{\link[survival]{Surv}, recurrence}
 \item{\code{logKi67}}{\link[base]{double}, log-transformed cell signal intensity of the protein immunofloerscence signal}
 \item{\code{age}}{\link[base]{integer}, age at diagnosis}
 \item{\code{Tstage}}{\link[base]{integer}, tumor stage}
@@ -27,9 +26,5 @@ Ki67
 }
 \description{
 Ki67 cell data containing 622 patients.
-}
-\details{
-The \link{groupedHyperframe} \code{Ki67} is the complete data, to be used in examples of downstream packages
-\pkg{maxEff} and \pkg{hyper.gam}.
 }
 \keyword{internal}

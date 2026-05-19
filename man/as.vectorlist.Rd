@@ -2,16 +2,23 @@
 % Please edit documentation in R/vectorlist.R
 \name{as.vectorlist}
 \alias{as.vectorlist}
-\title{\link{as.vectorlist}}
+\title{Convert R Object to \code{vectorlist}}
 \usage{
 as.vectorlist(x, ...)
 }
 \arguments{
-\item{x}{an \link[spatstat.geom]{anylist}}
+\item{x}{a \link[base]{list}}
 
 \item{...}{additional parameters of the function \code{\link[=is.vectorlist]{is.vectorlist()}}}
 }
-\description{
-\link{as.vectorlist}
+\value{
+The function \code{\link[=as.vectorlist]{as.vectorlist()}} returns an R object of \code{S3} class \code{'vectorlist'}.
 }
-\keyword{internal}
+\description{
+Convert R Object to \code{vectorlist}
+}
+\examples{
+list(rnorm(6L), rnorm(6L)) |>
+ as.vectorlist()
+
+}
