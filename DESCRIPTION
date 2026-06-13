@@ -1,9 +1,9 @@
 Package: groupedHyperframe
 Type: Package
 Title: Grouped Hyper Data Frame
-Version: 0.4.1
-Date: 2026-05-19
-Description: To aggregate a hyper data frame, defined in the package 'spatstat.geom', according to a grouping structure.  To facilitate downstream analysis based on a "grouped" hyper data frame.
+Version: 0.4.2
+Date: 2026-06-13
+Description: To aggregate a hyper data frame, defined in the package 'spatstat.geom', according to a grouping structure.  To facilitate downstream analysis based on a "grouped" hyper data frame.  The author has retired from academic research. Accordingly, this package should not be considered a validated tool for use in peer-reviewed publications or as the basis for grant applications.
 LazyData: true
 LazyDataCompression: xz
 Encoding: UTF-8
@@ -20,9 +20,9 @@ Suggests: survival, spatstat.data
 Config/roxygen2/version: 8.0.0
 Config/roxygen2/markdown: TRUE
 NeedsCompilation: no
-Packaged: 2026-05-19 10:30:31 UTC; tingtingzhan
+Packaged: 2026-06-13 22:21:53 UTC; tingtingzhan
 Author: Tingting Zhan [aut, cre] (ORCID:
     <https://orcid.org/0000-0001-9971-4844>)
 Maintainer: Tingting Zhan <tingtingzhan@gmail.com>
 Repository: CRAN
-Date/Publication: 2026-05-19 21:20:12 UTC
+Date/Publication: 2026-06-13 22:30:02 UTC
