@@ -2,8 +2,7 @@
 #' @title Augment Hypercolumn(s) for \link[mgcv]{gam}
 #' 
 #' @description
-#' Augment *all* \link[base]{numeric} \link[base]{vector} hypercolumns in a \link[spatstat.geom]{hyperframe} 
-#' for \link[mgcv]{gam}.
+#' Augment *all* \link[base]{numeric} \link[base]{vector} hypercolumns in a \link[spatstat.geom]{hyperframe} for \link[mgcv]{gam}.
 #' 
 #' @param x see **Usage**
 #' 

@@ -11,19 +11,16 @@ aggregate2(data, by, ...)
 
 \item{by}{a two-sided \link[stats]{formula}}
 
-\item{...}{additional parameters of the function \link[stats]{aggregate.data.frame},
-\emph{except for} \code{simplify}}
+\item{...}{additional parameters of the function \link[stats]{aggregate.data.frame}, except for \code{simplify}}
 }
 \value{
 The function \code{\link[=aggregate2]{aggregate2()}} returns a \link[base]{data.frame}.
 }
 \description{
-An alternative aggregation function with a \link[stats]{formula}-interface,
-to avoid the \link[base]{cbind}-operation in the function \link[stats]{aggregate.formula}.
+An alternative aggregation function with a \link[stats]{formula}-interface, to avoid the \link[base]{cbind}-operation in the function \link[stats]{aggregate.formula}.
 }
 \details{
-The \link[base]{cbind}-operation in the function \link[stats]{aggregate.formula}
-messes up with column(s) that are
+The \link[base]{cbind}-operation in the function \link[stats]{aggregate.formula} messes up with column(s) that are
 \describe{
 \item{\link[base]{factor}}{and treat them as \link[base]{integer}}
 \item{\link[survival]{Surv}}{and treat them as \link[base]{matrix}}
@@ -32,15 +29,10 @@ messes up with column(s) that are
 The function \link[stats]{aggregate.data.frame} only accepts
 a \link[base]{list} of \link[base]{factor}s for the parameter \code{by}.
 
-Therefore, the function \code{\link[=aggregate2]{aggregate2()}} is created to take care of
-the \link[base]{factor} and \link[survival]{Surv} columns of the input,
-with a \link[stats]{formula}-interface.
+Therefore, the function \code{\link[=aggregate2]{aggregate2()}} is created to take care of the \link[base]{factor} and \link[survival]{Surv} columns of the input, with a \link[stats]{formula}-interface.
 }
 \note{
-The function \link[stats]{aggregate.data.frame} is the workhorse of
-the function \link[stats]{aggregate.formula}.
+The function \link[stats]{aggregate.data.frame} is the workhorse of the function \link[stats]{aggregate.formula}.
 
-The function \link[spatstat.geom]{as.hyperframe.data.frame}
-is \strong{designed} to handle the \link[base]{list}-columns
-returned by the function \link[stats]{aggregate}.
+The function \link[spatstat.geom]{as.hyperframe.data.frame} is \strong{designed} to handle the \link[base]{list}-columns returned by the function \link[stats]{aggregate}.
 }

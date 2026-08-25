@@ -2,19 +2,16 @@
 #' @title Aggregate, an Alternative \link[stats]{formula}-Interface
 #' 
 #' @description
-#' An alternative aggregation function with a \link[stats]{formula}-interface, 
-#' to avoid the \link[base]{cbind}-operation in the function \link[stats]{aggregate.formula}.
+#' An alternative aggregation function with a \link[stats]{formula}-interface, to avoid the \link[base]{cbind}-operation in the function \link[stats]{aggregate.formula}.
 #' 
 #' @param data a \link[base]{data.frame}
 #' 
 #' @param by a two-sided \link[stats]{formula}
 #' 
-#' @param ... additional parameters of the function \link[stats]{aggregate.data.frame},
-#' *except for* `simplify`
+#' @param ... additional parameters of the function \link[stats]{aggregate.data.frame}, except for `simplify`
 #' 
 #' @details
-#' The \link[base]{cbind}-operation in the function \link[stats]{aggregate.formula} 
-#' messes up with column(s) that are 
+#' The \link[base]{cbind}-operation in the function \link[stats]{aggregate.formula} messes up with column(s) that are 
 #' \describe{
 #' \item{\link[base]{factor}}{and treat them as \link[base]{integer}}
 #' \item{\link[survival]{Surv}}{and treat them as \link[base]{matrix}}
@@ -23,22 +20,17 @@
 #' The function \link[stats]{aggregate.data.frame} only accepts 
 #' a \link[base]{list} of \link[base]{factor}s for the parameter `by`.
 #' 
-#' Therefore, the function [aggregate2()] is created to take care of 
-#' the \link[base]{factor} and \link[survival]{Surv} columns of the input,
-#' with a \link[stats]{formula}-interface.
+#' Therefore, the function [aggregate2()] is created to take care of the \link[base]{factor} and \link[survival]{Surv} columns of the input, with a \link[stats]{formula}-interface.
 #' 
 #' @returns 
 #' The function [aggregate2()] returns a \link[base]{data.frame}.
 #' 
 #' @note
-#' The function \link[stats]{aggregate.data.frame} is the workhorse of 
-#' the function \link[stats]{aggregate.formula}.
+#' The function \link[stats]{aggregate.data.frame} is the workhorse of the function \link[stats]{aggregate.formula}.
 #' 
-#' The function \link[spatstat.geom]{as.hyperframe.data.frame}
-#' is **designed** to handle the \link[base]{list}-columns 
-#' returned by the function \link[stats]{aggregate}.
+#' The function \link[spatstat.geom]{as.hyperframe.data.frame} is **designed** to handle the \link[base]{list}-columns returned by the function \link[stats]{aggregate}.
 #' 
-#' @importFrom stats aggregate.data.frame model.frame.default update.formula
+#' @importFrom stats aggregate model.frame update
 #' @export
 aggregate2 <- function(data, by, ...) {
   
@@ -60,7 +52,7 @@ aggregate2 <- function(data, by, ...) {
       Reduce(f = \(e1, e2) call(name = '+', e1, e2)) |>
       call(name = '~', . = _) |>
       eval() |>
-      update.formula(new = call(name = '~', by[[2L]])) |>
+      update(new = eval(call(name = '~', by[[2L]]))) |> # stats::update.formula()
       all.vars()
   } else {
     vars <- all.vars(by)
@@ -71,13 +63,13 @@ aggregate2 <- function(data, by, ...) {
   
   f <- by[[3L]] |>
     call(name = '~', . = _) |>
-    model.frame.default(formula = _, data = data) |>
+    model.frame(formula = _, data = data) |> # stats::model.frame.default
     as.list.data.frame() |>
     interaction(drop = TRUE, lex.order = TRUE)
   if (all(table(f) == 1L)) return(out) # exception handling, no aggregation needed!!
   
   z <- out |>
-    aggregate.data.frame(
+    aggregate( # stats::aggregate.data.frame
       x = _, 
       by = list(.f = f), ...,
       simplify = TRUE # must!! for `Surv`-column!!

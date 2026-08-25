@@ -4,30 +4,23 @@
 #' @description
 #' To create a hyper data frame with one-and-only-one \link[spatstat.geom]{ppp}-hyper column.
 #' 
-#' @param marks one-sided \link[stats]{formula}, e.g., 
-#' `~ m1+m2`,
-#' where \eqn{m_i}'s are one or more \link[spatstat.geom]{marks}
+#' @param marks one-sided \link[stats]{formula}, e.g., `~ m1+m2`, where \eqn{m_i}'s are one or more \link[spatstat.geom]{marks}
 #' 
-#' @param coords one-sided \link[stats]{formula}, variable names
-#' of the \eqn{x}- and \eqn{y}-coordinates in `data`.
-#' Default value is `~x+y`.  
+#' @param coords one-sided \link[stats]{formula}, variable names of the \eqn{x}- and \eqn{y}-coordinates in `data`.  Default value is `~x+y`.  
 #' 
 #' @param by two-sided \link[stats]{formula}
 #' 
 #' @param data \link[base]{data.frame}
 #' 
-#' @param window observation window \link[spatstat.geom]{owin}, 
-#' default value is the \eqn{x}- and \eqn{y}-span of `coords` in `data`.
+#' @param window observation window \link[spatstat.geom]{owin}, default value is the \eqn{x}- and \eqn{y}-span of `coords` in `data`.
 #' 
 #' @param ... additional parameters of the function \link[spatstat.geom]{ppp}
 #' 
 #' @returns
-#' The function [pppBy()] returns a hyper data frame
-#' with one-and-only-one
-#' \link[spatstat.geom]{ppp}-hyper column.
+#' The function [pppBy()] returns a hyper data frame with one-and-only-one \link[spatstat.geom]{ppp}-hyper column.
 #' 
-#' @importFrom spatstat.geom owin ppp as.hyperframe.data.frame split.ppp
-#' @importFrom stats model.frame.default aggregate.data.frame
+#' @importFrom spatstat.geom owin ppp as.hyperframe
+#' @importFrom stats model.frame aggregate update
 #' @export
 pppBy <- function(
     marks,
@@ -56,7 +49,7 @@ pppBy <- function(
       Reduce(f = \(e1, e2) call(name = '+', e1, e2)) |>
       call(name = '~', . = _) |>
       eval() |>
-      update.formula(new = call(name = '~', by[[2L]])) |>
+      update(new = eval(call(name = '~', by[[2L]]))) |> # stats::update.formula()
       all.vars()
   } else {
     vars <- all.vars(by)
@@ -65,13 +58,13 @@ pppBy <- function(
   
   f <- by[[3L]] |> 
     call(name = '~', . = _) |>
-    model.frame.default(formula = _, data = data) |>
+    model.frame(formula = _, data = data) |> # stats::model.frame.default()
     as.list.data.frame() |>
     interaction(drop = TRUE, lex.order = TRUE) # one or more hierarchy
   if (all(table(f) == 1L)) stop('shouldnt happen')
   
   d_ag <- data[unique.default(c(all.vars(by[[3L]]), vars))] |>
-    aggregate.data.frame(
+    aggregate( # stats::aggregate.data.frame
       x = _,
       by = list(.f = f), 
       FUN = unique, 
@@ -80,7 +73,7 @@ pppBy <- function(
   d_ag[] <- d_ag |> 
     lapply(FUN = unsimplify)
   hf <- d_ag[-1L] |> # grouping structure on the 1st column removed
-    as.hyperframe.data.frame()
+    as.hyperframe() # spatstat.geom::as.hyperframe.data.frame
   
   xy_ <- as.list.default(coords[[2L]])
   if ((xy_[[1L]] != '+') || (length(xy_) != 3L)) stop('Specify x and y coordinates names as ~x+y')
@@ -91,8 +84,8 @@ pppBy <- function(
   
   force(window)
   hf$ppp. <- data[all.vars(marks)] |> # future: use stats::model.frame
-    ppp(x = .x, y = .y, window = window, marks = _, ...) |>
-    split.ppp(f = f)
+    ppp(x = .x, y = .y, window = window, marks = _, checkdup = FALSE, ...) |>
+    split(f = f) # spatstat.geom::split.ppp
 
   return(hf)
   

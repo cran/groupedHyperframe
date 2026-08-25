@@ -14,27 +14,20 @@ pppBy(
 )
 }
 \arguments{
-\item{marks}{one-sided \link[stats]{formula}, e.g.,
-\code{~ m1+m2},
-where \eqn{m_i}'s are one or more \link[spatstat.geom]{marks}}
+\item{marks}{one-sided \link[stats]{formula}, e.g., \code{~ m1+m2}, where \eqn{m_i}'s are one or more \link[spatstat.geom]{marks}}
 
-\item{coords}{one-sided \link[stats]{formula}, variable names
-of the \eqn{x}- and \eqn{y}-coordinates in \code{data}.
-Default value is \code{~x+y}.}
+\item{coords}{one-sided \link[stats]{formula}, variable names of the \eqn{x}- and \eqn{y}-coordinates in \code{data}.  Default value is \code{~x+y}.}
 
 \item{by}{two-sided \link[stats]{formula}}
 
 \item{data}{\link[base]{data.frame}}
 
-\item{window}{observation window \link[spatstat.geom]{owin},
-default value is the \eqn{x}- and \eqn{y}-span of \code{coords} in \code{data}.}
+\item{window}{observation window \link[spatstat.geom]{owin}, default value is the \eqn{x}- and \eqn{y}-span of \code{coords} in \code{data}.}
 
 \item{...}{additional parameters of the function \link[spatstat.geom]{ppp}}
 }
 \value{
-The function \code{\link[=pppBy]{pppBy()}} returns a hyper data frame
-with one-and-only-one
-\link[spatstat.geom]{ppp}-hyper column.
+The function \code{\link[=pppBy]{pppBy()}} returns a hyper data frame with one-and-only-one \link[spatstat.geom]{ppp}-hyper column.
 }
 \description{
 To create a hyper data frame with one-and-only-one \link[spatstat.geom]{ppp}-hyper column.

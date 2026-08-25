@@ -25,8 +25,8 @@
 #' spatstat.data::osteo |>
 #'  aggregate(by = . - brick ~ shortid, FUN = unique)
 #'   
-#' @importFrom spatstat.geom as.hyperframe.data.frame cbind.hyperframe names.hyperframe subset.hyperframe
-#' @importFrom stats aggregate aggregate.data.frame
+#' @importFrom spatstat.geom as.hyperframe
+#' @importFrom stats aggregate model.frame update
 #' @export
 aggregate.hyperframe <- \(x, by, ...) {
   
@@ -35,29 +35,29 @@ aggregate.hyperframe <- \(x, by, ...) {
   
   f <- by[[3L]] |>
     call(name = '~', . = _) |>
-    model.frame.default(formula = _, data = unclass(x)$df) |>
+    model.frame(formula = _, data = unclass(x)$df) |> # stats::model.frame.default()
     as.list.data.frame() |>
     interaction(drop = TRUE, lex.order = TRUE)
   if (all(table(f) == 1L)) return(x) # exception handling (no need to aggregate)
   
   if (is.symbol(by[[2L]]) && (by[[2L]] == '.')) {
-    vars <- names.hyperframe(x)
+    vars <- names(x) # spatstat.geom::names.hyperframe
   } else if (is.call(by[[2L]]) && (by[[2L]][[1L]] == '-')) {
     # e.g. `by = . - x1 - x2 ~ subj_id/image_id`
-    vars <- names.hyperframe(x) |>
+    vars <- names(x) |> # spatstat.geom::names.hyperframe
       lapply(FUN = as.symbol) |>
       Reduce(f = \(e1, e2) call(name = '+', e1, e2)) |>
       call(name = '~', . = _) |>
       eval() |>
-      update.formula(new = call(name = '~', by[[2L]])) |>
+      update(new = eval(call(name = '~', by[[2L]]))) |> # stats::update.formula()
       all.vars()
   } else {
     vars <- all.vars(by)
-    if (!all(vars %in% names.hyperframe(x))) stop()
+    if (!all(vars %in% names(x))) stop() # spatstat.geom::names.hyperframe
   }
   
   x. <- x |> 
-    subset.hyperframe(
+    subset( # spatstat.geom::subset.hyperframe
       select = c(all.vars(by[[3L]]), vars) |> 
         unique.default()
     )
@@ -65,7 +65,7 @@ aggregate.hyperframe <- \(x, by, ...) {
   # ?spatstat.geom::subset.hyperframe # seems more reliable
 
   odf <- unclass(x.)$df |>
-    aggregate.data.frame(
+    aggregate( # stats::aggregate.data.frame
       x = _, 
       by = list(.f = f), ..., 
       simplify = TRUE # must!! for `Surv`-column!!
@@ -78,11 +78,11 @@ aggregate.hyperframe <- \(x, by, ...) {
     lapply(FUN = split.default, f = f)
   
   ret <- odf |>
-    as.hyperframe.data.frame() |>
+    as.hyperframe() |> # spatstat.geom::as.hyperframe.data.frame
     list() |>
     c(ohc) |>
     do.call(
-      what = cbind.hyperframe, 
+      what = cbind, # spatstat.geom::cbind.hyperframe
       args = _
     )
   
