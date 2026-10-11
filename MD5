@@ -1,4 +1,4 @@
-5a059db183214679773983baabf9e823 *DESCRIPTION
+edf7851ccb13ab3d4f2f468bf0eaedce *DESCRIPTION
 cbefa42bd75f23ca6c092e642411977e *NAMESPACE
 4b061699628a5d6daffefc26927d8cf1 *NEWS.md
 0166bb1461b5b21c847dc1cc3bfb51a1 *R/0PACKAGE.R
@@ -9,6 +9,7 @@ ca8725bd547701e593e27d6caa500854 *R/aggregate2.R
 41f717a7197dafb08a245913d30b554f *R/int.R
 80fcaa176366a157efa7ffa6496846e9 *R/is_vectorlist.R
 73df1d2121ee0c8ed919ab826a202802 *R/pppBy.R
+51bcf63fd25412fd4a0f8ab889df5b0f *README.md
 21c9401b8c07f38d762ade4612fc4ffe *build/partial.rdb
 2de0fba0b30278b2ce2f60d562a8098d *man/aggregate.hyperframe.Rd
 1eda275dcaa8daec82bcdd540df14031 *man/aggregate2.Rd
